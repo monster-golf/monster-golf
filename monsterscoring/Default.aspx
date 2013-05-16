@@ -1,0 +1,436 @@
+﻿<%@ page language="C#" autoeventwireup="true" inherits="_Default, App_Web_default.aspx.cdcab7d2" enableeventvalidation="false" enableviewstatemac="false" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+<title>Monster Online Scoring</title>
+<script type="text/javascript" language="javascript" src="XmlHttp.js"></script>
+<script type="text/javascript" language="javascript">
+function TxtNum(obj) {
+    var val = parseInt(obj.value);
+    if (isNaN(val)) val = 0;
+    return val;
+}
+function ScoresSave(obj, e) {
+    var invalid = false;
+    if (!IsE(obj, "score_name_")) {
+        var val = parseInt(obj.value);
+        var isnum = parseInt(val);
+        if (val == "") isnum = 0;
+        if (isNaN(isnum)) {
+            alert("Invalid score");
+            invalid = true;
+        }
+        else if (isnum == 1) invalid = !confirm("HOLE IN ONE....FOR REALS!!!!");
+        else if (isnum >= 15) invalid = !confirm("It really took " + isnum + " strokes...ouch.");
+    }
+    if (invalid) {
+        obj.value = "";
+        TxtFocus(obj);
+        return CE(e);
+    } else {
+        var x = 1;
+        var scorerow = obj.parentNode;
+        var scoreobj = GetFirstItem(scorerow.firstChild, "score_" + x++ + "_");
+        var holedata = "userid=" + EAttr(scorerow, "userid");
+        holedata += "&userlookup=" + EAttr(scorerow, "userlookup");
+        var obj = GetFirstItem(scorerow.firstChild, "score_name_");
+        if (obj) holedata += "&name=" + escape(obj.value);
+        obj = GetFirstItem(scorerow.firstChild, "score_hcp_");
+        if (obj) holedata += "&hcp=" + escape(obj.value);
+        obj = document.getElementById("courseName");
+        if (obj) holedata += "&coursename=" + escape(obj.value);
+        obj = document.getElementById("courseSlope");
+        if (obj) holedata += "&courseslope=" + escape(obj.value);
+        obj = document.getElementById("courseRating");
+        if (obj) holedata += "&courserating=" + escape(obj.value);
+        
+        while (scoreobj) {
+            val = parseInt(scoreobj.value);
+            if (!isNaN(val) && val > 0) holedata += "&" + scoreobj.id + "=" + scoreobj.value;
+            scoreobj = GetFirstItem(scoreobj.nextSibling, "score_" + x++ + "_");
+        }
+        SendForm(holedata, "savescore=1");
+    }
+    if (obj) return ScoresAdd(obj, e);
+}
+var scoresTO;
+function ScoresAdd(obj,e) {
+    var scoreobj = obj.parentNode.firstChild;
+    var f9 = 0;
+    var b9 = 0;
+    var hcp = 0;
+    while (scoreobj) {
+        if (EAttr(scoreobj, "score") == "f") f9 += TxtNum(scoreobj);
+        else if (EAttr(scoreobj, "score") == "b") b9 += TxtNum(scoreobj);
+        else if (IsE(scoreobj, "_out_") && f9 > 0) scoreobj.value = f9.toString();
+        else if (IsE(scoreobj, "_in_") && b9 > 0) scoreobj.value = b9.toString();
+        else if (IsE(scoreobj, "_total_") && (f9 + b9) > 0) scoreobj.value = (f9 + b9).toString();
+        else if (IsE(scoreobj, "_hcp_")) hcp = TxtNum(scoreobj);
+        else if (IsE(scoreobj, "_net_") && (f9 + b9) > 0) scoreobj.value = ((f9 + b9) - hcp).toString();
+        scoreobj = scoreobj.nextSibling;
+    }
+    if (scoresTO != null) window.clearTimeout(scoresTO);
+    scoresTO = window.setTimeout(ScoresComplete, 2000);
+    return KeyEntKill(e);
+}
+function ScoresComplete() {
+    var scorelist = document.getElementById("pnlScoresList");
+    var score;
+    var complete = true;
+    if (scorelist) {
+        var scorerow = scorelist.firstChild;
+        while (scorerow) {
+            if (IsE(scorerow, "player")) {
+                var scoreobj = scorerow.firstChild;
+                var hasname = false;
+                while (scoreobj) {
+                    if (IsE(scoreobj, "score_name_") && scoreobj.value != "") hasname = true;
+                    else if (EAttr(scoreobj, "score") == "f" || EAttr(scoreobj, "score") == "b") score = TxtNum(scoreobj);
+                    if (score == 0 && hasname) {
+                        complete = false;
+                        break;
+                    }
+                    scoreobj = scoreobj.nextSibling;
+                }
+                if (score == 0) break;
+            }
+            scorerow = scorerow.nextSibling;
+        }
+    }
+    var scoresign = document.getElementById("pnlScorerSign");
+    if (complete && scoresign) scoresign.style.display = "";
+    else if (scoresign) scoresign.style.display = "none";
+    return complete;
+}
+function PlayerFocus(txt) {
+    var playersch = GetFirstItem(txt.parentNode.firstChild, "score_search_");
+    if (playersch) playersch.style.display = "";
+}
+function PlayerBlur(txt, e) {
+    var playersch = GetFirstItem(txt.parentNode.firstChild, "score_search_");
+    if (playersch) playersch.style.display = "none";
+    var val = txt.value;
+    var ddS = document.getElementById("ddScorer");
+    var ddA = document.getElementById("ddAttester");
+    var userid = parseInt(EAttr(txt.parentNode, "userid"));
+    if (!isNaN(userid)) {
+        if (ddS && ddS.options[userid] != null) PlayerDD(ddS, userid, txt.parentNode.id, userid, "", val);
+        if (ddA && ddA.options[userid] != null) PlayerDD(ddA, userid, txt.parentNode.id, userid, "", val);
+        var valspl = val.split(" ");
+        val = "";
+        for (var x = 0; x < valspl.length; x++) {
+            if (val.length == 2) break;
+            if (valspl[x] != "") val += valspl[x].substr(0, 1)
+        }
+        txt = GetFirstItem(txt.parentNode.firstChild, "score_initials_");
+        if (txt) txt.value = val;
+    }
+}
+var playerdiv;
+function PlayerSearch(img) {
+    var txt = GetFirstItem(img.parentNode.firstChild, "score_name_");
+    if (txt.value != EAttr(txt, "lastsrch")) {
+        img.style.display = "none";
+        if (playerdiv) playerdiv.style.display = "none";
+        playerdiv = GetFirstItem(txt.nextSibling, "score_player_"); ;
+        if (!IsE(playerdiv, "score_player")) {
+            playerdiv = document.createElement("div");
+            playerdiv.className = "PlayerList";
+            playerdiv.id = txt.id.replace("score_name_", "score_player_");
+            txt.parentNode.appendChild(playerdiv);
+        }
+        playerdiv.innerHTML = "Searching...";
+        txt.setAttribute("lastsrch", txt.value);
+        GetHTMLAsync("player=" + escape(txt.value), PlayerFind);
+    }
+}
+function SlopeChange(txt) {
+    txt = document.getElementById("courseSlope");
+    var slope = 113
+    if (txt) slope = parseInt(txt.value);
+    var scorelist = document.getElementById("pnlScoresList");
+    if (scorelist) {
+        var scorerow = scorelist.firstChild;
+        while (scorerow) {
+            if (IsE(scorerow, "player")) {
+                var hcp = parseFloat(EAttr(scorerow, "hcp"));
+                if (!isNaN(hcp)) {
+                    var coursehcp = Math.round((hcp * slope) / 113);
+                    txt = GetFirstItem(scorerow.firstChild, "score_hcp_");
+                    txt.value = coursehcp;
+                }
+            }
+            scorerow = scorerow.nextSibling;
+        }
+    }
+}
+function PlayerSearchClose(obj) {
+    if (obj) obj.style.display = "none";
+}
+function PlayerFind(html) {
+    var img = GetFirstItem(playerdiv.parentNode.firstChild, "score_search_");
+    if (img) img.style.display = "";
+    playerdiv.style.display = "";
+    playerdiv.innerHTML = html;
+}
+function PlayerDD(dd, idx, id, userid, email, name) {
+    if (id == "player_" + idx || id == "player_" + userid) {
+        if (dd.options[idx].value.indexOf(id) > -1) {
+            dd.options[idx].value = id + ":" + userid + ":" + email;
+            dd.options[idx].text = name;
+        }
+    }
+}
+function PlayerSelect(userid, first, last, email, hcp) {
+    var playerrow = playerdiv.parentNode;
+    var id = playerrow.id;
+    var txt = GetFirstItem(playerrow.firstChild, "score_name_");
+    if (txt) txt.value = first + " " + last;
+    txt = GetFirstItem(playerrow.firstChild, "score_search_");
+    if (txt) txt.style.display = "none";
+    txt = GetFirstItem(playerrow.firstChild, "score_initials_");
+    if (txt) txt.value = first.substr(0, 1) + last.substr(0, 1);
+    playerrow.setAttribute("userid", userid);
+    playerrow.setAttribute("email", email);
+    playerrow.setAttribute("hcp", hcp);
+    hcp = parseFloat(hcp);
+    if (!isNaN(hcp)) {
+        txt = document.getElementById("courseSlope");
+        var slope = 113
+        if (txt) slope = parseInt(txt.value);
+        var coursehcp = Math.round((hcp * slope) / 113);
+        txt = GetFirstItem(playerrow.firstChild, "score_hcp_");
+        txt.value = coursehcp;
+    }
+    var ddS = document.getElementById("ddScorer");
+    var ddA = document.getElementById("ddAttester");
+    for (var x = 1; x <= 5; x++) {
+        PlayerDD(ddS, x, id, userid, email, first + " " + last);
+        PlayerDD(ddA, x, id, userid, email, first + " " + last);
+    }
+    playerdiv.style.display = "none";
+    if (!roundcheckcancel) {
+        GetHTMLAsync("checkforround=" + userid, RoundCurrentCheck);
+    }
+    obj = document.getElementById("pnlPlayerHelp");
+    if (obj) obj.style.display = "none";
+}
+function RoundResume(url) {
+    document.location.href = url;
+}
+var roundcheckcancel = false;
+function RoundCurrentCheck(html) {
+    var div = document.createElement("div");
+    div.innerHTML = html;
+    div = div.firstChild;
+    var tourney = EAttr(div, "tourney");
+    var roundnum = EAttr(div, "roundnum");
+    var lookup = EAttr(div, "lookup");
+    var groupid = EAttr(div, "groupid");
+    if (tourney != "" || roundnum != "" || lookup != "" || groupid != "") {
+        if (confirm("Found a round you were playing today.  Would you like to continue that round?")) {
+            var url = "Default.aspx?r=" + groupid;
+            if (tourney != "" && roundnum != "") url = "Default.aspx?t=" + tourney + "&r=" + roundnum + "&u=" + lookup;
+            SendForm("deletegroup=" + document.forms[0].roundNum.value, "", Function("RoundResume('" + url + "');"), Function("RoundResume('" + url + "');"));
+        } else {
+            roundcheckcancel = true;
+        }
+    }
+}
+function CourseSearch(txt) {
+    var pnl = document.getElementById("pnlCourseList");
+    if (pnl) pnl.innerHTML = "Searching...";
+    GetHTMLAsync("course=" + escape(txt.value), CourseFind);
+}
+function CourseFind(html) {
+    var pnl = document.getElementById("pnlCourseList");
+    if (pnl) pnl.innerHTML = html;
+}
+function CourseEnter() {
+    var obj = document.getElementById("pnlCourseList");
+    if (obj) obj.innerHTML = "";
+    obj = document.getElementById("courseHeader");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("courseName");
+    if (obj) {
+        obj.style.display = "";
+        TxtFocus(obj);
+    }
+    obj = document.getElementById("courseSlope");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("courseRating");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("showF9");
+    if (obj) obj.parentNode.style.display = "";
+    obj = document.getElementById("showB9");
+    if (obj) obj.parentNode.style.display = "";
+    obj = document.getElementById("pnlPlayerHelp");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("pnlScoresList");
+    if (obj) obj.style.display = "";
+}
+function CourseSelect(name, slope, rating) {
+    var obj = document.getElementById("pnlCourseList");
+    if (obj) obj.innerHTML = "";
+    obj = document.getElementById("txtFindCourse");
+    if (obj) obj.style.display = "none";
+    obj = document.getElementById("btnFindCourse");
+    if (obj) obj.style.display = "none";
+    obj = document.getElementById("btnChangeCourse");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("courseHeader");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("courseName");
+    if (obj) {
+        obj.value = name;
+        obj.style.display = "";
+    }
+    obj = document.getElementById("courseSlope");
+    if (obj) {
+        obj.value = slope;
+        SlopeChange(slope);
+        obj.style.display = "";
+    }
+    obj = document.getElementById("courseRating");
+    if (obj) {
+        obj.value = rating;
+        obj.style.display = "";
+    }
+    obj = document.getElementById("pnlScoresList");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("showF9");
+    if (obj) obj.parentNode.style.display = "";
+    obj = document.getElementById("showB9");
+    if (obj) obj.parentNode.style.display = "";
+    obj = document.getElementById("pnlPlayerHelp");
+    if (obj) obj.style.display = "";
+}
+function CourseChange() {
+    var obj = document.getElementById("txtFindCourse");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("btnFindCourse");
+    if (obj) obj.style.display = "";
+    obj = document.getElementById("btnChangeCourse");
+    if (obj) obj.style.display = "none";
+}
+function SignDDValid(dd) {
+    if (!dd || dd.disabled) return true;
+    if (dd.selectedIndex == 0) return false;
+    else if (dd[dd.selectedIndex].text == "") return false;
+    return true;
+}
+function SignDDs(e) {
+    if (!ScoresComplete()) return false;
+    if (!SignDDValid(document.getElementById("ddScorer"))) { alert("Please select the scorer"); return false; }
+    else if (!SignDDValid(document.getElementById("ddAttester"))) { alert("Please select the attester"); return false; }
+    else return true;
+}
+function Show9(chk,type,e) {
+    var scorelist = document.getElementById("pnlScoresList");
+    var score;
+    var disp = (chk.checked) ? "" : "none";
+    var otherchk = document.getElementById(((type == "b") ? "showF9" : "showB9"));
+    var dispinits = (chk.checked && otherchk.checked) ? "" : "none"; 
+    if (scorelist) {
+        var scorerow = scorelist.firstChild;
+        while (scorerow) {
+            var scoreobj = scorerow.firstChild;
+            while (scoreobj) {
+                if (EAttr(scoreobj, "score") == type) scoreobj.style.display = disp;
+                else if (IsE(scoreobj, "score_initials_")) scoreobj.style.display = dispinits;
+                scoreobj = scoreobj.nextSibling;
+            }
+            scorerow = scorerow.nextSibling;
+        }
+    }
+    return KeyEntKill(e);
+}
+function SearchExternal() {
+    GetHTMLAsync("externalcourse=1", SearchExtDone);
+}
+function SearchExtDone(html) {
+    document.getElementById("externalresult").innerHTML = html;
+}
+function CheckScoresPost(e) {
+    var scorelist = document.getElementById("pnlScoresList");
+    var msg = "";
+    if (scorelist) {
+        var scorerow = scorelist.firstChild;
+        while (scorerow) {
+            if (IsE(scorerow, "player_")) {
+                var checkemail = GetFirstItem(scorerow.firstChild, "email_");
+                if (checkemail && checkemail.value == "") {
+                    msg = "Without an email address the score will not be posted to Monster Golf handicapping.  Continue?";
+                    break;
+                }
+            }
+            scorerow = scorerow.nextSibling;
+        }
+    }
+    if (msg != "" && !confirm(msg)) return CE(e);
+    else return true;
+}
+</script>
+<style type="text/css">
+    body{font-family:sans-serif, arial; margin:10px;font-size:14px;background-color:#1F58AE; color:#ffffff;}
+    a {color:#ffffff;}
+    a:hover { color:#FF3F19;}
+    .ScoresList{position:relative;width:930px;margin-top:10px;}
+    .ScoresRow{position:relative;float:none;clear:both;border:none;}
+    .Score {color:#222222;position:relative;font-size:14px;border-top:solid 1px #cccccc; border-left:solid 1px #cccccc; border-right:none;border-bottom:none;text-align:center;padding:3px;}
+    .ScoreName{width:140px;overflow:hidden;text-align:right !important;}
+    .ScoreCourseName{width:140px;overflow:hidden;text-align:left !important;}
+    .Score:disabled { background-color:#ffffff; color:#000000; }
+    .ScoreHole { width:22px; }
+    .ScoreHCP { width: 30px; }
+    .ScoreTotal { width:30px; color:#222222;}
+    .ScoreNet {width:30px; color:#222222; border-right:solid 1px #cccccc !important;}
+    .ScoreLast{border-bottom:solid 1px #cccccc !important;}
+    .PlayerSearch{position:absolute;top:0px;left:-25px;}
+    .PlayerList {position:relative;float:left;border-left:solid 1px #cccccc;min-width:140px;padding:3px;}
+    .CourseInfo {font-size:14px;border:solid 1px #cccccc;padding:3px;width:30px;z-index:1;}
+    .CourseName {font-size:14px;border:solid 1px #cccccc;padding:3px;width:140px;z-index:1;}
+    .ScorePost {width: 50px;}
+    .ScoreRating {width: 50px;border-right:solid 1px #cccccc !important;}
+    .ScoreTourney{padding-left:10px;}
+    .PlayerHelp { margin:10px; }
+    .CourseFind { margin-top:10px; }
+</style>
+<meta name="viewport" content="initial-scale=1.25" />
+</head>
+<body onload="TxtFocus(document.getElementById('txtFindCourse'))">
+<form id="form1" runat="server">
+<asp:HiddenField ID="tourneyId" runat="server" />
+<asp:HiddenField ID="roundNum" runat="server" />
+<asp:HiddenField ID="scorerId" runat="server" />
+<asp:HiddenField ID="scorerUserId" runat="server" />
+<asp:HiddenField ID="scorerName" runat="server" />
+<asp:Label ID="lblRoundInfo" runat="server">Monster Scoring</asp:Label> <asp:Label ID="lblDateInfo" runat="server" />
+<asp:Panel ID="pnlFindCourse" runat="server" Visible="false" CssClass="CourseFind">
+    Course: <asp:TextBox ID="txtFindCourse" runat="server" CssClass="CourseName" onkeypress="return KeyEntToSearch(this,event);" onkeyup="return KeyEntToSearch(this,event);" /> 
+    <asp:Button ID="btnFindCourse" runat="server" UseSubmitBehavior="false" OnClientClick="return CourseSearch(document.getElementById('txtFindCourse'))" Text="Find" />
+    <asp:Button ID="btnChangeCourse" runat="server" UseSubmitBehavior="false" OnClientClick="return CourseChange()" Text="Change" />
+    <asp:Panel ID="pnlCourseList" runat="server" />
+</asp:Panel>
+<asp:Panel ID="pnlPlayerHelp" runat="server" CssClass="PlayerHelp" style="display:none;">
+Enter player names, hit the search icon <img src="find.png" alt="find player" style="vertical-align:middle;" /> when it appears to the left of the name or hit the enter/go key on your keyboard. Also, it will auto search after you type 3 characters.  If a name is found in the Monster handicap system it will show up in a list below the name box, make sure to click on the name.
+</asp:Panel>
+<asp:Panel ID="pnlScoresList" CssClass="ScoresList" runat="server" />
+<asp:Panel ID="pnlScorerSign" CssClass="ScoresRow" runat="server">
+    <p>Your round is complete.<br />
+    Please review your scores with your playing partners.<br />
+    When you are satisfied select the scorer and attester and click Sign Card.<br /><br />
+    Who kept score? <asp:DropDownList ID="ddScorer" runat="server" /><br />
+    Who will attest the score card? <asp:DropDownList ID="ddAttester" runat="server" /> <asp:Button ID="btnScorerSign" runat="server" OnClientClick="return SignDDs(event)" OnClick="btnSign_Click" Text="Sign Card" />
+    </p>
+</asp:Panel>
+<asp:Button ID="btnPost" runat="server" Text="Post Scores" OnClick="btnPost_Click" OnClientClick="return CheckScoresPost(event);" Visible="false" />
+<div style="margin-top: 20px;"><img src="MonsterLogo.png" alt="Monster Golf" /></div>
+<%--<div onclick="return SearchExternal()" style="display:none;">External Course Search</div>
+<div id="externalresult" style="display: none;"></div>
+--%>
+</form>
+</body>
+</html>

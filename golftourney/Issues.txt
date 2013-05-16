@@ -1,0 +1,6 @@
+fixed (except for skins which does not need clear?) - Add a clear to tournament results.
+fixed (made it tournament scores) - Change menu text to Tournament Results.
+Make Stroke Control checkbox reset results.
+Error with Stroke Control.
+fixed - reset m_numbestrounds to 0 when adding a new column to results and different type of column.
+error when switching from skins to all scores.

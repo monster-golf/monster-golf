@@ -1,0 +1,19 @@
+Results 
+	Email send
+	Sort by Round
+	display Speed
+		Cache results dataset to not have to rebuild for sorting.
+	bugs in highlight best
+
+Scoring
+	Enter for one hole at a time
+	Dropdown for score selection with max tournament score built in
+	Give information when save fails
+
+
+Tourney
+	Select players for tournament
+	Select players for team
+	email link sent both rounds when clicking round one
+	email link send one player at a time
+	email link send as text

@@ -1,0 +1,79 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "onlinescoring", "onlinescoring\", "{B795844D-B32D-4ABA-8626-83FB36942A88}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv2.0"
+		Debug.AspNetCompiler.VirtualPath = "/onlinescoring"
+		Debug.AspNetCompiler.PhysicalPath = "onlinescoring\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\onlinescoring\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/onlinescoring"
+		Release.AspNetCompiler.PhysicalPath = "onlinescoring\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\onlinescoring\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "53532"
+		DefaultWebSiteLanguage = "Visual C#"
+	EndProjectSection
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "running", "running\", "{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv3.5"
+		Debug.AspNetCompiler.VirtualPath = "/running"
+		Debug.AspNetCompiler.PhysicalPath = "running\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\running\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/running"
+		Release.AspNetCompiler.PhysicalPath = "running\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\running\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "53534"
+		DefaultWebSiteLanguage = "Visual C#"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterGolf", "golftourney\MonsterGolf.csproj", "{3565B37E-308C-44ED-8584-CBFFFFB64728}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|.NET = Debug|.NET
+		Debug|Any CPU = Debug|Any CPU
+		Release|.NET = Release|.NET
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B795844D-B32D-4ABA-8626-83FB36942A88}.Debug|.NET.ActiveCfg = Debug|.NET
+		{B795844D-B32D-4ABA-8626-83FB36942A88}.Debug|.NET.Build.0 = Debug|.NET
+		{B795844D-B32D-4ABA-8626-83FB36942A88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B795844D-B32D-4ABA-8626-83FB36942A88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B795844D-B32D-4ABA-8626-83FB36942A88}.Release|.NET.ActiveCfg = Debug|.NET
+		{B795844D-B32D-4ABA-8626-83FB36942A88}.Release|.NET.Build.0 = Debug|.NET
+		{B795844D-B32D-4ABA-8626-83FB36942A88}.Release|Any CPU.ActiveCfg = Debug|.NET
+		{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}.Debug|.NET.ActiveCfg = Debug|.NET
+		{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}.Debug|.NET.Build.0 = Debug|.NET
+		{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}.Debug|Any CPU.ActiveCfg = Debug|.NET
+		{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}.Release|.NET.ActiveCfg = Debug|.NET
+		{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}.Release|.NET.Build.0 = Debug|.NET
+		{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}.Release|Any CPU.ActiveCfg = Debug|.NET
+		{3565B37E-308C-44ED-8584-CBFFFFB64728}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{3565B37E-308C-44ED-8584-CBFFFFB64728}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3565B37E-308C-44ED-8584-CBFFFFB64728}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3565B37E-308C-44ED-8584-CBFFFFB64728}.Release|.NET.ActiveCfg = Release|Any CPU
+		{3565B37E-308C-44ED-8584-CBFFFFB64728}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3565B37E-308C-44ED-8584-CBFFFFB64728}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
