@@ -18,7 +18,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "onlinescoring", "onlinescor
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "53532"
+		VWDPort = "54396"
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject
@@ -39,7 +39,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "running", "running\", "{50E
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "53534"
+		VWDPort = "54399"
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject

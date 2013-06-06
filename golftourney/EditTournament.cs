@@ -443,10 +443,10 @@ namespace MonsterGolf
                       parvals += "," + DB.Str(teeData.Tables[0].Rows[0], "Par" + h);
                       hcpvals += "," + DB.Str(teeData.Tables[0].Rows[0], "Handicap" + h);
                   }
-                  string sql = "SET IDENTITY_INSERT mg_TourneyCourseDetails ON INSERT INTO mg_TourneyCourseDetails (ID, CourseID, TeeNumber, Slope, Rating" + parcols + hcpcols;
+                  string sql = "SET IDENTITY_INSERT mg_TourneyCourseDetails ON; INSERT INTO mg_TourneyCourseDetails (ID, CourseID, TeeNumber, Slope, Rating" + parcols + hcpcols;
                   sql += ") VALUES (";
                   sql += DB.Str(teeData.Tables[0].Rows[0], "ID") + "," + gc.ID + "," + tee + "," + DB.Str(teeData.Tables[0].Rows[0], "Slope") + "," + DB.Str(teeData.Tables[0].Rows[0], "Rating");
-                  sql += parvals + hcpvals + ")";
+                  sql += parvals + hcpvals + "); SET IDENTITY_INSERT mg_TourneyCourseDetails OFF";
                   WEBDB.Execute(sql);
               }
           }
@@ -455,12 +455,12 @@ namespace MonsterGolf
       private void linkUpdateWeb_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
       {
           string name = m_tournament.Name.Replace("'", "''");
-          string sql = "select tournamentId from mg_Tourney where tournamentId = " + m_tournament.TournamentID;
+          string sql = "SELECT tournamentId from MG_Tourney where tournamentId = " + m_tournament.TournamentID;
           DataSet ds = WEBDB.GetDataSet(sql);
           if (DB.IsEmpty(ds))
           {
-              sql = "SET IDENTITY_INSERT mg_Tourney ON INSERT INTO mg_Tourney (TournamentID, Slogan, NumRounds) VALUES (";
-              sql += m_tournament.TournamentID + ",'" + name + "', " + m_tournament.NumberOfRounds + ")";
+              sql = "INSERT INTO MG_Tourney (TournamentID, Slogan, NumRounds) VALUES (";
+              sql += m_tournament.TournamentID + ",'" + name + "', " + m_tournament.NumberOfRounds + ");";
           }
           else
           {

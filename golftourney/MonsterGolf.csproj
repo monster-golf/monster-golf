@@ -129,7 +129,9 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="MonsterScoringDataSet.xsc">
       <DependentUpon>MonsterScoringDataSet.xsd</DependentUpon>
     </None>

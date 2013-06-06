@@ -1,12 +1,15 @@
 -- This will get a list of teams and handicaps for the tournament
 Declare @tId int;
-Set @tId = 21;
-select tt.TeamId, tt.Flight, ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex, ttp1.Handicap, ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, ttu2.HcpIndex, ttp2.Handicap
+Set @tId = 22;
+select tt.TeamId, tt.Flight, ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex, ttp1.Handicap, u1.Handicap, u1.GHIN,
+	ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, ttu2.HcpIndex, ttp2.Handicap, u2.Handicap, u2.GHIN
 from mg_TourneyTeams tt 
 	join mg_TourneyTeamPlayers ttp1 on tt.TeamId = ttp1.TeamId AND ttp1.UserID = (Select Min(UserId) from mg_TourneyTeamPlayers innerttp1  WHERE innerttp1.TeamId = tt.TeamId)
 	join mg_TourneyUsers ttu1 on ttu1.UserId = ttp1.UserId 
+	join mg_Users u1 on u1.UserId = ttu1.WebId
 	join mg_TourneyTeamPlayers ttp2 on tt.TeamId = ttp2.TeamId AND ttp2.UserID = (Select Max(UserId) from mg_TourneyTeamPlayers innerttp2  WHERE innerttp2.TeamId = tt.TeamId)
 	join mg_TourneyUsers ttu2 on ttu2.UserId = ttp2.UserId 
+	join mg_Users u2 on u2.UserId = ttu2.WebId
 where tt.TournamentId = @tId
 order by tt.Flight, (ttp1.Handicap+ttp2.Handicap), tt.teamid
 
@@ -15,7 +18,7 @@ select t.TournamentID, Location, Slogan, Description, tc.CourseID, tc.[Round], C
 from mg_Tourney t 
 join mg_tourneycourses tc on tc.tournamentid = t.tournamentid 
 join mg_TourneyCourseDetails tcd on tcd.CourseID = tc.CourseId 
---where t.TournamentID = 21 
+where t.TournamentID = 22 
 order by tc.[Round], TeeNumber
 
 select * from mg_tourneyScores where emailgroup = 1
@@ -24,7 +27,7 @@ select MobileEmail, Email, ttu.FirstName + ' ' + ttu.LastName as Name from mg_To
 	join mg_TourneyTeamPlayers ttp on tt.TeamId = ttp.TeamId 
 	join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId 
 	join mg_users u on ttu.WebId = u.UserId
-where tt.TournamentId = 21
+where tt.TournamentId = 22
 
 
 select tp.* from mg_TourneyTeamPlayers tp
@@ -36,8 +39,8 @@ select * from mg_tourneyScores where tourneyId =19 and roundnum = 1
 
 select tp.*, ts.hcp, tu.hcpindex, ts.name from mg_TourneyTeamPlayers tp
 join mg_tourneyusers tu on tp.userId = tu.userId
-join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamentid and ts.roundnum = 1
- where tp.tournamentId =19
+left join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamentid and ts.roundnum = 1
+ where tp.tournamentId =22
  
  update mg_TourneyTeamPlayers set mg_TourneyTeamPlayers.Handicap = ts.hcp
  FROM mg_TourneyTeamPlayers tp
@@ -45,13 +48,14 @@ join mg_tourneyusers tu on tp.userId = tu.userId
 join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamentid and ts.roundnum = 1
  where tp.tournamentId =19
  
- 
+
+-- score with course 
  select ttp.ID, ttu.UserId, mu.Handicap, ttu.WebId, Max(mc.DateOfRound)  
  from mg_TourneyTeamPlayers ttp 
  join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId 
  join mg_users mu on mu.UserId = ttu.WebId 
  join mg_tourneyCourses mc on mc.TournamentId = ttp.TournamentId 
- where ttp.TournamentId = 19
+ where ttp.TournamentId = 22
  GROUP BY ttp.ID, ttu.UserId, mu.Handicap, ttu.WebId
  
  select * from mg_tourneyscores where tourneyid >= 20
@@ -64,15 +68,18 @@ join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamen
 	LEFT OUTER JOIN mg_TourneyScores AS ts on u.WebID = ts.UserID AND tp.TournamentID = ts.TourneyId 
 WHERE tp.TournamentID = 19 ORDER BY ts.RoundNum, tp.TeamID, u.LastName, u.FirstName
 
+
 select * from mg_TourneyScores
 
 select * from mg_TourneyCourses
+update  mg_TourneyCourses set DateOfRound = '6/15/2013 13:30'
+where CourseId = 42
 
 select Distinct(Round) as Round from mg_TourneyScores where TourneyId = 2
 
-select * from mg_u
+select * from mg_tourney
 
-update mg_tourney set Slogan = 'Monster XXII', Location = 'Las Vegas, NV', Description= '2012' WHERE TournamentID = 21
+update mg_tourney set Slogan = 'Monster XXIII', Location = 'Tucson, AZ', Description= '2013' WHERE TournamentID = 22
 
 select * from mg_tourneyTeams
 where tournamentid = 20

@@ -120,14 +120,6 @@ namespace MonsterGolf
             this.tbNewNameLast = new System.Windows.Forms.TextBox();
             this.labelInTournament = new System.Windows.Forms.Label();
             this.dataGridTournament = new System.Windows.Forms.DataGridView();
-            this.contextMenuStripDGTeams = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.createTeamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeFromTeamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolTipTeamMembers = new System.Windows.Forms.ToolTip(this.components);
-            this.linkUpdateUsrs = new System.Windows.Forms.LinkLabel();
-            this.linkDownload = new System.Windows.Forms.LinkLabel();
-            this.linkUpdateWebTourneyUsers = new System.Windows.Forms.LinkLabel();
-            this.linkUpdateWebTourney = new System.Windows.Forms.LinkLabel();
             this.GolferLast = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.GolferFirst = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Handicap = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -136,18 +128,30 @@ namespace MonsterGolf
             this.Flight = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TeamHcp = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.WebId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.contextMenuStripDGTeams = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.createTeamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeFromTeamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolTipTeamMembers = new System.Windows.Forms.ToolTip(this.components);
+            this.linkUpdateUsrs = new System.Windows.Forms.LinkLabel();
+            this.linkDownload = new System.Windows.Forms.LinkLabel();
+            this.linkUpdateWebTourneyUsers = new System.Windows.Forms.LinkLabel();
+            this.linkUpdateWebTourney = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridTournament)).BeginInit();
             this.contextMenuStripDGTeams.SuspendLayout();
             this.SuspendLayout();
             // 
             // listGolfers
             // 
+            this.listGolfers.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.listGolfers.BackColor = System.Drawing.SystemColors.Control;
             this.listGolfers.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.listGolfers.Location = new System.Drawing.Point(3, 32);
+            this.listGolfers.HorizontalScrollbar = true;
+            this.listGolfers.Location = new System.Drawing.Point(3, 47);
+            this.listGolfers.Margin = new System.Windows.Forms.Padding(6, 3, 3, 6);
             this.listGolfers.MultiColumn = true;
             this.listGolfers.Name = "listGolfers";
-            this.listGolfers.Size = new System.Drawing.Size(310, 345);
+            this.listGolfers.Size = new System.Drawing.Size(310, 330);
             this.listGolfers.TabIndex = 5;
             this.listGolfers.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.listGolfers_ItemCheck);
             // 
@@ -207,7 +211,10 @@ namespace MonsterGolf
             this.dataGridTournament.AllowUserToAddRows = false;
             this.dataGridTournament.AllowUserToDeleteRows = false;
             this.dataGridTournament.AllowUserToOrderColumns = true;
+            this.dataGridTournament.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridTournament.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.dataGridTournament.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dataGridTournament.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridTournament.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.GolferLast,
@@ -219,90 +226,14 @@ namespace MonsterGolf
             this.TeamHcp,
             this.WebId});
             this.dataGridTournament.ContextMenuStrip = this.contextMenuStripDGTeams;
-            this.dataGridTournament.Location = new System.Drawing.Point(321, 54);
+            this.dataGridTournament.Location = new System.Drawing.Point(325, 47);
             this.dataGridTournament.Margin = new System.Windows.Forms.Padding(3, 3, 6, 6);
             this.dataGridTournament.Name = "dataGridTournament";
-            this.dataGridTournament.Size = new System.Drawing.Size(316, 324);
+            this.dataGridTournament.Size = new System.Drawing.Size(310, 330);
             this.dataGridTournament.TabIndex = 8;
-            this.dataGridTournament.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataChanged);
             this.dataGridTournament.CellMouseEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.EnterInTournamentCell);
+            this.dataGridTournament.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataChanged);
             this.dataGridTournament.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.dataGridTournamentDBComplete);
-            // 
-            // contextMenuStripDGTeams
-            // 
-            this.contextMenuStripDGTeams.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.createTeamToolStripMenuItem,
-            this.removeFromTeamToolStripMenuItem});
-            this.contextMenuStripDGTeams.Name = "contextMenuStripDGTeams";
-            this.contextMenuStripDGTeams.Size = new System.Drawing.Size(182, 48);
-            // 
-            // createTeamToolStripMenuItem
-            // 
-            this.createTeamToolStripMenuItem.Name = "createTeamToolStripMenuItem";
-            this.createTeamToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.createTeamToolStripMenuItem.Text = "Add To Team";
-            this.createTeamToolStripMenuItem.Click += new System.EventHandler(this.addToTeamClick);
-            // 
-            // removeFromTeamToolStripMenuItem
-            // 
-            this.removeFromTeamToolStripMenuItem.Name = "removeFromTeamToolStripMenuItem";
-            this.removeFromTeamToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.removeFromTeamToolStripMenuItem.Text = "Remove From Team";
-            this.removeFromTeamToolStripMenuItem.Click += new System.EventHandler(this.removeFromTeamClick);
-            // 
-            // toolTipTeamMembers
-            // 
-            this.toolTipTeamMembers.AutoPopDelay = 0;
-            this.toolTipTeamMembers.InitialDelay = 500;
-            this.toolTipTeamMembers.ReshowDelay = 100;
-            // 
-            // linkUpdateUsrs
-            // 
-            this.linkUpdateUsrs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.linkUpdateUsrs.AutoSize = true;
-            this.linkUpdateUsrs.Location = new System.Drawing.Point(521, 6);
-            this.linkUpdateUsrs.Name = "linkUpdateUsrs";
-            this.linkUpdateUsrs.Size = new System.Drawing.Size(116, 13);
-            this.linkUpdateUsrs.TabIndex = 9;
-            this.linkUpdateUsrs.TabStop = true;
-            this.linkUpdateUsrs.Text = "Update HCP from Web";
-            this.linkUpdateUsrs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkUpdateUsrs_LinkClicked);
-            // 
-            // linkDownload
-            // 
-            this.linkDownload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.linkDownload.AutoSize = true;
-            this.linkDownload.Location = new System.Drawing.Point(420, 6);
-            this.linkDownload.Name = "linkDownload";
-            this.linkDownload.Size = new System.Drawing.Size(91, 13);
-            this.linkDownload.TabIndex = 10;
-            this.linkDownload.TabStop = true;
-            this.linkDownload.Text = "Download Scores";
-            this.linkDownload.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkDownload_LinkClicked);
-            // 
-            // linkUpdateWebTourneyUsers
-            // 
-            this.linkUpdateWebTourneyUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.linkUpdateWebTourneyUsers.AutoSize = true;
-            this.linkUpdateWebTourneyUsers.Location = new System.Drawing.Point(420, 19);
-            this.linkUpdateWebTourneyUsers.Name = "linkUpdateWebTourneyUsers";
-            this.linkUpdateWebTourneyUsers.Size = new System.Drawing.Size(98, 13);
-            this.linkUpdateWebTourneyUsers.TabIndex = 11;
-            this.linkUpdateWebTourneyUsers.TabStop = true;
-            this.linkUpdateWebTourneyUsers.Text = "Update Web Users";
-            this.linkUpdateWebTourneyUsers.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkUpdateWebTourneyUsers_LinkClicked);
-            // 
-            // linkUpdateWebTourney
-            // 
-            this.linkUpdateWebTourney.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.linkUpdateWebTourney.AutoSize = true;
-            this.linkUpdateWebTourney.Location = new System.Drawing.Point(521, 19);
-            this.linkUpdateWebTourney.Name = "linkUpdateWebTourney";
-            this.linkUpdateWebTourney.Size = new System.Drawing.Size(110, 13);
-            this.linkUpdateWebTourney.TabIndex = 12;
-            this.linkUpdateWebTourney.TabStop = true;
-            this.linkUpdateWebTourney.Text = "Update Web Tourney";
-            this.linkUpdateWebTourney.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkUpdateWebTourney_LinkClicked);
             // 
             // GolferLast
             // 
@@ -362,10 +293,86 @@ namespace MonsterGolf
             this.WebId.HeaderText = "Web Id";
             this.WebId.Name = "WebId";
             // 
+            // contextMenuStripDGTeams
+            // 
+            this.contextMenuStripDGTeams.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.createTeamToolStripMenuItem,
+            this.removeFromTeamToolStripMenuItem});
+            this.contextMenuStripDGTeams.Name = "contextMenuStripDGTeams";
+            this.contextMenuStripDGTeams.Size = new System.Drawing.Size(182, 48);
+            // 
+            // createTeamToolStripMenuItem
+            // 
+            this.createTeamToolStripMenuItem.Name = "createTeamToolStripMenuItem";
+            this.createTeamToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.createTeamToolStripMenuItem.Text = "Add To Team";
+            this.createTeamToolStripMenuItem.Click += new System.EventHandler(this.addToTeamClick);
+            // 
+            // removeFromTeamToolStripMenuItem
+            // 
+            this.removeFromTeamToolStripMenuItem.Name = "removeFromTeamToolStripMenuItem";
+            this.removeFromTeamToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.removeFromTeamToolStripMenuItem.Text = "Remove From Team";
+            this.removeFromTeamToolStripMenuItem.Click += new System.EventHandler(this.removeFromTeamClick);
+            // 
+            // toolTipTeamMembers
+            // 
+            this.toolTipTeamMembers.AutoPopDelay = 0;
+            this.toolTipTeamMembers.InitialDelay = 500;
+            this.toolTipTeamMembers.ReshowDelay = 100;
+            // 
+            // linkUpdateUsrs
+            // 
+            this.linkUpdateUsrs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.linkUpdateUsrs.AutoSize = true;
+            this.linkUpdateUsrs.Location = new System.Drawing.Point(519, 6);
+            this.linkUpdateUsrs.Name = "linkUpdateUsrs";
+            this.linkUpdateUsrs.Size = new System.Drawing.Size(116, 13);
+            this.linkUpdateUsrs.TabIndex = 9;
+            this.linkUpdateUsrs.TabStop = true;
+            this.linkUpdateUsrs.Text = "Update HCP from Web";
+            this.linkUpdateUsrs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkUpdateUsrs_LinkClicked);
+            // 
+            // linkDownload
+            // 
+            this.linkDownload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.linkDownload.AutoSize = true;
+            this.linkDownload.Location = new System.Drawing.Point(418, 6);
+            this.linkDownload.Name = "linkDownload";
+            this.linkDownload.Size = new System.Drawing.Size(91, 13);
+            this.linkDownload.TabIndex = 10;
+            this.linkDownload.TabStop = true;
+            this.linkDownload.Text = "Download Scores";
+            this.linkDownload.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkDownload_LinkClicked);
+            // 
+            // linkUpdateWebTourneyUsers
+            // 
+            this.linkUpdateWebTourneyUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.linkUpdateWebTourneyUsers.AutoSize = true;
+            this.linkUpdateWebTourneyUsers.Location = new System.Drawing.Point(418, 19);
+            this.linkUpdateWebTourneyUsers.Name = "linkUpdateWebTourneyUsers";
+            this.linkUpdateWebTourneyUsers.Size = new System.Drawing.Size(98, 13);
+            this.linkUpdateWebTourneyUsers.TabIndex = 11;
+            this.linkUpdateWebTourneyUsers.TabStop = true;
+            this.linkUpdateWebTourneyUsers.Text = "Update Web Users";
+            this.linkUpdateWebTourneyUsers.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkUpdateWebTourneyUsers_LinkClicked);
+            // 
+            // linkUpdateWebTourney
+            // 
+            this.linkUpdateWebTourney.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.linkUpdateWebTourney.AutoSize = true;
+            this.linkUpdateWebTourney.Location = new System.Drawing.Point(519, 19);
+            this.linkUpdateWebTourney.Name = "linkUpdateWebTourney";
+            this.linkUpdateWebTourney.Size = new System.Drawing.Size(110, 13);
+            this.linkUpdateWebTourney.TabIndex = 12;
+            this.linkUpdateWebTourney.TabStop = true;
+            this.linkUpdateWebTourney.Text = "Update Web Tourney";
+            this.linkUpdateWebTourney.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkUpdateWebTourney_LinkClicked);
+            // 
             // Field
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(642, 382);
+            this.ClientSize = new System.Drawing.Size(640, 382);
             this.Controls.Add(this.linkUpdateWebTourney);
             this.Controls.Add(this.linkUpdateWebTourneyUsers);
             this.Controls.Add(this.linkDownload);
@@ -536,16 +543,16 @@ namespace MonsterGolf
 
       private void FieldScreenSize(object sender, EventArgs e)
       {
-         int h = this.Height;
-         int w = this.Width;
-         int bottom = this.Bottom - this.listGolfers.Top - 4;
-         this.listGolfers.Width = (w/2) - 10;
-         this.listGolfers.Left = 2;
-         this.listGolfers.Height = bottom;
-         this.dataGridTournament.Width = (w / 2) - 10;
-         this.dataGridTournament.Left = (w / 2) + 2;
-         this.dataGridTournament.Height = bottom;
-         this.labelInTournament.Left = dataGridTournament.Left;
+          //int h = this.Height;
+          int w = this.Width;
+          //int bottom = this.Bottom - this.listGolfers.Top - 4;
+          this.listGolfers.Width = (w / 2) - 10;
+          //this.listGolfers.Left = 2;
+          //this.listGolfers.Height = bottom;
+          this.dataGridTournament.Width = (w / 2) - 20;
+          this.dataGridTournament.Left = (w / 2) + 2;
+          //this.dataGridTournament.Height = bottom;
+          this.labelInTournament.Left = dataGridTournament.Left;
       }
 
       private void dataGridTournamentDBComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -721,6 +728,7 @@ namespace MonsterGolf
               // used to update the Teamplayers handicap pre-tournament.
               DB.Execute(string.Format("update TeamPlayers set Handicap = {0} where TournamentID = {1} AND UserID = {2};\n", dr["Handicap"], Tournament.TournamentID, dr["UserId"]));
               DB.Execute(string.Format("update Users set HcpIndex = {0} where UserID = {1};\n", dr["Handicap"], dr["UserId"]));
+              WEBDB.Execute(string.Format("update mg_TourneyUsers set HcpIndex = {0} where UserID = {1};\n", dr["Handicap"], dr["UserId"]));
 
               //-- Used to update the in flight Tournament hcp index
               //DB.Execute(string.Format("update TourneyScores set Handicap = {0} where UserID = {1} and TournamentId = {2};\n", dr["Handicap"], dr["UserId"], Tournament.TournamentID));
@@ -765,7 +773,7 @@ namespace MonsterGolf
           if (!DB.IsEmpty(ds)) webId = ds.Tables[0].Rows[0]["WebId"].ToString();
           else if (insertifmissing)
           {
-              WEBDB.Execute("INSERT INTO MG_Users (UserName, Email, FirstName, LastName) VALUES ('" + fname + lname + "', 'monster@monstergolf.org', '" + fname + "', '" + lname + "')");
+              WEBDB.Execute("INSERT INTO MG_Users (UserName, Email, FirstName, LastName, UserTypeID, Handicap) VALUES ('" + fname + lname + "', 'monster@monstergolf.org', '" + fname + "', '" + lname + "',1,0)");
               return GetWebIdFromGolfer(fname, lname, false);
           }
           return webId;
@@ -773,11 +781,13 @@ namespace MonsterGolf
       private void linkUpdateWebTourneyUsers_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
       {
           DataSet golfers = GolferList.GetAvailableGolfers();
-          if (!DB.IsEmpty(golfers)) {
+          if (!DB.IsEmpty(golfers))
+          {
               foreach (DataRow dr in golfers.Tables[0].Rows)
               {
                   string fname = DB.ExecStr(DB.Str(dr, "FirstName"));
                   string lname = DB.ExecStr(DB.Str(dr, "LastName"));
+                  string handicap = DB.Str(dr, "HcpIndex"); 
                   DataSet ds = WEBDB.GetDataSet("select WebId from mg_TourneyUsers where UserID = " + dr["userId"]);
                   bool empty = DB.IsEmpty(ds);
                   string webId = "";
@@ -786,22 +796,22 @@ namespace MonsterGolf
                   {
                       webId = GetWebIdFromGolfer(fname, lname, true);
                       string sql = "SET IDENTITY_INSERT mg_TourneyUsers ON INSERT INTO mg_TourneyUsers (UserID, FirstName, LastName, NickName, Image, Description, HCPIndex, WebID) VALUES (";
-                      sql += dr["userId"] + ",'" + fname + "','" + lname + "',NULL,NULL,NULL,0," + webId + ")";
+                      sql += dr["userId"] + ",'" + fname + "','" + lname + "',NULL,NULL,NULL," + handicap + "," + webId + ")";
                       WEBDB.Execute(sql);
                       if (webId != "0") DB.Execute("Update users Set WebId = " + webId + " WHERE UserId = " + DB.Str(dr, "UserId"));
                   }
-                  else if (webId == "" || webId == "0")
+                  else 
                   {
-                      webId = GetWebIdFromGolfer(fname, lname, false);
-                      if (webId != "0")
+                      string currwebId = GetWebIdFromGolfer(fname, lname, false);
+                      if (webId != currwebId && currwebId != "0")
                       {
-                          WEBDB.Execute("update mg_TourneyUsers Set WebId = " + webId + " WHERE UserId = " + DB.Str(dr, "UserId"));
-                          DB.Execute("Update users Set WebId = " + webId + " WHERE UserId = " + DB.Str(dr, "UserId"));
+                          WEBDB.Execute("update mg_TourneyUsers Set WebId = " + currwebId + ", HCPIndex = " + handicap + " WHERE UserId = " + DB.Str(dr, "UserId"));
+                          DB.Execute("Update users Set WebId = " + currwebId + " WHERE UserId = " + DB.Str(dr, "UserId"));
                       }
-                  }
-                  else
-                  {
-                      DB.Execute("Update users Set WebId = " + DB.Str(ds.Tables[0].Rows[0], "WebId") + " WHERE UserId = " + DB.Str(dr, "UserId"));
+                      else
+                      {
+                          WEBDB.Execute("update mg_TourneyUsers Set HCPIndex = " + handicap + " WHERE UserId = " + DB.Str(dr, "UserId"));
+                      }
                   }
               }
           }
@@ -823,8 +833,8 @@ namespace MonsterGolf
                   string sql = "";
                   if (DB.IsEmpty(tourneyTeams))
                   {
-                      sql = "SET IDENTITY_INSERT mg_TourneyTeams ON INSERT INTO mg_TourneyTeams (TeamID, TeamName, RoundNumber, TournamentID, Flight) VALUES (";
-                      sql += teamId + ",'" + name + "',0," + m_tournament.TournamentID + ",'" + flight + "')";
+                      sql = "SET IDENTITY_INSERT MG_TourneyTeams ON; INSERT INTO MG_TourneyTeams (TeamID, TeamName, RoundNumber, TournamentID, Flight) VALUES (";
+                      sql += teamId + ",'" + name + "',0," + m_tournament.TournamentID + ",'" + flight + "'); SET IDENTITY_INSERT MG_TourneyTeams OFF";
                       WEBDB.Execute(sql);
                   }
                   else
@@ -835,11 +845,18 @@ namespace MonsterGolf
 
                   string userId = DB.Str(dr, "userid");
                   string handicap = DB.Str(dr, "Handicap");
+                  string tee = DB.Str(dr, "TeeNumber");
                   DataSet tourneyPlayers = WEBDB.GetDataSet("select * from mg_TourneyTeamPlayers WHERE TeamID = " + teamId + " AND UserID = " + userId);
                   if (DB.IsEmpty(tourneyPlayers))
                   {
                       sql = "INSERT INTO mg_TourneyTeamPlayers (TeamID, UserID, TeeNumber, TournamentID, Handicap) VALUES (";
-                      sql += teamId + "," + userId + ",0," + m_tournament.TournamentID + "," + handicap + ")";
+                      sql += teamId + "," + userId + "," + tee + "," + m_tournament.TournamentID + "," + handicap + ")";
+                      WEBDB.Execute(sql);
+                  }
+                  else
+                  {
+                      sql = "UPDATE mg_TourneyTeamPlayers SET TeeNumber = " + tee + ", Handicap = " + handicap;
+                      sql += " WHERE [ID] = " + DB.Str(tourneyPlayers.Tables[0].Rows[0], "ID");
                       WEBDB.Execute(sql);
                   }
               }
