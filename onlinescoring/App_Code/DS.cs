@@ -111,7 +111,7 @@ public class ScoreInfo
     public static List<ScoreInfo> LoadTourneyRound(string tourneyid, string round, string order)
     {
         DB db = new DB();
-        SqlDataReader sdr = db.Get(string.Format("select UserId,GroupId,Name from mg_tourneyscores where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
+        SqlDataReader sdr = db.Get(string.Format("select UserId,GroupId,Name,StartingHole from mg_tourneyscores where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
         List<ScoreInfo> si = new List<ScoreInfo>();
         while (sdr.Read()) si.Add(new ScoreInfo(sdr[0].ToString(), tourneyid, round, true));
         db.Close(sdr);
@@ -190,15 +190,16 @@ public class ScoreInfo
                         if (!sdr.IsDBNull(sdr.GetOrdinal("Handicap" + x))) hcps.Add(sdr["Handicap" + x].ToString());
                         else hcps.Add("");
                     }
-                    string teeNum = "1";
+                    string teeNum = "0";
                     if (!sdr.IsDBNull(sdr.GetOrdinal("TeeNumber"))) teeNum = sdr["TeeNumber"].ToString();
-                    si.Add(new ScoreInfo("Pars" + teeNum, "", "Par Tee " + teeNum, pars, parsf9.ToString(), parsb9.ToString(), (parsf9 + parsb9).ToString(), "", ""));
+                    string gender = (teeNum == "0") ? "Men's" : "Women's";
+                    si.Add(new ScoreInfo("Pars" + teeNum, "", gender + " Par", pars, parsf9.ToString(), parsb9.ToString(), (parsf9 + parsb9).ToString(), "", ""));
                     string slope = "";
                     if (!sdr.IsDBNull(sdr.GetOrdinal("Slope"))) slope = sdr["Slope"].ToString();
                     string rating = "";
                     if (!sdr.IsDBNull(sdr.GetOrdinal("Rating"))) rating = sdr["Rating"].ToString();
 
-                    si.Add(new ScoreInfo("Hcps" + teeNum, "", "HCP Tee " + teeNum, hcps, "", "", "", slope, rating));
+                    si.Add(new ScoreInfo("Hcps" + teeNum, "", gender + " HCP", hcps, "", "", "", slope, rating));
                 }
             }
         }
@@ -224,7 +225,8 @@ public class ScoreInfo
         DateOfRound,
         GroupId,
         EmailSent,
-        TourneyScoreID
+        TourneyScoreID,
+        StartingHole
     }
     public static List<string> empty18List(bool useNum)
     {
@@ -239,12 +241,12 @@ public class ScoreInfo
     public Dictionary<string, string> Scores = new Dictionary<string, string>();
     public ScoreInfo(string id)
     {
-        Load(id, GetId(), "", empty18List(), "", "", "", "", "", false, false, "", "", "113", "72", false, "");
+        Load(id, GetId(), "", empty18List(), "", "", "", "", "", false, false, "", "", "113", "72", false, "", 1);
     }
     public ScoreInfo(string userid, string id1, string id2, bool usetourney)
     {
-        string sql = "select Name, Hole1, Hole2, Hole3, Hole4, Hole5, Hole6, Hole7, Hole8, Hole9, Hole10, Hole11, Hole12, Hole13, Hole14, Hole15, Hole16, Hole17, Hole18, HCP, CardSigned, CardAttested, UserLookup, GroupId, CourseName, CourseSlope, CourseRating, EmailSent, TourneyScoreID from mg_tourneyscores where UserId={0} and UserLookup='{1}' and GroupId='{2}';";
-        if (usetourney) sql = "select Name, Hole1, Hole2, Hole3, Hole4, Hole5, Hole6, Hole7, Hole8, Hole9, Hole10, Hole11, Hole12, Hole13, Hole14, Hole15, Hole16, Hole17, Hole18, HCP, CardSigned, CardAttested, UserLookup, GroupId, CourseName, CourseSlope, CourseRating, EmailSent, TourneyScoreID from mg_tourneyscores where UserId={0} and TourneyId={1} and RoundNum={2};";
+        string sql = "select Name, Hole1, Hole2, Hole3, Hole4, Hole5, Hole6, Hole7, Hole8, Hole9, Hole10, Hole11, Hole12, Hole13, Hole14, Hole15, Hole16, Hole17, Hole18, HCP, CardSigned, CardAttested, UserLookup, GroupId, CourseName, CourseSlope, CourseRating, EmailSent, TourneyScoreID, StartingHole from mg_tourneyscores where UserId={0} and UserLookup='{1}' and GroupId='{2}';";
+        if (usetourney) sql = "select Name, Hole1, Hole2, Hole3, Hole4, Hole5, Hole6, Hole7, Hole8, Hole9, Hole10, Hole11, Hole12, Hole13, Hole14, Hole15, Hole16, Hole17, Hole18, HCP, CardSigned, CardAttested, UserLookup, GroupId, CourseName, CourseSlope, CourseRating, EmailSent, TourneyScoreID, StartingHole from mg_tourneyscores where UserId={0} and TourneyId={1} and RoundNum={2};";
         LoadDB(userid, string.Format(sql, userid, DB.stringSql(id1), DB.stringSql(id2)));
     }
     private void LoadDB(string id, string select)
@@ -289,16 +291,19 @@ public class ScoreInfo
             bool emailsent = false;
             bool.TryParse(sdr[27].ToString(), out emailsent);
             string tourneyscoreid = (!sdr.IsDBNull(28)) ? sdr[28].ToString() : "";
+            string shole = (!sdr.IsDBNull(29)) ? sdr[29].ToString() : "1";
+            int starthole;
+            int.TryParse(shole, out starthole);
 
-            Load(id, userlookup, name, scores, f9, b9, tot, shcp, snet, cardsigned, cardattested, groupid, course, slope, rating, emailsent, tourneyscoreid);
+            Load(id, userlookup, name, scores, f9, b9, tot, shcp, snet, cardsigned, cardattested, groupid, course, slope, rating, emailsent, tourneyscoreid, starthole);
         }
         else
         {
-            Load(id, "", "", empty18List(), "", "", "", "", "", false, false, "", "", "113", "72", false, "");
+            Load(id, "", "", empty18List(), "", "", "", "", "", false, false, "", "", "113", "72", false, "", 1);
         }
         db.Close(sdr);
     }
-    private void Load(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net, bool cardsigned, bool cardattested, string groupid, string coursename, string slope, string rating, bool emailsent, string tourneyscoreid)
+    private void Load(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net, bool cardsigned, bool cardattested, string groupid, string coursename, string slope, string rating, bool emailsent, string tourneyscoreid, int startinghole)
     {
         int x = 1;
         bool roundcomplete = true;
@@ -325,14 +330,15 @@ public class ScoreInfo
         Scores.Add(ScoreKey.CourseRating.ToString(), rating);
         Scores.Add(ScoreKey.EmailSent.ToString(), emailsent.ToString());
         Scores.Add(ScoreKey.TourneyScoreID.ToString(), tourneyscoreid);
+        Scores.Add(ScoreKey.StartingHole.ToString(), startinghole.ToString());
     }
     public ScoreInfo(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net)
     {
-        Load(id, lookupid, name, scores, f9total, b9total, total, hcp, net, false, false, "", "", "113", "72", false, "");
+        Load(id, lookupid, name, scores, f9total, b9total, total, hcp, net, false, false, "", "", "113", "72", false, "", 1);
     }
-    public ScoreInfo(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net, string course, string slope, string rating, bool emailsent, string tourneyscoreid)
+    public ScoreInfo(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net, string course, string slope, string rating, bool emailsent, string tourneyscoreid, int startinghole)
     {
-        Load(id, lookupid, name, scores, f9total, b9total, total, hcp, net, false, false, "", course, slope, rating, emailsent, tourneyscoreid);
+        Load(id, lookupid, name, scores, f9total, b9total, total, hcp, net, false, false, "", course, slope, rating, emailsent, tourneyscoreid, startinghole);
     }
     public string ID
     { 
@@ -361,6 +367,7 @@ public class ScoreInfo
     public string CourseRating { get { return Scores[ScoreKey.CourseRating.ToString()]; } }
     public bool EmailSent { get { return BoolCheck(ScoreKey.EmailSent); } }
     public string TourneyScoreID { get { return Scores[ScoreKey.TourneyScoreID.ToString()]; } }
+    public string StartingHole { get { return Scores[ScoreKey.StartingHole.ToString()]; } }
 }
 
 /// <summary>

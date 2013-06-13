@@ -6,10 +6,9 @@ Results
 	bugs in highlight best
 
 Scoring
-	Enter for one hole at a time
 	Dropdown for score selection with max tournament score built in
-	Give information when save fails
-
+	Move highlighted hole when last hole filled in
+	Only show men's par & hcp if all men in group
 
 Tourney
 	Select players for tournament

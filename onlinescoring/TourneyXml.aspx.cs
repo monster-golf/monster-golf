@@ -48,15 +48,15 @@ public partial class TourneyXml : System.Web.UI.Page
             int.TryParse(Request["tourneyid"], out tourneyid))
         {
             StringBuilder update = new StringBuilder();
-            SqlDataReader sdr = db.Get("select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = " + tourneyid);
+            SqlDataReader sdr = db.Get("select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = " + tourneyid);
             while (sdr.Read())
             {
                 //TODO: cannot compare agains round in the sql string because round could be a comma seperated list of round numbers
                 update.AppendFormat("insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, CourseSlope, CourseRating) " +
                         "select c.TournamentId, c.[Round], {0}, '{1}', '{2}', c.Course, d.Slope, Round(d.Rating,1) from mg_tourneycourses c " +
-                        "join mg_TourneyCourseDetails d on d.CourseId = c.CourseId " +
+                        "join mg_TourneyCourseDetails d on d.CourseId = c.CourseId AND d.TeeNumber = {5} " +
                         "where c.TournamentId = {3} and c.[Round] = {4} and  NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
-                        sdr[0], DB.stringSql(sdr[1].ToString()), ScoreInfo.GetId(), tourneyid, roundnum);
+                        sdr[0], DB.stringSql(sdr[1].ToString()), ScoreInfo.GetId(), tourneyid, roundnum, sdr[3]);
                 update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0) WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
                     sdr[0], sdr[2], tourneyid, roundnum);
             }
@@ -96,7 +96,7 @@ public partial class TourneyXml : System.Web.UI.Page
             }
             db.Close(sdr, false);
             WEB w = new WEB();
-            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, false, "GroupId, Name"));
+            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, false, "StartingHole, GroupId, Name"));
         }
     }
     protected void GetTourneyDetails()
@@ -283,7 +283,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     string te = "Welcome to " + subject + ".<br/>Start of round " + starttime + "<br/>{1}<br/>To keep score for your group, click on the link<br/><br/>{0}<br/>Also, turn in your paper card, to Aaron Wald or Brian Giesinger, for validation.<br/><br/>When your card is fully filled out validate all scores, scroll down to below the score card and select a golfer from the other team to attest the scores. Then, you sign the card, and when you are done click Confirm Signing.  Hand your mobile device to the attester from the other team and they should validate the scores, then sign the card.<br/><br/>Once the scores have been attested you can no longer make changes.<br/><br/>Any questions? See Aaron Wald or Brian Giesinger at the end of the round.";
 
                     List<ScoreInfo> si = ScoreInfo.LoadGroup(sdr["GroupId"].ToString());
-                    string groupnames = "<table><tr><td style='padding-top:10px;padding-left:10px;'>Player</td><td style='padding-top:10px;padding-left:5px;'>HCP</td></tr>";
+                    string groupnames = "<br/>Starting Hole " + si[0].StartingHole + "<table><tr><td style='padding-top:10px;padding-left:10px;'>Player</td><td style='padding-top:10px;padding-left:5px;'>HCP</td></tr>";
                     foreach (ScoreInfo s in si) groupnames += "<tr><td style='padding-left:10px;'>" + s.Name + "</td><td style='padding-left:5px;text-align:center;'>" + s.HCP + "</td>";
                     groupnames += "</table>";
 
@@ -299,7 +299,7 @@ public partial class TourneyXml : System.Web.UI.Page
                                 db1.Close(sdrEm, false);
                                 if (email != "")
                                 {
-                                    string scoringlink = string.Format("<div style='font-size:15px;font-weight:bold;'><a href='http://monstergolf.org/monsterscoring/?t={0}&r={1}&u={2}'>Start Scoring</a></div>", tourneyid, roundnum, s.LookupID);
+                                    string scoringlink = string.Format("<div style='font-size:15px;font-weight:bold;'><a href='http://monstergolf.org/monsterscoring/?t={0}&r={1}&u={2}&h={3}'>Start Scoring</a></div>", tourneyid, roundnum, s.LookupID, s.StartingHole);
                                     if (WEB.SendMessage(email + ":" + s.Name, subject, string.Format(te, scoringlink, groupnames), true, null, Server))
                                     {
                                         db1.Exec("update mg_tourneyscores set EmailSent = 1 WHERE TourneyScoreID = " + s.TourneyScoreID);
@@ -363,6 +363,15 @@ public partial class TourneyXml : System.Web.UI.Page
             Response.End();
         }
     }
+    private void StartingHoleForGroup()
+    {
+        if (Request.Form["startingholeforgroup"] != null)
+        {
+            StringBuilder update = new StringBuilder();
+            update.AppendFormat("update mg_TourneyScores set StartingHole = {0} WHERE GroupId = '{1}'", Request.Form["hole"], DB.stringSql(Request["startingholeforgroup"]));
+            db.Exec(update.ToString());
+        }
+    }
     protected void Page_Load(object sender, EventArgs e)
     {
         db = new DB();
@@ -370,6 +379,7 @@ public partial class TourneyXml : System.Web.UI.Page
         SetTourneyScores();
         GetTourneyDetails();
         GetTourneyScores();
+        StartingHoleForGroup();
         EmailGroups();
         EmailScores();
         Response.Write("<complete>true</complete>");

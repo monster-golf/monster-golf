@@ -1,1 +1,0 @@
-Mailbox name not allowed. The server response was: Sorry, that domain isn't in my list of allowed rcpthosts.

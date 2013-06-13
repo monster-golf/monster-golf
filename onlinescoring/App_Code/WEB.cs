@@ -13,14 +13,15 @@ using System.Net.Mail;
 /// </summary>
 public class WEB
 {
-    public static Literal TB(string id, string val, string css, int max, string onkeyup, string onchange, bool enabled, bool hide, bool isnum, string score)
+    public static Literal TB(string id, string val, string css, int max, string onkeyup, string onchange, string onfocus, string onblur, bool enabled, bool hide, bool isnum, string score, int tabindex)
     {
         Literal lit = new Literal();
         string type = ((isnum) ? "number\" inputscope=\"Number" : "text");
-        lit.Text += string.Format("<input name=\"{0}\" tabIndex=\"1\" class=\"{1}\" id=\"{0}\" size=\"1\" autocomplete=\"off\" onkeypress=\"{2}\" onkeyup=\"{2}\" onchange=\"{3}\" type=\"{4}\" maxLength=\"{5}\" score=\"{6}\" value=\"{7}\"",
-            id, css, onkeyup, onchange, type, max, score, val);
+        lit.Text += string.Format("<input name=\"{0}\" class=\"{1}\" id=\"{0}\" size=\"1\" autocomplete=\"off\" onkeypress=\"{2}\" onkeyup=\"{2}\" onchange=\"{3}\" type=\"{4}\" maxLength=\"{5}\" score=\"{6}\" value=\"{7}\" onfocus=\"{8}\" onblur=\"{9}\"",
+            id, css, onkeyup, onchange, type, max, score, val, onfocus, onblur);
         if (!enabled) lit.Text += " disabled=\"disabled\"";
-        if (hide) lit.Text += "style=\"display:none\"";
+        if (hide) lit.Text += " style=\"display:none\"";
+        if (tabindex > 0) lit.Text += " tabindex=\"" + tabindex.ToString() + "\"";
         lit.Text += " />";
         return lit;
     }
@@ -37,7 +38,6 @@ public class WEB
         tb.Attributes.Add("onchange", onchange);
         tb.Enabled = enabled;
         tb.Attributes["type"] = "number";
-        tb.TabIndex = 1;
         if (hide) tb.Style.Add(HtmlTextWriterStyle.Display, "none");
         if (size > 0) tb.Attributes.Add("size", size.ToString());
         return tb;
@@ -57,7 +57,6 @@ public class WEB
     {
         Image img = new Image();
         img.ID = id;
-        img.TabIndex = 1;
         img.ImageUrl = url;
         img.CssClass = css;
         img.Attributes.Add("onmousedown", onmousedown);
@@ -85,11 +84,12 @@ public class WEB
 
     public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s)
     {
-        TourneyRow(db, sb, s, 0, 0, false, false, "");
+        TourneyRow(db, sb, s, 0, 0, false, false, "", false);
     }
-    public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s, int roundnum, int tourneyid, bool email, bool enterscores, string groupclass)
+    public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s, int roundnum, int tourneyid, bool email, bool enterscores, string groupclass, bool addstartinghole)
     {
         string name = "";
+        string hole = "";
         if (s.LookupID != "" && s.GroupID == "")
         {
             name = string.Format("<input type='checkbox' class='cb' name='playerchk' id='playerchk{0}' onclick='ChkPlayer(this, {0}, {1});' />", s.ID, roundnum);
@@ -97,10 +97,11 @@ public class WEB
         else if (s.LookupID != "" && s.GroupID != "" && roundnum > 0 && tourneyid > 0)
         {
             string scoringlink = string.Format("http://monstergolf.org/monsterscoring/?t={0}&r={1}&u={2}&overwrite=1", tourneyid, roundnum, s.LookupID);
-            if (email) name += string.Format("<a href=\"javascript:BreakGroup('{0}',{1});\">Change Group</a> ", s.GroupID, roundnum);
+            if (email) name += string.Format("<a href=\"javascript:BreakGroup('{0}',{1});\">Change</a> ", s.GroupID, roundnum);
             if (enterscores) name += string.Format("<a href='{0}' target='scoreenter'>Enter Scores</a> ", scoringlink);
+            if (addstartinghole) hole = string.Format("<input type='number' class='tb' name='startinghole{0}' maxlength='2' onchange=\"StartingHole(this, '{0}');\" value='{1}' />", s.GroupID, s.StartingHole);
         }
-        name += s.Name;
+        name += s.Name + hole;
         sb.AppendFormat("<div class='Detail1" + groupclass + "'>{0}</div>", name);
         for (int x = 1; x <= 18; x++)
         {
@@ -122,17 +123,23 @@ public class WEB
         List<ScoreInfo> si = ScoreInfo.LoadTourneyRound(tourneyid.ToString(), roundnum.ToString(), order);
         ScoreInfo headerCol = new ScoreInfo("label", "", "Player", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net");
         if (si.Count == 0) sb.Append("No Scores Available");
-        else TourneyRow(db, sb, headerCol, 0, 0, false, false, "_Head");
+        else TourneyRow(db, sb, headerCol, 0, 0, false, false, "_Head", false);
         string currGroupId = "";
         string groupclass = "";
         int count = 1;
         foreach (ScoreInfo s in si)
         {
+            bool addstartinghole = false;
             if (order.ToLower().Contains("groupid"))
             {
-                if (currGroupId == "") currGroupId = s.GroupID;
+                if (currGroupId == "")
+                {
+                    currGroupId = s.GroupID;
+                    addstartinghole = email;
+                }
                 if (currGroupId != "" && currGroupId != s.GroupID)
                 {
+                    addstartinghole = email;
                     currGroupId = s.GroupID;
                     if (groupclass == "") groupclass = "_2";
                     else groupclass = "";
@@ -142,11 +149,11 @@ public class WEB
             {
                 sb.Append("<div style='page-break-before:always'></div>");
                 //TourneyRow(db, sb, s, 0, 0, false, false, "");
-                TourneyRow(db, sb, headerCol, 0, 0, false, false, "_Head");
+                TourneyRow(db, sb, headerCol, 0, 0, false, false, "_Head", false);
                 count = 1;
             }
             count++;
-            TourneyRow(db, sb, s, roundnum, tourneyid, email && !s.CardSigned, enterscores, groupclass);
+            TourneyRow(db, sb, s, roundnum, tourneyid, email && !s.CardSigned, enterscores, groupclass, addstartinghole);
         }
         sb.Append("</div>");
         return sb;

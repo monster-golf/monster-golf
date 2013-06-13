@@ -1,4 +1,4 @@
---select * from mg_Users where  LastName = 'Gies'
+--select * from mg_Users where  LastName = 'Wurmlinger'
 
 -- Thayer
 update mg_users set Handicap = 21.5 where UserId = 359
@@ -54,6 +54,8 @@ update mg_users set Handicap = 19.7,LastName='Walker' where UserId = 219
 update mg_users set Handicap = 8.3 where UserId = 431
 --C Gies
 update mg_users set Handicap = 21.6 where UserId = 429
+--Wurmlinger
+update mg_users set Handicap = 13.0 where UserId = 370
 
 -- delete collette
 delete mg_TourneyTeamPlayers 

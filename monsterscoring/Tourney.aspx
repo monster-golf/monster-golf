@@ -20,6 +20,7 @@ a:hover { color:#FF3F19;}
 
 .Loading { position:absolute;top:100px; left:100px; font-size:30px; color:#EFE486; font-weight:bold; text-decoration:blink; z-index:100;}
 .cb { padding: 0px 3px; margin:0px; }
+.tb { width: 15px; margin-left:3px;font-size:9pt;height:10px;padding:1px; }
 .UserUpdate { float:left; margin: 3px 30px 0px;}
 .TourneyInfo { clear: both; padding-top: 20px; }
 </style>
@@ -105,7 +106,7 @@ a:hover { color:#FF3F19;}
             players.splice(rem, 1);
         }
         var groupbtn = document.getElementById("setgroup" + r);
-        if (players.length == 4) {
+        if (players.length >= 3) {
             groupbtn.style.display = "";
             groupbtn.style.top = chk.parentNode.offsetTop + "px";
             groupbtn.style.left = (chk.offsetLeft + chk.offsetWidth + 10) + "px";
@@ -130,6 +131,10 @@ a:hover { color:#FF3F19;}
     function ViewResults() {
         var tid = TourneyId();
         if (tid != -1) document.location.href = "Results.aspx?t=" + tid;
+    }
+    function StartingHole(hole, groupid) {
+        var tid = TourneyId();
+        if (tid > -1) SendForm("tourneyid=" + tid + "&startingholeforgroup=" + groupid + "&hole=" + hole.value, "");
     }
 </script>
 </head>

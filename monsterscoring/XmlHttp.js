@@ -159,15 +159,19 @@ function SendForm(formdata, q, updone, uperr) {
     }
 }
 function SendFormDone() {
-    if (typeof(asyncSendDone) == "function") asyncSendDone(asyncSend.getXMLString());
-    if (window.Loading) window.Loading(true);
-    asyncSend = null;
+    if (typeof (asyncSendDone) == "function") asyncSendDone(asyncSend.getXMLString());
+    SendFormClr();
 }
 function SendFormErr() {
     if (typeof (asyncSendErr) == "function") asyncSendErr();
+    else alert("Save Failed");
+    SendFormClr();
+}
+function SendFormClr() {
     if (window.Loading) window.Loading(true);
-    alert("Save Failed");
     asyncSend = null;
+    asyncSendDone = null;
+    asyncSendErr = null;
 }
 function GetHTMLAsyncDone() {
     if (asyncHTML) {

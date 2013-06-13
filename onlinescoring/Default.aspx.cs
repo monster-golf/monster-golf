@@ -27,9 +27,15 @@ public partial class _Default : System.Web.UI.Page
     }
     private Panel Scores(string rowid, ScoreInfo si, bool live, bool last)
     {
+        return Scores(rowid, si, live, last, 0, 0);
+    }
+    private Panel Scores(string rowid, ScoreInfo si, bool live, bool last, int row, int numplayers)
+    {
         Panel pnl = new Panel();
         pnl.ID = (rowid == "") ? "" : rowid + "_" + si.ID;
         pnl.Attributes.Add("userid", si.ID);
+        pnl.Attributes.Add("name", si.Name);
+        pnl.Attributes.Add("hcp", si.HCP);
         pnl.Attributes.Add("userlookup", si.LookupID);
         pnl.CssClass = "ScoresRow";
         string css = last ? " ScoreLast" : "";
@@ -40,14 +46,21 @@ public partial class _Default : System.Web.UI.Page
             pnl.Controls.Add(WEB.IMG("score_search_" + si.ID, "~/find.png", "PlayerSearch", "PlayerSearch(this)", true));
         }
         pnl.Controls.Add(WEB.TB("score_name_" + si.ID, si.Name, "Score ScoreName" + css, 100, namekey, "", tourneyId.Value == "" && live, false, 0));
+        int tabidsub = 1;
         if (tourneyId.Value == "" && live)
         {
             ((WebControl)pnl.Controls[pnl.Controls.Count - 1]).Attributes.Add("onfocus", "PlayerFocus(this,event)");
             ((WebControl)pnl.Controls[pnl.Controls.Count - 1]).Attributes.Add("onblur", "PlayerBlur(this,event)");
+            ((TextBox)pnl.Controls[pnl.Controls.Count - 1]).TabIndex = (short)row;
+            tabidsub = 0;
         }
+        int tabindex = 0;
         for (int x = 1; x <= 18; x++)
         {
-            pnl.Controls.Add(WEB.TB("score_" + x + "_" + si.ID, si.Scores[x.ToString()], "Score ScoreHole" + css, 2, "return ScoresAdd(this,event)", "return ScoresSave(this,event)", live, false, true, ((x < 10) ? "f" : "b")));
+            if (Request.QueryString["overwrite"] != "1") tabindex = (live && row > 0) ? ((numplayers * (x - tabidsub)) + row) : 0;
+            string cssadd = css;
+            if (Request.QueryString["h"] == x.ToString()) cssadd += " ScoreHighlight";
+            pnl.Controls.Add(WEB.TB("score_" + x + "_" + si.ID, si.Scores[x.ToString()], "Score ScoreHole" + cssadd, 2, "return ScoresAdd(this,event)", "return ScoresSave(this,event)", "return ScoresFocus(this,event)", "return ScoresBlur(this,event)", live, false, true, ((x < 10) ? "f" : "b"), tabindex));
             if (x == 9)
             {
                 pnl.Controls.Add(WEB.TB("score_out_" + si.ID, si.Out, "Score ScoreTotal" + css, 3, "", "", false, false, 1));
@@ -57,7 +70,9 @@ public partial class _Default : System.Web.UI.Page
         }
         pnl.Controls.Add(WEB.TB("score_in_" + si.ID, si.In, "Score ScoreTotal" + css, 3, "", "", false, false, 1));
         pnl.Controls.Add(WEB.TB("score_total_" + si.ID, si.Total, "Score ScoreTotal " + css, 3, "", "", false, false, 2));
-        pnl.Controls.Add(WEB.TB("score_hcp_" + si.ID, si.HCP, "Score ScoreHCP" + css, 3, "", "", tourneyId.Value == "" && live, false, 2));
+        if (Request.QueryString["overwrite"] != "1" && tourneyId.Value == "" && live && row > 0) tabindex = (live && row > 0) ? ((numplayers * (19 - tabidsub)) + row) : 0;
+        else tabindex = 0;
+        pnl.Controls.Add(WEB.TB("score_hcp_" + si.ID, si.HCP, "Score ScoreHCP" + css, 2, "", "return ScoresAdd(this,event)", "return ScoresFocus(this,event)", "return ScoresBlur(this,event)", tourneyId.Value == "" && live, false, true, "", tabindex));
         pnl.Controls.Add(WEB.TB("score_net_" + si.ID, si.Net, "Score ScoreNet" + css, 3, "", "", false, false, 2));
         return pnl;
     }
@@ -190,18 +205,6 @@ public partial class _Default : System.Web.UI.Page
             }
             ScoreInfo si = new ScoreInfo("label", "", "", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net");
             pnlScoresList.Controls.Add(Scores("", si, false, false));
-            if (tourneyId.Value != "")
-            {
-                string tourneyName = "", dateofRound = "", courseName;
-                List<ScoreInfo> courseInfo = ScoreInfo.LoadCourseInfo(tourneyId.Value, roundNum.Value, out tourneyName, out dateofRound, out courseName);
-                foreach (ScoreInfo c in courseInfo) pnlScoresList.Controls.Add(Scores(c.ID, c, false, false));
-                lblDateInfo.Text = "&nbsp;&nbsp;  - &nbsp;&nbsp;  Round " + roundNum.Value + ": " + dateofRound;
-                lblRoundInfo.Text = tourneyName + " " + courseName;
-            }
-            else
-            {
-                lblDateInfo.Text = "Date of Round: " + DateTime.Now.ToShortDateString();
-            }
             bool allcomplete = false;
             foreach (ScoreInfo player in players) { if (player.Name != "") { allcomplete = true; break; } }
             bool allsigned = true;
@@ -210,7 +213,7 @@ public partial class _Default : System.Web.UI.Page
             int x = 1;
             foreach (ScoreInfo player in players)
             {
-                string ddval = "player_" + x++;
+                string ddval = "player_" + x;
                 ddval += ":" + player.ID + ":";
                 ddScorer.Items.Add(new ListItem(player.Name, ddval));
                 if (player.LookupID == scorerId.Value && scorerId.Value != "")
@@ -226,13 +229,26 @@ public partial class _Default : System.Web.UI.Page
                 }
                 if (player.Name != "" && !player.RoundComplete) allcomplete = false;
                 if (!player.CardSigned || !player.CardAttested || Request.QueryString["overwrite"] == "1") allsigned = false;
-                pnlScoresList.Controls.Add(Scores("player", player, !allsigned, false));                
+                pnlScoresList.Controls.Add(Scores("player", player, !allsigned, false, x, players.Count));
+                x++;
             }
             if (allcomplete && !allsigned)
             {
                 pnlScorerSign.Style.Remove(HtmlTextWriterStyle.Display);
             }
-            
+
+            if (tourneyId.Value != "")
+            {
+                string tourneyName = "", dateofRound = "", courseName;
+                List<ScoreInfo> courseInfo = ScoreInfo.LoadCourseInfo(tourneyId.Value, roundNum.Value, out tourneyName, out dateofRound, out courseName);
+                foreach (ScoreInfo c in courseInfo) pnlScoresList.Controls.Add(Scores(c.ID, c, false, false));
+                lblDateInfo.Text = "&nbsp;&nbsp;  - &nbsp;&nbsp;  Round " + roundNum.Value + ": " + dateofRound;
+                lblRoundInfo.Text = tourneyName + " " + courseName;
+            }
+            else
+            {
+                lblDateInfo.Text = "Date of Round: " + DateTime.Now.ToShortDateString();
+            }
             si.ID = "label2";
             pnlScoresList.Controls.Add(Scores("", si, false, true));
         }
@@ -289,7 +305,7 @@ public partial class _Default : System.Web.UI.Page
         }
         int hcp = 0;
         int.TryParse(Request.Form["score_hcp_" + id], out hcp);
-        return new ScoreInfo(id, "", Request.Form["score_name_" + id], scores, f9.ToString(), b9.ToString(), (f9 + b9).ToString(), hcp.ToString(), (f9 + b9 - hcp).ToString(), Request["courseName"], Request["courseSlope"], Request["courseRating"], false, "");
+        return new ScoreInfo(id, "", Request.Form["score_name_" + id], scores, f9.ToString(), b9.ToString(), (f9 + b9).ToString(), hcp.ToString(), (f9 + b9 - hcp).ToString(), Request["courseName"], Request["courseSlope"], Request["courseRating"], false, "", 1);
     }
     protected void FillReq(string reqid, out string id, out string userid)
     {
