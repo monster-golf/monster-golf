@@ -40,15 +40,15 @@ function ScoresSaveAll() {
 function ScoresSave(obj, e) {
     var invalid = false;
     if (!IsE(obj, "score_name_")) {
-        var val = parseInt(obj.value);
-        var isnum = parseInt(val);
-        if (val == "") isnum = 0;
-        if (isNaN(isnum)) {
-            alert("Invalid score");
-            invalid = true;
+        var isnum = 0;
+        if (obj.value != "") {
+            var val = parseInt(obj.value);
+            var isnum = parseInt(val);
+            if (isNaN(isnum)) invalid = true;
+            else obj.value = isnum;
+            if (isnum == 1) invalid = !confirm("HOLE IN ONE....FOR REALS!!!!");
+            if (isnum >= 15) invalid = !confirm("It really took " + isnum + " strokes...ouch.");
         }
-        else if (isnum == 1) invalid = !confirm("HOLE IN ONE....FOR REALS!!!!");
-        else if (isnum >= 15) invalid = !confirm("It really took " + isnum + " strokes...ouch.");
     }
     if (invalid) {
         obj.value = "";
@@ -103,7 +103,7 @@ function ScoresAdd(obj,e) {
 var scoreInitsList = new Array();
 function ScoresFocus(obj, e) {
     if (!obj) return KeyEntKill(e);
-    if (IsE(obj, "score_1_") || IsE(obj, "score_2_") || IsE(obj, "score_10_") || IsE(obj, "score_11_")) return KeyEntKill(e);
+    if (IsE(obj, "score_1_") || IsE(obj, "score_2_") || IsE(obj, "score_3_") || IsE(obj, "score_10_") || IsE(obj, "score_11_") || IsE(obj, "score_12_")) return KeyEntKill(e);
     var scorehole = obj.id.substring(0, obj.id.lastIndexOf("_") + 1);
     var scorelist = document.getElementById("pnlScoresList");
     var scorerow = GetFirstItem(obj.parentNode.parentNode.firstChild, "player_");
@@ -132,7 +132,7 @@ function ScoresFocus(obj, e) {
         var score = GetFirstItem(scorerow.firstChild, scorehole);
         if (score) {
             scoreInitsList[x].style.display = "";
-            scoreInitsList[x].style.left = (score.offsetLeft - scoreInitsList[x].offsetWidth) + "px";
+            scoreInitsList[x].style.left = (score.offsetLeft - (scoreInitsList[x].offsetWidth*2)) + "px";
             x++;
         }
         scorerow = GetFirstItem(scorerow.nextSibling, "player_");
@@ -140,9 +140,11 @@ function ScoresFocus(obj, e) {
     return KeyEntKill(e);
 }
 function ScoresBlur(obj, e) {
+    ScoresSave(obj, event);
     for (var x = 0; x < scoreInitsList.length; x++) {
         scoreInitsList[x].style.display = "none";
     }
+    return KeyEntKill(e);
 }
 function ScoresComplete() {
     var scorelist = document.getElementById("pnlScoresList");

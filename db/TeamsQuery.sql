@@ -23,19 +23,29 @@ order by tc.[Round], TeeNumber
 
 select * from mg_tourneyScores where emailgroup = 1
 
-select MobileEmail, Email, ttu.FirstName + ' ' + ttu.LastName as Name from mg_TourneyTeams tt 
+select MobileEmail, Email, ttu.FirstName + ' ' + ttu.LastName as Name, u.userid from mg_TourneyTeams tt 
 	join mg_TourneyTeamPlayers ttp on tt.TeamId = ttp.TeamId 
 	join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId 
 	join mg_users u on ttu.WebId = u.UserId
 where tt.TournamentId = 22
+order by name
 
+
+update mg_users set mobileemail = 'dougorangewhip@gmail.com' where userid = 29
+update mg_users set mobileemail = 'monster@monstergolf.org' where userid = 313
+update mg_users set mobileemail = 'aaronwald@hotmail.com' where userid = 257
 
 select tp.* from mg_TourneyTeamPlayers tp
  where tp.tournamentId =19
  
  select * from mg_tourneyusers
  
-select * from mg_tourneyScores where tourneyId =19 and roundnum = 1
+ 
+select * from mg_tourneyScores where tourneyId =22
+order by roundnum, name
+
+2013-06-15 13:30:00.000
+2013-06-14 09:00:00.000
 
 select tp.*, ts.hcp, tu.hcpindex, ts.name from mg_TourneyTeamPlayers tp
 join mg_tourneyusers tu on tp.userId = tu.userId
@@ -58,8 +68,8 @@ join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamen
  where ttp.TournamentId = 22
  GROUP BY ttp.ID, ttu.UserId, mu.Handicap, ttu.WebId
  
- select * from mg_tourneyscores where tourneyid >= 20
- 
+ select * from mg_tourneyscores where tourneyid >= 22 and userid = 370
+ update mg_tourneyscores set HCP = 13 where tourneyid >= 22 and userid = 370
  
  SELECT tp.TeamID, t.TeamName, t.Flight, tp.TeeNumber, tp.Handicap AS TPHandicap, ts.*, u.LastName, u.FirstName, u.Image 
  FROM mg_tourneyTeamPlayers AS tp 

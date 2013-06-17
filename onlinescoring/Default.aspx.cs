@@ -60,7 +60,7 @@ public partial class _Default : System.Web.UI.Page
             if (Request.QueryString["overwrite"] != "1") tabindex = (live && row > 0) ? ((numplayers * (x - tabidsub)) + row) : 0;
             string cssadd = css;
             if (Request.QueryString["h"] == x.ToString()) cssadd += " ScoreHighlight";
-            pnl.Controls.Add(WEB.TB("score_" + x + "_" + si.ID, si.Scores[x.ToString()], "Score ScoreHole" + cssadd, 2, "return ScoresAdd(this,event)", "return ScoresSave(this,event)", "return ScoresFocus(this,event)", "return ScoresBlur(this,event)", live, false, true, ((x < 10) ? "f" : "b"), tabindex));
+            pnl.Controls.Add(WEB.TB("score_" + x + "_" + si.ID, si.Scores[x.ToString()], "Score ScoreHole" + cssadd, 2, "return ScoresAdd(this,event)", "", "return ScoresFocus(this,event)", "return ScoresBlur(this,event)", live, false, true, ((x < 10) ? "f" : "b"), tabindex));
             if (x == 9)
             {
                 pnl.Controls.Add(WEB.TB("score_out_" + si.ID, si.Out, "Score ScoreTotal" + css, 3, "", "", false, false, 1));

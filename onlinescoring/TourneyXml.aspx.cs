@@ -96,7 +96,7 @@ public partial class TourneyXml : System.Web.UI.Page
             }
             db.Close(sdr, false);
             WEB w = new WEB();
-            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, false, "StartingHole, GroupId, Name"));
+            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, startofround < DateTime.Now, "StartingHole, GroupId, Name"));
         }
     }
     protected void GetTourneyDetails()
@@ -175,78 +175,10 @@ public partial class TourneyXml : System.Web.UI.Page
                     w.TourneyRow(db, sb, new ScoreInfo("label", "", "Hole", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net"));
                     foreach (ScoreInfo si in coursesInfo[x])
                     {
-                        sb.AppendFormat("<div class='Detail1'>{0}</div>", si.Name);
-                        for (int i = 1; i <= 18; i++)
-                        {
-                            if (i == 10) sb.AppendFormat("<div class='Detail'>{0}</div>", si.Out);
-                            sb.AppendFormat("<div class='Detail'>{0}</div>", si.Scores[i.ToString()]);
-                        }
-                        sb.AppendFormat("<div class='Detail'>{0}</div>", si.In);
-                        sb.AppendFormat("<div class='Detail'>{0}</div>", si.Total);
-                        sb.AppendFormat("<div class='Detail'>{0}</div>", si.HCP);
-                        sb.AppendFormat("<div class='Detail'>{0}</div>", si.Net);
-                        sb.Append("<div style='clear:both'> </div>");
+                        w.TourneyRow(db, sb, si);
                     }
                     sb.Append("<div style='clear:both'> </div>");
                 }
-                //select = "select t.TournamentID, Location, Slogan, Description, tc.CourseID, tc.[Round], Course, DateOfRound, ID, TeeNumber, Slope, Rating, Par1, Par2, Par3, Par4, Par5, Par6, Par7, Par8, Par9, Par10, Par11, Par12, Par13, Par14, Par15, Par16, Par17, Par18, Handicap1, Handicap2, Handicap3, Handicap4, Handicap5, Handicap6, Handicap7, Handicap8, Handicap9, Handicap10, Handicap11, Handicap12, Handicap13, Handicap14, Handicap15, Handicap16, Handicap17, Handicap18 " +
-                //                "from mg_Tourney t " +
-                //                "join mg_tourneycourses tc on tc.tournamentid = t.tournamentid " +
-                //                "join mg_TourneyCourseDetails tcd on tcd.CourseID = tc.CourseId " +
-                //                "where t.TournamentID = " + tourneyid + 
-                //                " order by tc.[Round], TeeNumber";
-                //sdr = db.Get(select);
-                //while(sdr.Read()
-                //{
-                //    if (detailround == -1)
-                //    {
-                //        sb.AppendFormat("<div>{0} - {1} - {2}</div>", sdr["Slogan"], sdr["Description"], sdr["Location"]);
-                //    }
-                //    if (sdr["Round"].ToString() != detailround.ToString())
-                //    {
-                //        if (int.TryParse(sdr["Round"].ToString(), out detailround))
-                //        {
-                //            DateTime startofround = DateTime.MinValue;
-                //            if (!sdr.IsDBNull(sdr.GetOrdinal("DateOfRound")))
-                //            {
-                //                DateTime.TryParse(sdr["DateOfRound"].ToString(), out startofround);
-                //            }
-                //            string starttime = "";
-                //            if (startofround != DateTime.MinValue) starttime = startofround.ToString("M/d/yy h:mm tt");
-                //            sb.AppendFormat("<div style='margin-top:20px;'>Round: {0} on <span id='rounddate'>{1}</span> at {2} ", detailround, starttime, sdr["Course"]);
-                //            if (needssetup.Contains(detailround)) sb.AppendFormat(" <a href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
-                //            else
-                //            {
-                //                sb.AppendFormat(" <a href='javascript:ViewRound({0});'>View Player Scores</a>", detailround);
-                //                if (startofround > DateTime.Now) sb.AppendFormat(" <a href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
-                //            }
-                //            if (needsscores.Contains(detailround)) sb.AppendFormat(" <a href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
-                //            sb.AppendFormat("</div><div style='clear:both' id='playerscores{0}'> </div>", detailround);
-                //            w.TourneyRow(db, sb, new ScoreInfo("label", "", "Hole", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net"));
-                //        }
-                //    }
-                //    sb.AppendFormat("<div class='Detail1'>Par Tee {0}</div>", sdr["TeeNumber"]);
-                //    int parf9 = 0, parb9 = 0, par;
-                //    for (int x = 1; x <= 18; x++)
-                //    {
-                //        int.TryParse(sdr["Par" + x].ToString(), out par);
-                //        if (x < 10) parf9 += par;
-                //        else parb9 += par;
-                //        if (x == 10) sb.AppendFormat("<div class='Detail'>{0}</div>", parf9);
-                //        sb.AppendFormat("<div class='Detail'>{0}</div>", par);
-                //    }
-                //    sb.AppendFormat("<div class='Detail'>{0}</div>", parb9);
-                //    sb.AppendFormat("<div class='Detail'>{0}</div>", parb9 + parf9);
-                //    sb.Append("<div style='clear:both'> </div>");
-                //    sb.AppendFormat("<div class='Detail1'>HCP Tee {0}</div>", sdr["TeeNumber"]);
-                //    for (int x = 1; x <= 18; x++)
-                //    {
-                //        if (x == 10) sb.Append("<div class='Detail'> </div>");
-                //        sb.AppendFormat("<div class='Detail'>{0}</div>", sdr["Handicap" + x]);
-                //    }
-                //    sb.AppendFormat("<div class='Detail'>Slope {0} Rating {1}</div>", sdr["Slope"], sdr["Rating"]);
-                //    sb.Append("<div style='clear:both'> </div>");
-                //}
             }
             sb.Append("\n</div>");
             WEB.WriteEndResponse(Response, sb);
@@ -261,7 +193,11 @@ public partial class TourneyXml : System.Web.UI.Page
             string emailfails = "";
             SqlDataReader sdr = db.Get("select Distinct t.Location, t.Slogan, t.[Description], t.NumRounds, tc.Course, tc.[Round], tc.DateOfRound, ts.GroupId from mg_Tourney t " +
                                        "join mg_tourneyCourses tc on tc.tournamentid = t.tournamentid " +
-                                       "join mg_tourneyScores ts on ts.tourneyid = t.tournamentid " +
+                                       "join mg_tourneyScores ts on ts.tourneyid = t.tournamentid and " +
+                                       "	(convert(nvarchar(2), ts.RoundNum) = tc.[Round] OR " +
+                                       "	 tc.[Round] like convert(nvarchar(2), ts.RoundNum) + ',%' OR " +
+                                       "	 tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) OR " +
+                                       "	 tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) + ',%') " +
                                        "where t.tournamentId = " + tourneyid + " and ts.EmailSent <> 1 and ts.GroupId IS NOT NULL and ts.GroupId <> ''");
             while (sdr.Read())
             {
