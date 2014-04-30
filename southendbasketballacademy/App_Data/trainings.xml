@@ -1,0 +1,623 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<trainings enableregistration="0" discountpct="20" discountmin="400">
+  <training id="4b084869-4b8c-40bd-af16-7be4f3ba42e6">
+    <day>Monday's</day>
+    <time>2:45 to 4:15 (window of time)
+</time>
+    <class>Basketball 1:1 or Small Group Skill Building - By Reqest
+</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn
+</trainer>
+    <grades>3rd - 11th
+</grades>
+    <location>TBD</location>
+    <dates>TBD</dates>
+    <cost>TBD</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="170f277c-b1d9-4fb2-8db6-f866ef6641a9">
+    <day>Thursday's</day>
+    <time>2:45 to 4:15 (window of time)</time>
+    <class>Basketball 1:1 or Small Group Skill Building - By Request</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>3rd - 11th</grades>
+    <location>TBD</location>
+    <dates>TBD</dates>
+    <cost>TBD</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="7f9788dc-b13c-4342-95d2-66679a63dac5" delete="1">
+    <day>Monday's</day>
+    <time>5:00 to 6:00</time>
+    <class>Dance 101</class>
+    <description>
+    </description>
+    <trainer>Christina Arrington</trainer>
+    <grades>3rd - 4th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>March 17, 24, 31&lt;br /&gt;April 14, 28&lt;br /&gt;May 5, 12, 19</dates>
+    <cost>$65</cost>
+    <type>Dance</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="13fe5b00-95bc-4de1-a84e-8384f5a28ebe" delete="1">
+    <day>Monday's</day>
+    <time>6:00 to 7:00</time>
+    <class>Dance 101</class>
+    <description>
+    </description>
+    <trainer>Christina Arrington</trainer>
+    <grades>5th - 6th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>March 17, 24, 31 &lt;br/&gt;April 14, 28  &lt;br/&gt;      May 5, 12, 19</dates>
+    <cost>$65</cost>
+    <type>Dance</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="15cbd959-cc4e-467d-a36b-8919d851a0d5" delete="1">
+    <day>Monday's</day>
+    <time>4:30 to 5:30</time>
+    <class>Basketball Defensive Skills</class>
+    <description>
+    </description>
+    <trainer>Godfrey Drake</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>March 17, 24, 31&lt;br/&gt; April 14, 21, 28&lt;br/&gt;        May 5, 12, 19</dates>
+    <cost>$99</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="65d3a53f-198b-4554-a6f7-95cac3e83a61" delete="1">
+    <day>Monday's</day>
+    <time>5:30 to 6:30</time>
+    <class>Basketball         Shooting</class>
+    <description>
+    </description>
+    <trainer>Godfrey Drake</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>March 17, 24, 31&lt;br/&gt; April 14, 21, 28 &lt;br/&gt;       May 5, 12, 19</dates>
+    <cost>$99</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="f708f96e-9ade-4ce6-85ab-51932f7417d4" delete="1">
+    <day>Monday's</day>
+    <time>4:30 to 5:00</time>
+    <class>Football Quarterback 101</class>
+    <description>
+    </description>
+    <trainer>Chris Paulson</trainer>
+    <grades>4th - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>March 17, 24, 31&lt;br/&gt; April 14, 21, 28&lt;br/&gt;        May 5, 12, 19</dates>
+    <cost>$49</cost>
+    <type>Football</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="6b7cbcf9-f9d6-4580-bdd1-92c7241dd423" delete="1">
+    <day>Monday's</day>
+    <time>6:00 to 7:30</time>
+    <class>Middle/High Volleyball                Skills Camp</class>
+    <description>
+    </description>
+    <trainer>Derek Edwards</trainer>
+    <grades>7th - 11th</grades>
+    <location>Lake Sawyer Christian Church</location>
+    <dates>March 17, 24, 31&lt;br/&gt; April 14, 21, 28  &lt;br/&gt;      May 5, 12, 19</dates>
+    <cost>$149</cost>
+    <type>Volleyball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="8ab1a7ee-bea3-4ec4-8057-b5b88d75ed10" delete="1">
+    <day>Monday's</day>
+    <time>7:00 to 8:00</time>
+    <class>Basketball         Shooting</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>6th - 11th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>March 17, 24, 31 &lt;br/&gt;April 14, 21, 28        &lt;br/&gt;May 5, 12, 19</dates>
+    <cost>$99</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="9b6fb127-1577-4ec7-8e0a-0fb6acef07fb" delete="1">
+    <day>Tuesday's</day>
+    <time>7:00 to 8:00</time>
+    <class>Basketball          Shooting</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>6th - 11th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>March 18, 25&lt;br/&gt;              April 1, 15, 22, 29      &lt;br/&gt;  May 6, 13, 20</dates>
+    <cost>$99</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="84b5c221-9de2-41f0-a433-9ad5dcf67bdf" delete="1">
+    <day>Wednesday's</day>
+    <time>6:00 to 7:00</time>
+    <class>Dance 101</class>
+    <description>
+    </description>
+    <trainer>Christina Arrington</trainer>
+    <grades>5th - 6th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>March 19, 26 &lt;br/&gt;             April 2, 16, 30&lt;br/&gt;        May 7, 14, 21</dates>
+    <cost>$65</cost>
+    <type>Dance</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="7669e85e-0cf8-433d-a5a9-dfbb2b450ab6" delete="1">
+    <day>Wednesday's</day>
+    <time>5:30 to 6:30</time>
+    <class>Basketball         Shooting</class>
+    <description>
+    </description>
+    <trainer>Godfrey Drake</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>March 19, 26 &lt;br/&gt;             April 2, 16, 23, 30    &lt;br/&gt;    May 7, 14</dates>
+    <cost>$89</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="12002608-3e90-48c7-85b2-0d0d0444e958" delete="1">
+    <day>Wednesday's</day>
+    <time>7:50 to 8:50</time>
+    <class>Speed, Quickness, and Agility</class>
+    <description>
+    </description>
+    <trainer>Erick Schug</trainer>
+    <grades>7th-11th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>March 19, 26 &lt;br/&gt;             April 2, 16, 23, 30   &lt;br/&gt;     May 7, 14, 21</dates>
+    <cost>$79</cost>
+    <type>Quickness and Agility</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="da0f2aec-0a76-4438-a0e4-93acf32085ce">
+    <day>Wednesday's</day>
+    <time>7:30 to 9:30 (window of time)</time>
+    <class>Basketball 1:1 or Small Group Skill Building - By Reqest</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>3rd - 11th</grades>
+    <location>TBD</location>
+    <dates>TBD</dates>
+    <cost>TBD</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="b5975386-7d6d-43bb-b3f6-06a57a5ae96b" delete="1">
+    <day>Unlimited Basketball Trainings</day>
+    <time>
+    </time>
+    <class>Attend as many &lt;span style="font-weight:bold;color:red;"&gt;BASKETBALL&lt;/span&gt; sessions as you would like.</class>
+    <description>
+    </description>
+    <trainer>
+    </trainer>
+    <grades>6-11</grades>
+    <location>
+    </location>
+    <dates>
+    </dates>
+    <cost>$450</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>True</excludefromdiscount>
+  </training>
+  <training id="9bea460c-ff0f-40fa-94fc-27e05241875b" delete="1">
+    <day>Thursday's</day>
+    <time>6:15 to 7:15</time>
+    <class>Basketball 101</class>
+    <description>
+    </description>
+    <trainer>Jeff Martin</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>March 20, 27  &lt;br/&gt;            April 3, 17, 24 &lt;br/&gt;       May 1, 15, 22</dates>
+    <cost>$89</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="b41fecef-405f-4dc7-bd0e-4094603d2e34" delete="1">
+    <day>Unlimited Basketball Trainings</day>
+    <time>
+    </time>
+    <class>Attend as many &lt;span style="font-weight:bold;color:red;"&gt;BASKETBALL&lt;/span&gt; sessions as you would like.</class>
+    <description>
+    </description>
+    <trainer>
+    </trainer>
+    <grades>3-5</grades>
+    <location>
+    </location>
+    <dates>
+    </dates>
+    <cost>$250</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>True</excludefromdiscount>
+  </training>
+  <training id="b60b743e-c23f-4bc2-ae9a-4925f23ee03c">
+    <day>Monday's</day>
+    <time>5:30 to 7:00</time>
+    <class>Tennis 101</class>
+    <description>
+    </description>
+    <trainer>Barry Fredericks</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Kentlake High School</location>
+    <dates>April 14, 21, 28&lt;br/&gt;        May 5, 12, 19</dates>
+    <cost>$35</cost>
+    <type>Tennis</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="b55ca95f-f2a9-424f-a4d5-c670b3b14a62">
+    <day>Monday's</day>
+    <time>5:00 to 6:30</time>
+    <class>Football 101 QB/RB/WR</class>
+    <description>
+    </description>
+    <trainer>Chris Paulson</trainer>
+    <grades>4th - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>April 14, 21, 28   &lt;br/&gt;     May 5, 12, 19</dates>
+    <cost>$99</cost>
+    <type>Football</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="bfbfc6f7-6d9f-4f9a-8f90-5ce729570e49">
+    <day>Monday's</day>
+    <time>6:40 to 7:40</time>
+    <class>Speed, Quickness, and Agility</class>
+    <description>
+    </description>
+    <trainer>Erick Schug</trainer>
+    <grades>3rd-6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>April 14, 21, 28        &lt;br/&gt;May 5, 12, 19</dates>
+    <cost>$53</cost>
+    <type>Quickness and Agility</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="ed89468d-5675-4c30-810b-84adebc527f9" delete="1">
+    <day>Monday's</day>
+    <time>6:00 to 7:00</time>
+    <class>Basketball                Guard Play</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>6th-8th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 14, 21, 28  &lt;br/&gt;      May 5, 12, 19</dates>
+    <cost>$65</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="3859aa57-432b-46b8-914d-56e09608e9d6">
+    <day>Monday's</day>
+    <time>8:00 to 9:00</time>
+    <class>Basketball               Post Play</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>7th-11th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 14, 21, 28    &lt;br/&gt;    May 5, 12, 19</dates>
+    <cost>$65</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="d51d97a8-8628-4abc-95b9-6a20769f0713">
+    <day>Monday's</day>
+    <time>8:10 to 9:10</time>
+    <class>Speed, Quickness, and Agility</class>
+    <description>
+    </description>
+    <trainer>Erick Schug</trainer>
+    <grades>6th-11th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 14, 21, 28&lt;br/&gt;        May 5, 12, 19</dates>
+    <cost>$53</cost>
+    <type>Quickness and Agility</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="0f02a8b1-a8d8-446d-84de-e967af70ff4e">
+    <day>Tuesday's</day>
+    <time>6:00 to 7:00</time>
+    <class>Basketball                Guard Play</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>6th-8th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 1, 15, 22, 29 &lt;br/&gt; May 6, 13, 20</dates>
+    <cost>$65</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="406737a5-925a-4357-bfb3-1be3928ac3c1">
+    <day>Tuesday's</day>
+    <time>8:00 to 9:00</time>
+    <class>Basketball Wing Play</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>9th-11th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 1, 15, 22, 29  &lt;br/&gt;      May 6, 13, 20</dates>
+    <cost>$65</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="2ea4b90b-f090-4c33-ab53-03d7bdea4391">
+    <day>Wednesday's</day>
+    <time>2:45 to 3:45</time>
+    <class>Basketball                Guard Play</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>9th-11th</grades>
+    <location>Lake Sawyer Christian Church</location>
+    <dates>April 2, 16, 23, 30    &lt;br/&gt;    May 7, 21</dates>
+    <cost>$55</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="27530b8e-e206-4bea-9129-f31c45f12e96">
+    <day>Wednesday's</day>
+    <time>4:45 to 5:45</time>
+    <class>Basketball             Wing Play</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>6th-8th</grades>
+    <location>Lake Sawyer Christian Church</location>
+    <dates>April 2, 16, 23, 30   &lt;br/&gt;     May 7, 21</dates>
+    <cost>$55</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="b68d2f00-f43d-4168-bdd7-a20bd633f8e7">
+    <day>Wednesday's</day>
+    <time>4:30 to 6:00</time>
+    <class>Intermediate Football                      QB's, RB's and WR's</class>
+    <description>
+    </description>
+    <trainer>Aaron Chantler</trainer>
+    <grades>7th - 9th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>April 2, 16, 23, 30    &lt;br/&gt;    May 7, 14, 21</dates>
+    <cost>$99</cost>
+    <type>Football</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="37dd718e-77bd-40f0-83f6-9a30d5e7cb33">
+    <day>Wednesday's</day>
+    <time>4:30 to 5:30</time>
+    <class>Basketball Defensive Skills</class>
+    <description>
+    </description>
+    <trainer>Godfrey Drake</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>April 2, 16, 23, 30 &lt;br/&gt;       May 7, 14</dates>
+    <cost>$55</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="e98981c4-f7db-4775-9b5d-db6f7b41a138">
+    <day>Wednesday's</day>
+    <time>6:40 to 7:30</time>
+    <class>Speed, Quickness, and Agility</class>
+    <description>
+    </description>
+    <trainer>Erick Schug</trainer>
+    <grades>3rd-11th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>April 2, 16, 23, 30    &lt;br/&gt;    May 7, 14</dates>
+    <cost>$45</cost>
+    <type>Quickness and Agility</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="c27b78b0-86e0-4c9c-9dac-9ff6ce6f7928">
+    <day>Wednesday's</day>
+    <time>5:00 to 6:00</time>
+    <class>Dance 101</class>
+    <description>
+    </description>
+    <trainer>Christina Arrington</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 2, 16, 30 &lt;br/&gt;       May 7, 14, 21</dates>
+    <cost>$40</cost>
+    <type>Dance</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="0f3b175e-14b9-4f3a-8bcc-3f8900a88a9f">
+    <day>Wednesday's</day>
+    <time>3:45 to 4:45</time>
+    <class>Basketball          Shooting</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>6th-11th</grades>
+    <location>Lake Sawyer Christian Church</location>
+    <dates>April 2, 16, 23, 30   &lt;br/&gt;     May 7, 21</dates>
+    <cost>$55</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="93e3b25c-60cb-493f-a1af-23725ebd2011" delete="1">
+    <day>Thursday's</day>
+    <time>4:30 to 6:00</time>
+    <class>Volleyball 101</class>
+    <description>
+    </description>
+    <trainer>Derek Edwards</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>April 3, 17, 24 &lt;br/&gt;       May 1, 15, 22</dates>
+    <cost>$89</cost>
+    <type>Volleyball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="18315b0b-47c8-4cb4-ac9b-525d25f8a6d8">
+    <day>Thursday's</day>
+    <time>6:00 to 7:00</time>
+    <class>Basketball               Wing Play</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>6th - 8th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 3, 17, 24 &lt;br/&gt;       May 1, 8, 15, 22</dates>
+    <cost>$65</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="23f0261e-d3c0-4fb6-88ce-579c15671f77" delete="1">
+    <day>Thursday's</day>
+    <time>7:00 to 8:00</time>
+    <class>Basketball         Shooting</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>6th - 11th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 3, 17, 24&lt;br/&gt;        May 1, 8, 15, 22</dates>
+    <cost>$65</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="c73026eb-b899-4764-a432-71e22c1a51f7" delete="0">
+    <day>Thursday's</day>
+    <time>8:00 to 9:00</time>
+    <class>Basketball               Guard Play</class>
+    <description>
+    </description>
+    <trainer>GC Hillburn</trainer>
+    <grades>9th - 11th</grades>
+    <location>Cedar Heights Middle School</location>
+    <dates>April 3, 17, 24&lt;br/&gt;        May 1, 8, 15, 22</dates>
+    <cost>$65</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="9f3c64ae-c246-481a-85f3-002207699db1">
+    <day>Thursday's</day>
+    <time>7:15 to 8:15</time>
+    <class>Basketball         Shooting</class>
+    <description>
+    </description>
+    <trainer>Jeff Martin</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>April 3, 17, 24 &lt;br/&gt;       May 1, 15, 22</dates>
+    <cost>$55</cost>
+    <type>Basketball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+  <training id="f0fc2616-076a-4fc7-af84-6988f8ec944f">
+    <day>Friday's</day>
+    <time>6:15 to 7:45</time>
+    <class>Volleyball 101</class>
+    <description>
+    </description>
+    <trainer>Courtney Grady</trainer>
+    <grades>3rd - 6th</grades>
+    <location>Sawyer Woods Elementary</location>
+    <dates>April 4, 18, 25 &lt;br/&gt;       May 2, 9, 16</dates>
+    <cost>$89</cost>
+    <type>Volleyball</type>
+    <maxparticipants>
+    </maxparticipants>
+    <excludefromdiscount>False</excludefromdiscount>
+  </training>
+</trainings>

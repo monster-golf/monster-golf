@@ -1,0 +1,321 @@
+﻿<%@ master language="C#" autoeventwireup="true" inherits="SouthEndBBMasterPage, App_Web_4jshnods" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Southend Skills Academy - Kent Washington</title>
+    <meta name="description" content="Basketball, Football, Volleyball, Dance, Tennis, Speed and Agility skill development sessions that will greatly improve your child's game." />
+    <link href="basketball.ico" rel="shortcut icon" type="image/x-icon" />
+    <style type="text/css">
+    body
+    {
+        font-family: Arial;
+        font-size: 12px;
+        margin: 0px;
+        background-color: #004D6C;
+        color: #ffffff;
+    }
+    ul
+    {
+        list-style-type: none;
+        margin: 0px;
+        -webkit-padding-start: 0px;
+    }
+    li
+    {
+        color: #ffffff;
+    }
+    .Header
+    {
+        /*background-image: url('Images/gb-mystart-bar.png');
+        background-position: bottom;
+        background-color: #350CFF;
+        background-repeat: repeat-x;
+        position: relative;*/
+        text-align: center;
+        vertical-align: middle;
+        width: 1320px;
+        padding: 20px;
+        font-size: 36px;
+        font-weight: bold;
+    }
+    .MenuArea
+    {
+    	height: 35px;
+    	width: 100%;
+        position:relative;
+        /*background-color: #350CFF;*/
+        white-space: nowrap;
+    }
+    .TopMenuBar
+    {
+    	padding: 0px;
+        height: 35px;
+        float:left;
+        width:150px;
+        position:relative;
+        background-color: #350CFF;
+        cursor: pointer;
+        z-index: 100;
+    }
+    .TopMenuItem
+    {
+    	padding: 9px;
+    	/*background-color: #350CFF;*/
+        width: 170px;
+        position:relative;
+        cursor:pointer;
+        float: left;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 17px;
+        font-weight: normal;
+        border-bottom: solid 1px #ffffff;
+    }
+    .TopMenuItem:hover
+    {
+    	background-color: #ffffff;
+    	color: #000000;
+    }
+    .SubMenuItem
+    {
+    	position: relative;
+    	padding: 0px;
+    	/*
+    	border-left: solid 1px #000000;
+    	border-bottom: solid 1px #000000;
+    	border-right: solid 1px #000000;*/
+    }
+    .Menu
+    {
+    	padding: 0px;
+        background-color: #350CFF;
+        width: 200px;
+        position:absolute;
+        left:0px;
+        top:35px;
+        display: none;
+    }
+    .MenuLI
+    {
+    	height: 15px;
+    	padding: 10px;
+    	width: 180px;
+    }
+    .MenuLI:hover
+    {
+        background-color: rgb(146,148,151);
+    }
+    .LeftLI
+    {
+    	color: #000000;
+    	cursor: pointer;
+    	width: 165px;
+    }
+    .LeftLI:hover
+    {
+        background-color: #dedede;
+        text-decoration: underline;
+    }
+    .Title
+    {
+    	font-size: 16px;
+    	margin-bottom: 10px;
+    	clear: both;
+    }
+    .TitleBold
+    {
+    	font-weight: bold;
+    }
+    .InnerBody
+    {
+    	padding: 10px 0px 10px 20px;
+    }
+    .LeftMenu
+    {
+    	padding: 10px 0px 0px 5px;
+    }
+    .TitleCell
+    {
+    	font-size: 18px;
+    	font-weight: bold;
+    }
+    .FooterLink, .FooterLink:Hover, .FooterLink:Visited
+    {
+    	text-decoration: underline;
+    	color: #FFFFFF;
+    	margin-right: 40px;
+    	cursor: pointer;
+    	font-size: 18px;
+    }
+    .PageLink, .PageLink:Hover, .PageLink:Visited
+    {
+    	text-decoration: underline;
+    	color: #FFFFFF;
+    	cursor: pointer;
+    }
+    .InnerTableCellLeft
+    {
+    	padding-right:2px;padding-bottom:5px;
+    }
+    .InnerTableCellMiddle
+    {
+    	padding-right:10px;padding-bottom:5px;
+    }
+    .InnerTableCellRight
+    {
+    	white-space: nowrap;
+    	padding-bottom: 5px;
+    }
+    .InnerTableCellRightLargePad
+    {
+    	padding-left: 40px;
+    	padding-bottom: 5px;
+    }
+    .EventSection
+    {
+    	font-weight:bold;padding-top:10px;
+    }
+    .EventItem
+    {
+    	padding-left:10px;padding-top:10px;
+    }
+    .EventSubItem
+    {
+    	padding-left:20px;
+    }
+    .Dialog
+    {
+    	padding: 20px;display: none;position: absolute; left: 75px; top:75px; border: solid 3px #880000;background-color: #FFFFFF;
+    }
+    </style>
+    <script src="jquery-1.8.0.min.js" type="text/jscript" language="javascript"></script>
+    <script>
+        $(document).ready(function () {
+            $.fn.getMenuPage = function (url, menuid, urlleft, divId, retFunc) {
+                if (menuid) $('#divMenu' + menuid).hide();
+                if (!divId) divId = '#divBody';
+                var d = new Date();
+                var ts = "?ts=" + escape(d.getTime().toString());
+                url += ts;
+                $.get(url,
+                    function (data) {
+                        $(divId).html(data);
+                        Resize();
+                        if (retFunc) retFunc();
+                    }
+                );
+                if (urlleft) {
+                    urlleft += ts;
+                    $.get(urlleft,
+                        function (data) {
+                            $('#divLeft').html(data);
+                        }
+                    );
+                }
+                }
+            <% if (!AdminVisible) { %>
+            //$(divBody).getMenuPage('sbatraining.htm',null,'sbatrainingleft.htm');
+            <% } %>
+        });
+
+        // Photo handler
+        var photo_curImgId = 0;
+        var photo_pause = false;
+        var photo_toggle = 10000;
+        var photo_timeout = null;
+        var photo_maxid = 30;
+        var photo_imgId1 = "#imgCurrent1";
+        var photo_imgId2 = "#imgCurrent2";
+        var photo_activeImgId = "";
+        function RunPhotos() {
+            photo_curImgId = 0;
+            ShowPhoto();
+        }
+        function ShowPhoto(prev) {
+            if (photo_activeImgId != "") {
+                var prevImgId = photo_activeImgId;
+                if ($(prevImgId)) {
+                    $(prevImgId).hide('slow');
+                }
+                if (photo_activeImgId == photo_imgId1) photo_activeImgId = photo_imgId2;
+                else photo_activeImgId = photo_imgId1;
+            } else {
+                photo_activeImgId = photo_imgId1;
+            }
+            if (prev) photo_curImgId--;
+            else photo_curImgId++;
+            if (photo_curImgId > photo_maxid) photo_curImgId = 0;
+            else if (photo_curImgId < 0) photo_curImgId = photo_maxid;
+            var imgId = photo_activeImgId;
+            if ($(imgId)) {
+                $(imgId).show('slow');
+                $(imgId).get(0).src = "xml.aspx?img=" + photo_curImgId;
+                if (!photo_pause) photo_timeout = setTimeout(ShowPhoto, photo_toggle);
+            }
+        }
+        function PausePhoto(pause) {
+            photo_pause = pause;
+            if (!photo_pause) {
+                if ($("#imgPlay")) $("#imgPlay").hide();
+                if ($("#imgPause")) $("#imgPause").show();
+                ShowPhoto();
+            } else if (photo_timeout) {
+                clearTimeout(photo_timeout);
+                if ($("#imgPause")) $("#imgPause").hide();
+                if ($("#imgPlay")) $("#imgPlay").show();
+            }
+        }
+        function NextPhoto() {
+            clearTimeout(photo_timeout);
+            ShowPhoto();
+        }
+        function PrevPhoto() {
+            clearTimeout(photo_timeout);
+            ShowPhoto(true);
+        }
+        function Resize() {
+//            var bdy = document.getElementById("divBody");
+//            var container = bdy.parentNode;
+//            var y = bdy.offsetHeight + container.offsetTop;
+//            var ftr = document.getElementById("divFooter");
+//            var lft = document.getElementById("divLeft");
+//            container.style.height = bdy.offsetHeight + "px";
+//            if (lft) lft.style.height = bdy.offsetHeight + "px";
+//            if (ftr) ftr.style.top = y + "px";
+        }
+        // end Photo handler
+    </script>
+    <asp:ContentPlaceHolder id="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body onload="Resize();" onresize="Resize();">
+    <form id="form1" runat="server">
+    <div id="divHeader" style="margin-left:5px;">
+        <div class="Header">Southend Skills Academy</div>
+        <div style="clear: both;"></div>
+        <div style="min-width:1320px;">
+        <div class="TopMenuItem" onclick="window.location.href='Default.aspx'">Home</div>
+        <div class="TopMenuItem" onclick="window.location.href='Information.aspx'">Information</div>
+        <div class="TopMenuItem" onclick="window.location.href='Schedule.aspx'">Schedule/Registration</div>
+        <div class="TopMenuItem" onclick="window.location.href='Staff.aspx'">Staff</div>
+        <div class="TopMenuItem" onclick="window.location.href='Photos.aspx'">Photos</div>
+        <div class="TopMenuItem" onclick="window.location.href='Contact.aspx'">Contact Us</div>
+        <div class="TopMenuItem" onclick="window.location.href='Scholarship.aspx'">Scholarship</div>
+        </div>
+    </div>
+    <div style="position:relative;clear:both;overflow:visible;min-height:650px;margin-left:5px;">
+        <asp:ContentPlaceHolder id="ContentPlaceHolder1" runat="server">
+        
+        </asp:ContentPlaceHolder>
+    </div>
+    <div id="divFooter" style="min-height:50px;width:1320px;">
+    <div style="padding:10px 5px 5px 5px;text-align:center;">
+    <a class="FooterLink" href="mailto:southendskillsacademy@hotmail.com">southendskillsacademy@hotmail.com</a>
+    </div>
+    </div>
+    </form>
+    <asp:ContentPlaceHolder ID="ContentPlaceHolderOutsideForm" runat="server"></asp:ContentPlaceHolder>
+</body>
+</html>
