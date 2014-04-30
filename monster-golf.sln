@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "onlinescoring", "onlinescoring\", "{B795844D-B32D-4ABA-8626-83FB36942A88}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "onlinescoring", "monster-golf-web\onlinescoring\", "{B795844D-B32D-4ABA-8626-83FB36942A88}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv2.0"
 		Debug.AspNetCompiler.VirtualPath = "/onlinescoring"
-		Debug.AspNetCompiler.PhysicalPath = "onlinescoring\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\onlinescoring\"
+		Debug.AspNetCompiler.PhysicalPath = "monster-golf-web\onlinescoring\"
+		Debug.AspNetCompiler.TargetPath = "..\monstergolf\monsterscoring\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/onlinescoring"
-		Release.AspNetCompiler.PhysicalPath = "onlinescoring\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\onlinescoring\"
+		Release.AspNetCompiler.PhysicalPath = "monster-golf-web\onlinescoring\"
+		Release.AspNetCompiler.TargetPath = "..\monstergolf\monsterscoring\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
@@ -22,19 +22,19 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "onlinescoring", "onlinescor
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "running", "running\", "{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "running", "monster-golf-web\running\", "{50E657F0-C4A0-4CE8-8D07-1C3F7E5A4F74}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv3.5"
 		Debug.AspNetCompiler.VirtualPath = "/running"
-		Debug.AspNetCompiler.PhysicalPath = "running\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\running\"
+		Debug.AspNetCompiler.PhysicalPath = "monster-golf-web\running\"
+		Debug.AspNetCompiler.TargetPath = "..\monstergolf\running\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/running"
-		Release.AspNetCompiler.PhysicalPath = "running\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\running\"
+		Release.AspNetCompiler.PhysicalPath = "monster-golf-web\running\"
+		Release.AspNetCompiler.TargetPath = "..\monstergolf\running\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
@@ -43,7 +43,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "running", "running\", "{50E
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterGolf", "golftourney\MonsterGolf.csproj", "{3565B37E-308C-44ED-8584-CBFFFFB64728}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterGolf", "monster-golf-app\MonsterGolf.csproj", "{3565B37E-308C-44ED-8584-CBFFFFB64728}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
