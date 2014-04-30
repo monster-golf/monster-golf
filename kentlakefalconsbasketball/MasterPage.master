@@ -1,0 +1,433 @@
+﻿<%@ master language="C#" autoeventwireup="true" inherits="MasterPage, App_Web_mgnyfteg" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Kentlake Falcons Basketball</title>
+    <meta name="description" content="Kentlake Highschool Falcons Basketball, Kent Washington" />
+    <link href="images/kentlake_logo.png" rel="shortcut icon" type="image/x-icon" />
+    
+    <style type="text/css">
+    body
+    {
+        font-family: Arial;
+        font-size: 12px;
+        margin: 0px;
+        background-color: rgb(128,0,0);
+        color: #ffffff;
+    }
+    ul
+    {
+        list-style-type: none;
+        margin: 0px;
+        -webkit-padding-start: 0px;
+    }
+    li
+    {
+        color: #ffffff;
+    }
+    a, a:visited
+    {
+    	color: #0000ff;
+    	text-decoration: none;
+    }
+    a:hover
+    {
+    	text-decoration: underline;
+    }
+    .awhite:hover
+    {
+    	color: #ffffff;
+    	text-decoration: underline;
+    }
+    .awhite, .awhite:visited
+    {
+    	color: #ffffff;
+    	text-decoration: none;
+    }
+    .Header
+    {
+        background-image: url('Images/gb-mystart-bar.png');
+        background-position: bottom;
+        background-color: rgb(128,0,0);
+        background-repeat: repeat-x;
+        position: relative;
+    }
+    .MenuArea
+    {
+    	height: 35px;
+    	width: 100%;
+        position:relative;
+        background-color: rgb(128,0,0);
+        white-space: nowrap;
+    }
+    .TopMenuBar
+    {
+    	padding: 0px;
+        height: 35px;
+        float:left;
+        width:200px;
+        position:relative;
+        background-color: rgb(128,0,0);
+        cursor: pointer;
+        z-index: 100;
+    }
+    .TopMenuItem
+    {
+    	padding: 0px;
+        background-color: rgb(128,0,0);
+        width: 200px;
+        position:relative;
+    }
+    .SubMenuItem
+    {
+    	position: relative;
+    	padding: 0px;
+    	/*
+    	border-left: solid 1px #000000;
+    	border-bottom: solid 1px #000000;
+    	border-right: solid 1px #000000;*/
+    }
+    .Menu
+    {
+    	padding: 0px;
+        background-color: rgb(128,0,0);
+        width: 200px;
+        position:absolute;
+        left:0px;
+        top:35px;
+        display: none;
+    }
+    .MenuLI
+    {
+    	height: 15px;
+    	padding: 10px;
+    	width: 180px;
+    }
+    .MenuLINoHover
+    {
+    	height: 15px;
+    	padding: 10px;
+    	width: 180px;
+    }
+    .MenuLI:hover
+    {
+        background-color: rgb(146,148,151);
+    }
+    .LeftLI
+    {
+    	color: #000000;
+    	cursor: pointer;
+    	width: 165px;
+        text-decoration: none;
+    }
+    .LeftLI:hover
+    {
+        background-color: #dedede;
+        text-decoration: underline;
+    }
+    .Title
+    {
+    	font-size: 16px;
+    	margin-bottom: 10px;
+    	clear: both;
+    }
+    .TitleBold
+    {
+    	font-weight: bold;
+    }
+    .InnerBody
+    {
+    	padding: 10px 0px 10px 20px;
+    }
+    .InnerBodyNoPad
+    {
+    	padding: 0px 0px 10px 0px;
+    }
+    .LeftMenu
+    {
+    	padding: 10px 0px 0px 5px;
+    }
+    .TitleCell
+    {
+    	font-size: 18px;
+    	font-weight: bold;
+    }
+    .FooterLink, .FooterLink:Hover, .FooterLink:Visited
+    {
+    	text-decoration: underline;
+    	color: #FFFFFF;
+    	margin-right: 40px;
+    	cursor: pointer;
+    }
+    .PageLink, .PageLink:Hover, .PageLink:Visited
+    {
+    	text-decoration: underline;
+    	color: #000000;
+    	cursor: pointer;
+    }
+    .InnerTableCellLeft
+    {
+    	padding-right:2px;padding-bottom:5px;
+    }
+    .InnerTableCellMiddle
+    {
+    	padding-right:10px;padding-bottom:5px;
+    }
+    .InnerTableCellRight
+    {
+    	white-space: nowrap;
+    	padding-bottom: 5px;
+    }
+    .InnerTableCellRightLargePad
+    {
+    	padding-left: 40px;
+    	padding-bottom: 5px;
+    }
+    .EventSection
+    {
+    	font-weight:bold;padding-top:10px;
+    }
+    .EventItem
+    {
+    	padding-left:10px;padding-top:10px;
+    }
+    .EventSubItem
+    {
+    	padding-left:20px;
+    }
+    .Dialog
+    {
+    	padding: 20px;display: none;position: absolute; left: 75px; top:75px; border: solid 3px #880000;background-color: #FFFFFF;z-index:200;
+    }
+    .DialogMain
+    {
+    	left: 200px;
+    	top: 100px;
+    }
+    .SeeThrough
+    {
+    	background: rgb(0, 0, 0);
+    	background: rgba(0, 0, 0, 0.5);
+    }
+    </style>
+    <script src="jquery-1.8.0.min.js" type="text/javascript" language="javascript"></script>
+    <script type="text/javascript" language="javascript">
+        $(document).ready(function () {
+            $.fn.getMenuPage = function (url, menuid, urlleft, divId, retFunc) {
+                if (menuid) $('#divMenu' + menuid).hide();
+                if (!divId) divId = '#divBody';
+                var d = new Date();
+                var ts = "?ts=" + escape(d.getTime().toString());
+                url += ts;
+                $.get(url,
+                    function (data) {
+                        $(divId).html(data);
+                        Resize();
+                        if (retFunc) retFunc();
+                    }
+                );
+                if (urlleft) {
+                    urlleft += ts;
+                    $.get(urlleft,
+                        function (data) {
+                            $('#divLeft').html(data);
+                        }
+                    );
+                }
+            }
+            $(divBody).getMenuPage('home.htm', null, 'homeleft.htm');
+        });
+
+        // Photo handler
+        var photo_curImgId = 0;
+        var photo_pause = false;
+        var photo_toggle = 5000;
+        var photo_timeout = null;
+        var photo_maxid = 33;
+        var photo_imgId1 = "#imgCurrent1";
+        var photo_imgId2 = "#imgCurrent2";
+        var photo_activeImgId = "";
+        var photo_dir = "";
+        function RunPhotos(dir, maxIndex, startPos) {
+            if ($("#divComingSoon")) { $("#divComingSoon").hide(); }
+            if ($("#divNextPrev")) { $("#divNextPrev").show(); }
+            if (dir == photo_dir) return;
+            if (photo_timeout) clearTimeout(photo_timeout);
+            photo_curImgId = startPos;
+            photo_maxid = maxIndex;
+            if (dir) photo_dir = dir;
+            ShowPhoto();
+        }
+        function ShowPhoto(prev) {
+            if (photo_activeImgId != "") {
+                var prevImgId = photo_activeImgId;
+                if ($(prevImgId)) {
+                    $(prevImgId).hide('slow');
+                }
+                if (photo_activeImgId == photo_imgId1) photo_activeImgId = photo_imgId2;
+                else photo_activeImgId = photo_imgId1;
+            } else {
+                photo_activeImgId = photo_imgId1;
+            }
+            if (prev) photo_curImgId--;
+            else photo_curImgId++;
+            if (photo_curImgId > photo_maxid) photo_curImgId = 0;
+            else if (photo_curImgId < 0) photo_curImgId = photo_maxid;
+            var imgId = photo_activeImgId;
+            if ($(imgId)) {
+                $(imgId).get(0).src = "images/blank.jpg";
+                $(imgId).show('slow');
+                $(imgId).get(0).src = "xml.aspx?img=" + photo_curImgId + "&sd=" + photo_dir;
+                if (!photo_pause) photo_timeout = setTimeout(ShowPhoto, photo_toggle);
+            }
+        }
+        function PausePhoto(pause) {
+            photo_pause = pause;
+            if (!photo_pause) {
+                if ($("#imgPlay")) $("#imgPlay").hide();
+                if ($("#imgPause")) $("#imgPause").show();
+                ShowPhoto();
+            } else if (photo_timeout) {
+                clearTimeout(photo_timeout);
+                if ($("#imgPause")) $("#imgPause").hide();
+                if ($("#imgPlay")) $("#imgPlay").show();
+            }
+        }
+        function NextPhoto() {
+            clearTimeout(photo_timeout);
+            ShowPhoto();
+        }
+        function PrevPhoto() {
+            clearTimeout(photo_timeout);
+            ShowPhoto(true);
+        }
+        function Resize() {
+            var bdy = document.getElementById("divBody");
+            var container = bdy.parentNode;
+            var y = bdy.offsetHeight + container.offsetTop;
+            var ftr = document.getElementById("divFooter");
+            var lft = document.getElementById("divLeft");
+            container.style.height = bdy.offsetHeight + "px";
+            lft.style.height = bdy.offsetHeight + "px";
+            ftr.style.top = y + "px";
+        }
+        function UniqueTime() {
+            var d = new Date();
+            var dt = d.getYear().toString() + d.getMonth().toString() + d.getDay().toString() + d.getMinutes().toString() + d.getSeconds().toString();
+            return dt;
+        }
+        var bannercnt = 7;
+        var bannerpos = 7;
+        var bannertotalcnt = -1;
+        function RunBanner(cnt) {
+            var banner = document.getElementById("divbanner");
+            if (banner) {
+                if (cnt) {
+                    bannercnt = cnt;
+                    bannerpos = cnt;
+                }
+                if (bannertotalcnt == -1) {
+                    $.get("xml.aspx?bannercnt=1&dir=banner",
+                        function (data) {
+                            bannertotalcnt = parseInt(data.firstChild.firstChild.nodeValue);
+                        }
+                    );
+                    window.setTimeout(RunBanner, 10000);
+                } else {
+                    for (var i = 0; i < bannercnt; i++) {
+                        document.getElementById("ImgBanner" + i).src = "xml.aspx?dir=banner&banner=" + bannerpos + "&t=" + UniqueTime();
+                        bannerpos++;
+                        if (bannerpos >= bannertotalcnt) bannerpos = 0;
+                    }
+                    window.setTimeout(RunBanner, 10000);
+                }
+            }
+        }
+        // end Photo handler
+    </script>
+    <asp:ContentPlaceHolder id="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body onresize="Resize();">
+    <form id="form1" runat="server">
+    <div id="divHeader" class="Header">
+        <div style="padding: 10px 0px 10px 20px;"><img border="0" src="images/kl5.png" alt="" /></div>
+        <div style="clear: both;"></div>
+        <div id="divMenu" class="MenuArea">
+            <div class="TopMenuBar" style="width:40px;"></div>
+            <div class="TopMenuBar">
+                <ul onmouseover="$('#divMenu1').show();" onmouseout="$('#divMenu1').hide();" class="TopMenuItem"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('home.htm','1','homeleft.htm');/*$.get('home.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu1').hide();*/">Home</li></ul>
+                <!--<div id="divMenu1" class="Menu">
+                    <ul class="SubMenuItem" onmouseover="$('#divMenu1').show();" onmouseout="$('#divMenu1').hide();">
+                        <li class="MenuLI" onmouseup="$(divBody).getMenuPage('contactus.htm','1','homeleft.htm');">Contact Us</li>
+                    </ul>
+                </div>-->
+            </div>
+            <div class="TopMenuBar">
+                <ul onmouseover="$('#divMenu2').show();" onmouseout="$('#divMenu2').hide();" class="TopMenuItem"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('varsity.htm','2','teamleft.htm');">Meet the Players</li></ul>
+                <div id="divMenu2" class="Menu">
+                <ul class="SubMenuItem" onmouseover="$('#divMenu2').show();" onmouseout="$('#divMenu2').hide();"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('varsity.htm','2','teamleft.htm');">Varsity</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('juniorvarsity.htm','2','teamleft.htm');">Junior Varsity</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('cteam.htm','2','teamleft.htm');">C Team</li></ul>
+                </div>
+            </div>
+            <div class="TopMenuBar">
+                <ul onmouseover="$('#divMenu3').show();" onmouseout="$('#divMenu3').hide();" class="TopMenuItem"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendarvarsity.htm','3','calendarleft.htm');">Calendar</li></ul>
+                <div id="divMenu3" class="Menu">
+                <ul class="SubMenuItem" onmouseover="$('#divMenu3').show();" onmouseout="$('#divMenu3').hide();">
+                <!--<li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendar.htm','3','calendarleft.htm');">All</li>-->
+                <!--<li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendarvarsity.htm','3','calendarleft.htm');">Varsity Summer League</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendarjuniorvarsity.htm','3','calendarleft.htm');">JV Summer League</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendarcteam.htm','3','calendarleft.htm');">C-Team Summer League</li>-->
+                <!--
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendarjuniorvarsity.htm','3','calendarleft.htm');">Junior Varsity</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendarcteam.htm','3','calendarleft.htm');">C Team</li>-->
+                <!--<li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendaryouth.htm','3','calendarleft.htm');">Kentlake Feeder Youth Teams</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('schedulevarsity.htm','3','calendarleft.htm');">Varsity Schedule</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('schedulevarsity.htm','3','calendarleft.htm');">Junior Varsity Schedule</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('schedulecteam.htm','3','calendarleft.htm');">C Team Schedule</li>-->
+                <!--<li class="MenuLI" onmouseup="$(divBody).getMenuPage('boosterclub.htm','3','calendarleft.htm');">Booster Club</li>-->
+                <!--<li class="MenuLI" onmouseup="$(divBody).getMenuPage('sbatraining.htm','3','calendarleft.htm');">Southend Basketball Academy</li>-->
+                </ul>
+                </div>
+            </div>
+            <div class="TopMenuBar">
+                <ul onmouseover="" class="TopMenuItem"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('photos.htm','1','photosleft.htm');">Photos</li></ul>
+            </div>
+            <div class="TopMenuBar">
+                <ul onmouseover="$('#divMenu4').show();" onmouseout="$('#divMenu4').hide();" class="TopMenuItem"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('infocenter.htm','4','infocenterleft.htm');">Info Center</li></ul>
+                <!--<div id="divMenu4" class="Menu">
+                <ul class="SubMenuItem" onmouseover="$('#divMenu4').show();" onmouseout="$('#divMenu4').hide();"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('news.htm','4','infocenterleft.htm');">News</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('camps.htm','4','infocenterleft.htm');">Camps</li></ul>
+                </div>
+                -->
+            </div>
+        </div>
+    </div>
+    <div style="position:relative;clear:both;background-color:#ffffff;overflow:visible;min-height:650px;">
+        <div id="divLeft" style="position:absolute;left:0px;top:0px;width:200px;padding:0px;min-height:650px;background-color:#dedede;color:#000000;"></div>
+        <div id="divBody" style="position:absolute;left:200px;top:0px;min-height:650px;background-color:#ffffff;color:#000000;min-width:840px;padding-right:20px;">
+        <asp:ContentPlaceHolder id="ContentPlaceHolder1" runat="server">
+        
+        </asp:ContentPlaceHolder>
+        </div>
+        <div style="clear:both;"></div>
+    </div>
+    <div id="divFooter" style="position:absolute;top:780px;left:0px;background-color:rgb(128,0,0);color:#ffffff;min-height:50px;width:100%;">
+    <div style="padding:10px 5px 5px 5px;text-align:center;">
+    <!--<a class="FooterLink" target="_blank" href="http://team-shop.lidsteamsports.com/form/show/kentlakebb">Falcon Gear</a>
+    <a class="FooterLink" target="_blank" href="resources/Kentlake25582.pdf">Apparel Flyer</a>-->
+    <a class="FooterLink" target="kentlakehigh" href="http://www.kent.k12.wa.us/kl">Kentlake</a>
+    </div>
+    </div>
+    <!-- main dialogs here -->
+    <div id="dlgFalconPride" class="Dialog DialogMain">
+        <img src="images/PrideBlack.jpg" /><br />
+        <span class="PageLink" style="padding-right:50px;" onclick="$('#dlgFalconPride').hide('slow');">close</span>
+        <a class="PageLink" href="mailto:Dtb253@aol.com?subject=Falcon Pride Shirt&body=*Note, be sure to provide the number of shirts and the sizes you want." title="Falcon Pride Shirt">Email us to reserver yours</a>
+        </div>
+</form>
+</body>
+</html>

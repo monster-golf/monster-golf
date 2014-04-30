@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="Auburn, Trojans, boys, basketball, high school, washington" />
+    <meta name="description" content="The official site of Auburn Trojans Boys Basketball" />
+    <meta name="generator" content="CivicSports.com" />
+    <title>Kentlake Falcons Boys Basketball</title>
+    <style type="text/css">
+    body
+    {
+        font-family: Arial;
+        font-size: 12px;
+        margin: 0px;
+        background-color: rgb(128,0,0);
+        color: #ffffff;
+    }
+    ul
+    {
+        list-style-type: none;
+        margin: 0px;
+        -webkit-padding-start: 0px;
+    }
+    li
+    {
+        color: #ffffff;
+    }
+    .Header
+    {
+        background-image: url('Images/gb-mystart-bar.png');
+        background-position: bottom;
+        background-color: rgb(128,0,0);
+        background-repeat: repeat-x;
+    }
+    .MenuArea
+    {
+    	height: 35px;
+    	width: 100%;
+        position:relative;
+        background-color: rgb(128,0,0);
+        white-space: nowrap;
+    }
+    .TopMenuBar
+    {
+    	padding: 0px;
+        height: 35px;
+        float:left;
+        width:200px;
+        position:relative;
+        background-color: rgb(128,0,0);
+        cursor: pointer;
+        z-index: 100;
+    }
+    .TopMenuItem
+    {
+    	padding: 0px;
+        background-color: rgb(128,0,0);
+        width: 200px;
+        position:relative;
+    }
+    .Menu
+    {
+    	padding: 0px;
+        background-color: rgb(128,0,0);
+        width: 200px;
+        position:absolute;
+        left:0px;
+        top:35px;
+        display: none;
+    }
+    .MenuLI
+    {
+    	height: 15px;
+    	padding: 10px;
+    	width: 180px;
+    }
+    .MenuLI:hover
+    {
+        background-color: rgb(146,148,151);
+    }
+    .Title
+    {
+    	font-size: 16px;
+    	margin-bottom: 10px;
+    	clear: both;
+    }
+    .InnerBody
+    {
+    	padding: 10px;
+    }
+    </style>
+    <script src="jquery-1.8.0.min.js" type="text/jscript" language="javascript"></script>
+    <script>
+        $(document).ready(function () {
+            $.fn.getMenuPage = function (url, menuid) {
+                if (menuid) $('#divMenu' + menuid).hide();
+                var d = new Date();
+                url += "?ts=" + escape(d.getTime().toString());
+                $.get(url,
+                function (data) {
+                    $('#divBody').html(data);
+                }
+            );
+            }
+            $(divBody).getMenuPage('home.htm');
+        });
+    </script>
+</head>
+<body>
+    <div id="divHeader" class="Header">
+        <div style="padding: 10px 0px 10px 20px;"><img border="0" src="images/kl2.png" alt="" /></div>
+        <div style="clear: both;"></div>
+        <!--<div id="divMenu" class="MenuArea" onmouseup="$.get(this.pg, function(data){$('#divBody').html(data);});">-->
+        <div id="divMenu" class="MenuArea">
+            <div class="TopMenuBar" style="width:40px;"></div>
+            <div class="TopMenuBar">
+                <ul onmouseover="$('#divMenu1').show('slow');" onmouseout="$('#divMenu1').hide();" class="TopMenuItem"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('home.htm','1');/*$.get('home.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu1').hide();*/">Home</li></ul>
+                <div id="divMenu1" class="Menu">
+                    <ul onmouseover="$('#divMenu1').show();" onmouseout="$('#divMenu1').hide();">
+                        <li class="MenuLI" onmouseup="$(divBody).getMenuPage('contactus.htm','1');">Contact Us</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="TopMenuBar">
+                <ul onmouseover="$('#divMenu2').show('slow');" onmouseout="$('#divMenu2').hide();" class="TopMenuItem"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('team.htm','2');">Team</li></ul>
+                <div id="divMenu2" class="Menu">
+                <ul onmouseover="$('#divMenu2').show();" onmouseout="$('#divMenu2').hide();"><li class="MenuLI" onmouseup="$.get('varsity.htm?x=1&' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu2').hide();">Varsity</li>
+                <li class="MenuLI" onmouseup="$.get('juniorvarsity.htm?x=2&' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu2').hide();">Junior Varsity</li>
+                <li class="MenuLI" onmouseup="$.get('cteam.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu2').hide();">C Team</li></ul>
+                </div>
+            </div>
+            <div class="TopMenuBar">
+                <ul onmouseover="$('#divMenu3').show('slow');" onmouseout="$('#divMenu3').hide();" class="TopMenuItem"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendar.htm','3');">Calendar</li></ul>
+                <div id="divMenu3" class="Menu">
+                <ul onmouseover="$('#divMenu3').show();" onmouseout="$('#divMenu3').hide();"><li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendar.htm','3');">All</li>
+                <li class="MenuLI" onmouseup="$(divBody).getMenuPage('calendarvarsity.htm','3');">Varsity</li>
+                <li class="MenuLI" onmouseup="$.get('calendarjuniorvarsity.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu3').hide();">Junior Varsity</li>
+                <li class="MenuLI" onmouseup="$.get('calendarcteam.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu3').hide();">C Team</li>
+                <li class="MenuLI" onmouseup="$.get('schedulevarsity.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu3').hide();">Varsity Schedule</li>
+                <li class="MenuLI" onmouseup="$.get('schedulejuniorvarsity.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu3').hide();">Junior Varsity Schedule</li>
+                <li class="MenuLI" onmouseup="$.get('schedulecteam.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu3').hide();">C Team Schedule</li></ul>
+                </div>
+            </div>
+            <div class="TopMenuBar">
+                <ul onmouseover="" class="TopMenuItem"><li class="MenuLI" onmouseup="$.get('photos.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});">Photos</li></ul>
+            </div>
+            <div class="TopMenuBar">
+                <ul onmouseover="$('#divMenu4').show('slow');" onmouseout="$('#divMenu4').hide();" class="TopMenuItem"><li class="MenuLI" onmouseup="$.get('infocenter.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu4').hide();">Info Center</li></ul>
+                <div id="divMenu4" class="Menu">
+                <ul onmouseover="$('#divMenu4').show();" onmouseout="$('#divMenu4').hide();"><li class="MenuLI" onmouseup="$.get('news.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu4').hide();">News</li>
+                <li class="MenuLI" onmouseup="$.get('maps.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu4').hide();">Maps</li>
+                <li class="MenuLI" onmouseup="$.get('camps.htm?' + escape((new Date()).getTime.toString()), function(data){$('#divBody').html(data);});$('#divMenu4').hide();">Camps</li></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="position:relative;clear:both;">
+        <div id="divLeftMenu" style="position:absolute;left:0px;top:0px;width:200px;padding:0px;height:600px;background-color:#dedede;color:#000000;"><div style="padding:5px;">Left Menus Here</div></div>
+        <div id="divBody" style="position:absolute;left:200px;top:0px;right:0px;height:600px;background-color:#ffffff;color:#000000;overflow:auto;"></div>
+    </div>
+
+    <!--
+    <div style="clear:both;position:relative;margin-left:50px;margin-top:50px;" itemscope="" itemtype="http://schema.org/VideoObject">
+        <iframe src="http://fast.wistia.com/embed/iframe/26db1a6cf0?controlsVisibleOnLoad=true&amp;version=v1&amp;videoHeight=309&amp;videoWidth=550&amp;plugin%5BpostRoll%5D%5Blink%5D=http%3A%2F%2Fwww.docusign.com%2Ftrial&amp;plugin%5BpostRoll%5D%5Bstyle%5D%5BbackgroundColor%5D=%23616161&amp;plugin%5BpostRoll%5D%5Bstyle%5D%5Bcolor%5D=%23ffffff&amp;plugin%5BpostRoll%5D%5Bstyle%5D%5BfontFamily%5D=Gill%20Sans%2C%20Helvetica%2C%20Arial%2C%20sans-serif&amp;plugin%5BpostRoll%5D%5Bstyle%5D%5BfontSize%5D=36px&amp;plugin%5BpostRoll%5D%5Btext%5D=Sign-up%20for%20a%2030%20day%20trial%21&amp;plugin%5BpostRoll%5D%5Bversion%5D=v1" allowtransparency="true" frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" width="550" height="309" style="border: 1px solid #CCCCCC"></iframe>
+        <meta itemprop="duration" content="T1M17S">
+        <meta itemprop="description" content="How DocuSign works">
+    </div>
+    -->
+    <div id="divFooter" style="left:0px;top:792px;position:absolute;background-color:rgb(128,0,0);color:#ffffff;height:50px;">
+    <div style="padding:5px;">Footer Information Here</div>
+    </div>
+
+</body>
+</html>
