@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <script src="XmlHttp.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            var headers = new Array(
+                new Array("X-DocuSign-Authentication", "<DocuSignCredentials><Username>aaron.wald@docusign.com</Username><Password>aaronwald</Password><IntegratorKey>ROSEY_KEY</IntegratorKey></DocuSignCredentials>"),
+                new Array("Accept", "application/json")
+            );
+            function StartSign() {
+                var url = document.getElementById("tRedirUrl");
+                if (url && url.value != "") {
+                    document.location.href = url.value;
+                } else {
+                    url = document.getElementById("tSignUrl");
+                    if (url && url.value != "") {
+                        document.getElementById("frmSign").onload = function () {
+                            var currentFrame;
+                            try {
+                                var iframe = parent.document.getElementById("frmSign");
+                                var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                                currentFrame = innerDoc.location.href
+
+                            } catch (ex) {
+                                currentFrame = ex;
+                            }
+                            document.getElementById("urlfinish").innerHTML = currentFrame;
+                        }
+                        document.getElementById("frmSign").src = url.value;
+                    }
+                }
+                return false;
+            }
+            var embed = true;
+            function XMLUrl(path) {
+                xmlurl = document.getElementById("tAPIUrl").value + "/restapi/v2/accounts/2/" + path;
+            }
+            function EmbedToken() {
+                XMLUrl("envelopes/23A9AA76-9BD7-4BB4-8E6D-B65816367ABE/views/recipient");
+                var jsondata = '{ "authenticationMethod": "1", "clientUserId":"7d3ff", "email": "doubleawald@gmail.com", "returnUrl": "http://monstergolf.org/", "userName": "Double A Wald" }';
+                embed = true;
+                SendFormType(jsondata, "", TokenDone, TokenDone, "application/json", headers);
+            }
+            function EstablishTrust() {
+                XMLUrl("views/console");
+                embed = false;
+                SendFormType("{ \"envelopeId\": \"\", \"returnUrl\": \"http://aaronwald.net/embed.htm\" }", "", TokenDone, TokenDone, "application/json", headers);
+            }
+            function TokenDone(resp) {
+                alert(resp);
+                var respStr = new String(resp);
+                var tokenurl = "url\": \"";
+                var url = respStr.substring(respStr.indexOf(tokenurl) + tokenurl.length, respStr.lastIndexOf("\""));
+                if (embed) {
+                    document.getElementById("frmSign").src = url;
+                } else {
+                    document.location.href = url + "&establishtrust=1";
+                }
+            }
+        </script>
+    </head>
+<body>
+    <p>
+        <input type="button" onclick="return EstablishTrust()" value="Establish Trust" name="bTrust" />
+        API Url: <input type="text" id="tAPIUrl" name="tAPIUrl" />
+        <input type="button" onclick="return EmbedToken()" value="Sign" name="bSign" />
+    </p>
+    <div id="urlfinish"></div>
+    <iframe id="frmSign" name="frmSign" src="http://monstergolf.org/" width="800" height="640" border="1" />
+</body>
+</html>

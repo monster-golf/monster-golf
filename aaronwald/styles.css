@@ -1,0 +1,14 @@
+a, a:visited { color:#000789; }
+a:hover {color:#000700;}
+body { background-color:#9bd7d3; margin: 0px 0px 0px 0px;  }
+.name { font-family: Verdana; font-style:italic; font-size:xx-large; }
+.promise { font-family: Verdana; font-style:italic; font-size:medium; }
+.sections { font-family: Verdana; font-style:italic; font-size:medium; text-decoration:underline; }
+.top3 { font-family: Verdana; font-style:italic; font-size:x-large; }
+.description { font-family: Verdana; text-align:justify; font-size:small; }
+.descriptionsmall { font-family: Verdana; text-align:justify; font-size:x-small; }
+.contact { font-family:Verdana; font-size:small; color:#000789;}
+.sites { font-family:Verdana; font-size:small; color:#000789;}
+.blank { font-family:Verdana; font-size:6pt;}
+.inputs { font-family: Verdana; font-size:small; border-bottom-width:0px; border-left-width:0px; border-top-width:0px; border-right: solid 1px #00098a; padding:1px 1px 1px 1px; background-color:#ffffa0; color:#000000; }
+.inputsback { background-color:#00098a; padding:1px 5px 5px 2px; }
