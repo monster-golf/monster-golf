@@ -171,7 +171,7 @@ public class ScoreInfo
                         {
                             DateTime.TryParse(sdr["DateOfRound"].ToString(), out startofround);
                         }
-                        if (startofround != DateTime.MinValue) dateOfRound = startofround.ToString("M/d/yy h:mm tt");
+                        if (startofround != DateTime.MinValue) dateOfRound = startofround.ToString("M/d/yyyy h:mm tt");
                     }
                     List<string> pars = new List<string>();
                     int parsf9 = 0, parsb9 = 0;
