@@ -1,6 +1,6 @@
 -- This will get a list of teams and handicaps for the tournament
 Declare @tId int;
-Set @tId = 22;
+Set @tId = 23;
 select tt.TeamId, tt.Flight, ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex, ttp1.Handicap, u1.Handicap, u1.GHIN,
 	ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, ttu2.HcpIndex, ttp2.Handicap, u2.Handicap, u2.GHIN
 from mg_TourneyTeams tt 
@@ -18,7 +18,7 @@ select t.TournamentID, Location, Slogan, Description, tc.CourseID, tc.[Round], C
 from mg_Tourney t 
 join mg_tourneycourses tc on tc.tournamentid = t.tournamentid 
 join mg_TourneyCourseDetails tcd on tcd.CourseID = tc.CourseId 
-where t.TournamentID = 22 
+where t.TournamentID = @tId 
 order by tc.[Round], TeeNumber
 
 select * from mg_tourneyScores where emailgroup = 1
@@ -27,36 +27,34 @@ select MobileEmail, Email, ttu.FirstName + ' ' + ttu.LastName as Name, u.userid 
 	join mg_TourneyTeamPlayers ttp on tt.TeamId = ttp.TeamId 
 	join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId 
 	join mg_users u on ttu.WebId = u.UserId
-where tt.TournamentId = 22
+where tt.TournamentId = @tId
 order by name
 
 
-update mg_users set mobileemail = 'dougorangewhip@gmail.com' where userid = 29
-update mg_users set mobileemail = 'monster@monstergolf.org' where userid = 313
-update mg_users set mobileemail = 'aaronwald@hotmail.com' where userid = 257
+--update mg_users set mobileemail = 'dougorangewhip@gmail.com' where userid = 29
+--update mg_users set mobileemail = 'monster@monstergolf.org' where userid = 313
+--update mg_users set mobileemail = 'aaronwald@hotmail.com' where userid = 257
 
 select tp.* from mg_TourneyTeamPlayers tp
- where tp.tournamentId =19
+ where tp.tournamentId =@tId
  
  select * from mg_tourneyusers
  
  
-select * from mg_tourneyScores where tourneyId =22
+select * from mg_tourneyScores where tourneyId =@tId
 order by roundnum, name
 
-2013-06-15 13:30:00.000
-2013-06-14 09:00:00.000
 
 select tp.*, ts.hcp, tu.hcpindex, ts.name from mg_TourneyTeamPlayers tp
 join mg_tourneyusers tu on tp.userId = tu.userId
 left join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamentid and ts.roundnum = 1
- where tp.tournamentId =22
+ where tp.tournamentId =@tId
  
- update mg_TourneyTeamPlayers set mg_TourneyTeamPlayers.Handicap = ts.hcp
- FROM mg_TourneyTeamPlayers tp
-join mg_tourneyusers tu on tp.userId = tu.userId
-join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamentid and ts.roundnum = 1
- where tp.tournamentId =19
+-- update mg_TourneyTeamPlayers set mg_TourneyTeamPlayers.Handicap = ts.hcp
+-- FROM mg_TourneyTeamPlayers tp
+--join mg_tourneyusers tu on tp.userId = tu.userId
+--join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamentid and ts.roundnum = 1
+-- where tp.tournamentId =@tId
  
 
 -- score with course 
@@ -65,31 +63,30 @@ join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamen
  join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId 
  join mg_users mu on mu.UserId = ttu.WebId 
  join mg_tourneyCourses mc on mc.TournamentId = ttp.TournamentId 
- where ttp.TournamentId = 22
+ where ttp.TournamentId = @tId
  GROUP BY ttp.ID, ttu.UserId, mu.Handicap, ttu.WebId
  
- select * from mg_tourneyscores where tourneyid >= 22 and userid = 370
- update mg_tourneyscores set HCP = 13 where tourneyid >= 22 and userid = 370
+ select * from mg_tourneyscores where tourneyid >= @tId and userid = 370
  
  SELECT tp.TeamID, t.TeamName, t.Flight, tp.TeeNumber, tp.Handicap AS TPHandicap, ts.*, u.LastName, u.FirstName, u.Image 
  FROM mg_tourneyTeamPlayers AS tp 
 	INNER JOIN mg_tourneyTeams AS t on t.TeamID = tp.TeamID
 	INNER JOIN mg_tourneyUsers AS u on u.userid = tp.UserID 
 	LEFT OUTER JOIN mg_TourneyScores AS ts on u.WebID = ts.UserID AND tp.TournamentID = ts.TourneyId 
-WHERE tp.TournamentID = 19 ORDER BY ts.RoundNum, tp.TeamID, u.LastName, u.FirstName
+WHERE tp.TournamentID = @tId ORDER BY ts.RoundNum, tp.TeamID, u.LastName, u.FirstName
 
 
 select * from mg_TourneyScores
 
-select * from mg_TourneyCourses
-update  mg_TourneyCourses set DateOfRound = '6/15/2013 13:30'
-where CourseId = 42
+select * from mg_TourneyCourses order by courseid desc
+--update  mg_TourneyCourses set DateOfRound = '5/17/2014 13:00'
+--where CourseId = 47
 
 select Distinct(Round) as Round from mg_TourneyScores where TourneyId = 2
 
 select * from mg_tourney
 
-update mg_tourney set Slogan = 'Monster XXIII', Location = 'Tucson, AZ', Description= '2013' WHERE TournamentID = 22
+--update mg_tourney set Slogan = 'Monster XXIV', Location = 'Chandler, AZ', Description= '2014' WHERE TournamentID = 23
 
 select * from mg_tourneyTeams
 where tournamentid = 20
