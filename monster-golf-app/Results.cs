@@ -35,7 +35,6 @@ namespace MonsterGolf
       private CheckBox checkBoxTotalsOnly;
       private Label labelView;
       private CheckBox checkBoxHighlight;
-      private IContainer components;
       private ScrollScores scrollScores1;
       private DataGridView dataGridViewResults;
       private LinkLabel linkLabel1;
@@ -174,13 +173,6 @@ namespace MonsterGolf
       /// </summary>
       protected override void Dispose(bool disposing)
       {
-         if (disposing)
-         {
-            if (components != null)
-            {
-               components.Dispose();
-            }
-         }
          base.Dispose(disposing);
       }
 
