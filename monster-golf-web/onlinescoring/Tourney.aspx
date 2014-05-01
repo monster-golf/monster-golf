@@ -20,7 +20,7 @@ a:hover { color:#FF3F19;}
 
 .Loading { position:absolute;top:100px; left:100px; font-size:30px; color:#EFE486; font-weight:bold; text-decoration:blink; z-index:100;}
 .cb { padding: 0px 3px; margin:0px; }
-.tb { width: 15px; margin-left:3px;font-size:9pt;height:10px;padding:1px; }
+.tb { width: 15px; margin-left:3px;font-size:7pt;height:10px;padding:1px; }
 .UserUpdate { float:left; margin: 3px 30px 0px;}
 .TourneyInfo { clear: both; padding-top: 20px; }
 </style>
@@ -71,7 +71,7 @@ a:hover { color:#FF3F19;}
         if (ti) {
             var currDate = new Date();
             var roundDate = new Date(ti.innerHTML);
-            if (roundDate.getDate() < currDate.getDate()) afterrounddate = true;
+            if (roundDate < currDate) afterrounddate = true;
         }
         ti = document.getElementById("updateUsers");
         if (ti) ti.style.display = (afterrounddate || TourneyId() == -1) ? "none" : "";

@@ -168,7 +168,8 @@ public partial class TourneyXml : System.Web.UI.Page
                     else
                     {
                         sb.AppendFormat(" <a href='javascript:ViewRound({0});'>View Player Scores</a>", detailround);
-                        if (DateTime.Parse(dateOfRounds[x]) > DateTime.Now) sb.AppendFormat(" <a href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
+                        DateTime dOfRound = DateTime.Parse(dateOfRounds[x]);
+                        if (dOfRound.Day == DateTime.Now.Day && dOfRound > DateTime.Now) sb.AppendFormat(" <a href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
                     }
                     if (needsscores.Contains(detailround)) sb.AppendFormat(" <a href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
                     sb.AppendFormat("</div><div style='clear:both' id='playerscores{0}'> </div>", detailround);
@@ -214,7 +215,7 @@ public partial class TourneyXml : System.Web.UI.Page
                         DateTime.TryParse(sdr["DateOfRound"].ToString(), out startofround);
                     }
                     string starttime = "";
-                    if (startofround != DateTime.MinValue) starttime = startofround.ToString("M/d/yy h:mm tt");
+                    if (startofround != DateTime.MinValue) starttime = startofround.ToString("M/d/yyyy h:mm tt");
                     string subject = sdr["Slogan"] + addday + " at " + sdr["Course"];
                     string te = "Welcome to " + subject + ".<br/>Start of round " + starttime + "<br/>{1}<br/>To keep score for your group, click on the link<br/><br/>{0}<br/>Also, turn in your paper card, to Aaron Wald or Brian Giesinger, for validation.<br/><br/>When your card is fully filled out validate all scores, scroll down to below the score card and select a golfer from the other team to attest the scores. Then, you sign the card, and when you are done click Confirm Signing.  Hand your mobile device to the attester from the other team and they should validate the scores, then sign the card.<br/><br/>Once the scores have been attested you can no longer make changes.<br/><br/>Any questions? See Aaron Wald or Brian Giesinger at the end of the round.";
 
