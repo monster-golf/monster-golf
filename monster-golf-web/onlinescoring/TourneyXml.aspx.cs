@@ -33,7 +33,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     if (startofround > DateTime.Now)
                     {
                         update.AppendFormat("update mg_TourneyTeamPlayers set Handicap = {0} where ID = {1};\n", sdr["Handicap"], sdr["ID"]);
-                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{0})/113,0) where UserId = {1} and TourneyId = {2} and CardSigned = 0 and CardAttested = 0;\n", sdr["Handicap"], sdr["WebId"], tourneyid);
+                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{0})/113,0),DateOfRound='{3}' where UserId = {1} and TourneyId = {2} and CardSigned = 0 and CardAttested = 0;\n", sdr["Handicap"], sdr["WebId"], tourneyid, startofround);
                     }
                 }
                 db.Close(sdr, false);
@@ -82,7 +82,7 @@ public partial class TourneyXml : System.Web.UI.Page
             }
             else if (Request["breakgroup"] != null)
             {
-                update += string.Format("update mg_tourneyScores set GroupId = '',EmailSent=0 where GroupId = '{0}';", DB.stringSql(Request["breakgroup"]));
+                update += string.Format("update mg_tourneyScores set GroupId = '',EmailSent=0,StartingHole=NULL where GroupId = '{0}';", DB.stringSql(Request["breakgroup"]));
             }
             if (update != "") db.Exec(update);
             SqlDataReader sdr = db.Get("select DateOfRound, [Round] from mg_tourneyCourses where tournamentId = " + tourneyid);

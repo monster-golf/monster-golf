@@ -1,18 +1,40 @@
 -- This will get a list of teams and handicaps for the tournament
 Declare @tId int;
 Set @tId = 23;
-select tt.TeamId, tt.Flight, ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex, ttp1.Handicap, u1.Handicap, u1.GHIN,
-	ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, ttu2.HcpIndex, ttp2.Handicap, u2.Handicap, u2.GHIN
+select tt.TeamId, tt.Flight, ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex as 'TourneyUserHCP', ttp1.Handicap as 'TourneyTeamPlayersHCP', u1.Handicap as 'UsersHCP', ts1_1.HCP AS 'TourneyScoresR1HCP', ts1_2.HCP AS 'TourneyScoresR2HCP',
+	u1.GHIN as 'HCP Location', s1.DateOfRound, s1.DateEntered,
+	ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, ttu2.HcpIndex as 'TourneyUserHCP', ttp2.Handicap as 'TourneyTeamPlayersHCP', u2.Handicap as 'UsersHCP', ts2_1.HCP AS 'TourneyScoresR1HCP', ts2_2.HCP AS 'TourneyScoresR2HCP', u2.GHIN as 'HCP Location', s1.DateOfRound, s1.DateEntered
 from mg_TourneyTeams tt 
 	join mg_TourneyTeamPlayers ttp1 on tt.TeamId = ttp1.TeamId AND ttp1.UserID = (Select Min(UserId) from mg_TourneyTeamPlayers innerttp1  WHERE innerttp1.TeamId = tt.TeamId)
 	join mg_TourneyUsers ttu1 on ttu1.UserId = ttp1.UserId 
 	join mg_Users u1 on u1.UserId = ttu1.WebId
+	left join mg_scores s1 on s1.ID = (select Max(ID) from mg_scores WHERE UserId = u1.UserID)
+	left join mg_Tourneyscores ts1_1 on ts1_1.UserId = u1.UserID AND ts1_1.TourneyId = tt.TournamentId AND ts1_1.RoundNum = 1
+	left join mg_Tourneyscores ts1_2 on ts1_2.UserId = u1.UserID AND ts1_2.TourneyId = tt.TournamentId AND ts1_2.RoundNum = 2
 	join mg_TourneyTeamPlayers ttp2 on tt.TeamId = ttp2.TeamId AND ttp2.UserID = (Select Max(UserId) from mg_TourneyTeamPlayers innerttp2  WHERE innerttp2.TeamId = tt.TeamId)
 	join mg_TourneyUsers ttu2 on ttu2.UserId = ttp2.UserId 
 	join mg_Users u2 on u2.UserId = ttu2.WebId
+	left join mg_scores s2 on s2.ID = (select Max(ID) from mg_scores WHERE UserId = u2.UserID)
+	left join mg_Tourneyscores ts2_1 on ts2_1.UserId = u2.UserID AND ts2_1.TourneyId = tt.TournamentId AND ts2_1.RoundNum = 1
+	left join mg_Tourneyscores ts2_2 on ts2_2.UserId = u2.UserID AND ts2_2.TourneyId = tt.TournamentId AND ts2_2.RoundNum = 2
 where tt.TournamentId = @tId
 order by tt.Flight, (ttp1.Handicap+ttp2.Handicap), tt.teamid
 
+select * from mg_scores
+select *from mg_tourneyscores where TourneyId=23 and RoundNum=1 order by StartingHole, GroupId, Name;
+update mg_tourneyscores set StartingHole = NULL WHERE TourneyId=23 
+select * from mg_Tourneyscores where tourneyId = 23 
+select * from mg_tourneyTeamplayers where tournamentid = 23 TeamID = 1434 userId = 161 order by TeamID
+select * from mg_tourneyscores where UserId In (select WebId from mg_tourneyUsers where UserId In (161,162))
+select * from mg_tourneyUsers where UserId In (161,162)
+select * from mg_Tourneyscores where UserID = 161 and TourneyId = 23
+select * from mg_tourney
+
+
+update mg_users set Handicap = 5.4 where UserId = 451
+select UserId,GroupId,Name,StartingHole,* from mg_tourneyscores ts
+join mg_tourneyTeamPlayers tp on tp.WebId = ts.UserId
+ where TourneyId=23
 
 select t.TournamentID, Location, Slogan, Description, tc.CourseID, tc.[Round], Course, DateOfRound, ID, TeeNumber, Slope, Rating, Par1, Par2, Par3, Par4, Par5, Par6, Par7, Par8, Par9, Par10, Par11, Par12, Par13, Par14, Par15, Par16, Par17, Par18, Handicap1, Handicap2, Handicap3, Handicap4, Handicap5, Handicap6, Handicap7, Handicap8, Handicap9, Handicap10, Handicap11, Handicap12, Handicap13, Handicap14, Handicap15, Handicap16, Handicap17, Handicap18 
 from mg_Tourney t 
@@ -20,8 +42,6 @@ join mg_tourneycourses tc on tc.tournamentid = t.tournamentid
 join mg_TourneyCourseDetails tcd on tcd.CourseID = tc.CourseId 
 where t.TournamentID = @tId 
 order by tc.[Round], TeeNumber
-
-select * from mg_tourneyScores where emailgroup = 1
 
 select MobileEmail, Email, ttu.FirstName + ' ' + ttu.LastName as Name, u.userid from mg_TourneyTeams tt 
 	join mg_TourneyTeamPlayers ttp on tt.TeamId = ttp.TeamId 
@@ -73,74 +93,17 @@ left join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tour
 	INNER JOIN mg_tourneyTeams AS t on t.TeamID = tp.TeamID
 	INNER JOIN mg_tourneyUsers AS u on u.userid = tp.UserID 
 	LEFT OUTER JOIN mg_TourneyScores AS ts on u.WebID = ts.UserID AND tp.TournamentID = ts.TourneyId 
-WHERE tp.TournamentID = @tId ORDER BY ts.RoundNum, tp.TeamID, u.LastName, u.FirstName
+WHERE tp.TournamentID = 23 ORDER BY ts.RoundNum, tp.TeamID, u.LastName, u.FirstName
 
 
 select * from mg_TourneyScores
 
 select * from mg_TourneyCourses order by courseid desc
---update  mg_TourneyCourses set DateOfRound = '5/17/2014 13:00'
+--update  mg_TourneyCourses set DateOfRound = '5-17-2014 13:00'
 --where CourseId = 47
-
-select Distinct(Round) as Round from mg_TourneyScores where TourneyId = 2
-
-select * from mg_tourney
 
 --update mg_tourney set Slogan = 'Monster XXIV', Location = 'Chandler, AZ', Description= '2014' WHERE TournamentID = 23
 
 select * from mg_tourneyTeams
-where tournamentid = 20
+where tournamentid = @tId
 
-
-
-select * from mg_tourneycourses
-
-select * from mg_tourneycourseDetails
-where courseid = 39
-
-update mg_tourneycourses set Course = 'Badlands: Desperado-Outlaw' where courseId = 39
-update mg_tourneycourses set Course = 'Badlands: Diablo-Outlaw' where courseId = 40
-
-select * from mg_tourneyScores where [roundnum]=2 and tourneyid = 21
-
-update mg_tourneyscores set CourseName = 'Badlands: Diablo-Outlaw', EmailSent = 0
-where [roundnum]=2 and tourneyid = 21
-
-update mg_tourneyCourseDetails set
-Par1=4,
-Par2=5,
-Par3=4,
-Par4=4,
-Par5=3,
-Par6=4,
-Par7=3,
-Par8=5,
-Par9=4,
-Par10=4,
-Par11=3,
-Par12=4,
-Par13=4,
-Par14=4,
-Par15=5,
-Par16=4,
-Par17=3,
-Par18=5,
-Handicap1=17,
-Handicap2=11,
-Handicap3=1,
-Handicap4=5,
-Handicap5=15,
-Handicap6=7,
-Handicap7=13,
-Handicap8=9,
-Handicap9=3,
-Handicap10=14,
-Handicap11=18,
-Handicap12=16,
-Handicap13=10,
-Handicap14=12,
-Handicap15=4,
-Handicap16=8,
-Handicap17=6,
-Handicap18=2
-where courseid = 40
