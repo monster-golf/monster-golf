@@ -115,10 +115,12 @@ a:hover { color:#FF3F19;}
     function SetGroup(roundid) {
         var formdata = "setgroup=1";
         while (players.length > 0) formdata += "&player=" + players.pop();
+        playerscores = document.getElementById("playerscores" + roundid);
         SendForm(formdata, "viewtourneyround=" + roundid + "&tourneyid=" + TourneyId(), ViewRoundDone);
     }
     function BreakGroup(groupid, roundid) {
         var formdata = "breakgroup=" + groupid;
+        playerscores = document.getElementById("playerscores" + roundid);
         SendForm(formdata, "viewtourneyround=" + roundid + "&tourneyid=" + TourneyId(), ViewRoundDone);
     }
     function EnterScores(roundid) {

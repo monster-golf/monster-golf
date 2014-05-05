@@ -1,9 +1,14 @@
 -- This will get a list of teams and handicaps for the tournament
 Declare @tId int;
 Set @tId = 23;
-select tt.TeamId, tt.Flight, ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex as 'TourneyUserHCP', ttp1.Handicap as 'TourneyTeamPlayersHCP', u1.Handicap as 'UsersHCP', ts1_1.HCP AS 'TourneyScoresR1HCP', ts1_2.HCP AS 'TourneyScoresR2HCP',
+select tt.TeamId,
+	(u1.Handicap+u2.Handicap) as TeamHCP, tt.Flight, 
+	ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex as 'TourneyUserHCP', ttp1.Handicap as 'TourneyTeamPlayersHCP', u1.Handicap as 'UsersHCP', ts1_1.HCP AS 'TourneyScoresR1HCP', ts1_2.HCP AS 'TourneyScoresR2HCP',
+	u1.Email, u1.MobileEmail,
 	u1.GHIN as 'HCP Location', s1.DateOfRound, s1.DateEntered,
-	ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, ttu2.HcpIndex as 'TourneyUserHCP', ttp2.Handicap as 'TourneyTeamPlayersHCP', u2.Handicap as 'UsersHCP', ts2_1.HCP AS 'TourneyScoresR1HCP', ts2_2.HCP AS 'TourneyScoresR2HCP', u2.GHIN as 'HCP Location', s1.DateOfRound, s1.DateEntered
+	ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, ttu2.HcpIndex as 'TourneyUserHCP', ttp2.Handicap as 'TourneyTeamPlayersHCP', u2.Handicap as 'UsersHCP', ts2_1.HCP AS 'TourneyScoresR1HCP', ts2_2.HCP AS 'TourneyScoresR2HCP', 
+	u2.Email, u2.MobileEmail, u2.GHIN as 'HCP Location', 
+	s2.DateOfRound, s2.DateEntered
 from mg_TourneyTeams tt 
 	join mg_TourneyTeamPlayers ttp1 on tt.TeamId = ttp1.TeamId AND ttp1.UserID = (Select Min(UserId) from mg_TourneyTeamPlayers innerttp1  WHERE innerttp1.TeamId = tt.TeamId)
 	join mg_TourneyUsers ttu1 on ttu1.UserId = ttp1.UserId 
@@ -18,18 +23,21 @@ from mg_TourneyTeams tt
 	left join mg_Tourneyscores ts2_1 on ts2_1.UserId = u2.UserID AND ts2_1.TourneyId = tt.TournamentId AND ts2_1.RoundNum = 1
 	left join mg_Tourneyscores ts2_2 on ts2_2.UserId = u2.UserID AND ts2_2.TourneyId = tt.TournamentId AND ts2_2.RoundNum = 2
 where tt.TournamentId = @tId
-order by tt.Flight, (ttp1.Handicap+ttp2.Handicap), tt.teamid
+order by tt.Flight, (u1.Handicap+u2.Handicap), tt.teamid
 
+update mg_TourneyUsers set LastName = 'Billstin' where userid = 297
 select * from mg_scores
-select *from mg_tourneyscores where TourneyId=23 and RoundNum=1 order by StartingHole, GroupId, Name;
+select *from mg_tourneyscores where TourneyId=23 and userid = 429 and RoundNum=1 order by StartingHole, GroupId, Name;
 update mg_tourneyscores set StartingHole = NULL WHERE TourneyId=23 
-select * from mg_Tourneyscores where tourneyId = 23 
+select * from delete mg_Tourneyscores where tourneyId = 23 and name like '%Fen%'
 select * from mg_tourneyTeamplayers where tournamentid = 23 TeamID = 1434 userId = 161 order by TeamID
 select * from mg_tourneyscores where UserId In (select WebId from mg_tourneyUsers where UserId In (161,162))
 select * from mg_tourneyUsers where UserId In (161,162)
 select * from mg_Tourneyscores where UserID = 161 and TourneyId = 23
-select * from mg_tourney
 
+select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = 23
+
+update mg_tourneyscores set UserId = 446 where userID = 382
 
 update mg_users set Handicap = 5.4 where UserId = 451
 select UserId,GroupId,Name,StartingHole,* from mg_tourneyscores ts
@@ -107,3 +115,9 @@ select * from mg_TourneyCourses order by courseid desc
 select * from mg_tourneyTeams
 where tournamentid = @tId
 
+
+insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, CourseSlope, CourseRating) select c.TournamentId, c.[Round], 27, 'Dewey Wald', 'e07b75b4a1', c.Course, d.Slope, Round(d.Rating,1) from mg_tourneycourses c join mg_TourneyCourseDetails d on d.CourseId = c.CourseId AND d.TeeNumber = 0 where c.TournamentId = 23 and c.[Round] = 1 and  NOT Exists(select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27);
+
+select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27;
+update mg_TourneyScores set HCP = Round((CourseSlope*10.9)/113,0) WHERE TourneyId = 23 and RoundNum = 1 and userID = 27;
+select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27;
