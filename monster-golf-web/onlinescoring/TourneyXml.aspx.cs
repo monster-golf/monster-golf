@@ -96,7 +96,7 @@ public partial class TourneyXml : System.Web.UI.Page
             }
             db.Close(sdr, false);
             WEB w = new WEB();
-            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, startofround < DateTime.Now, "StartingHole, GroupId, Name"));
+            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, startofround < DateTime.Now, "StartingHole, GroupId, TeamId, Name"));
         }
     }
     protected void GetTourneyDetails()
@@ -167,7 +167,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     if (needssetup.Contains(detailround)) sb.AppendFormat(" <a href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
                     else
                     {
-                        sb.AppendFormat(" <a href='javascript:ViewRound({0});'>View Player Scores</a>", detailround);
+                        sb.AppendFormat(" <a href='javascript:ViewRound({0});'>View Players</a>", detailround);
                         DateTime dOfRound = DateTime.Parse(dateOfRounds[x]);
                         if (dOfRound.Day == DateTime.Now.Day && dOfRound > DateTime.Now) sb.AppendFormat(" <a href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
                     }

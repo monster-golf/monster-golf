@@ -25,10 +25,14 @@ from mg_TourneyTeams tt
 where tt.TournamentId = @tId
 order by tt.Flight, (u1.Handicap+u2.Handicap), tt.teamid
 
-update mg_TourneyUsers set LastName = 'Billstin' where userid = 297
 select * from mg_scores
-select *from mg_tourneyscores where TourneyId=23 and userid = 429 and RoundNum=1 order by StartingHole, GroupId, Name;
-update mg_tourneyscores set StartingHole = NULL WHERE TourneyId=23 
+
+select distinct s.*, t.TeamId from mg_tourneyscores s 
+join mg_tourneyUsers u on u.WebId = s.UserId
+join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId
+where TourneyId=23 and RoundNum=1 
+order by StartingHole, GroupId, TeamId, Name;
+
 select * from delete mg_Tourneyscores where tourneyId = 23 and name like '%Fen%'
 select * from mg_tourneyTeamplayers where tournamentid = 23 TeamID = 1434 userId = 161 order by TeamID
 select * from mg_tourneyscores where UserId In (select WebId from mg_tourneyUsers where UserId In (161,162))
@@ -37,9 +41,6 @@ select * from mg_Tourneyscores where UserID = 161 and TourneyId = 23
 
 select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = 23
 
-update mg_tourneyscores set UserId = 446 where userID = 382
-
-update mg_users set Handicap = 5.4 where UserId = 451
 select UserId,GroupId,Name,StartingHole,* from mg_tourneyscores ts
 join mg_tourneyTeamPlayers tp on tp.WebId = ts.UserId
  where TourneyId=23
@@ -58,11 +59,6 @@ select MobileEmail, Email, ttu.FirstName + ' ' + ttu.LastName as Name, u.userid 
 where tt.TournamentId = @tId
 order by name
 
-
---update mg_users set mobileemail = 'dougorangewhip@gmail.com' where userid = 29
---update mg_users set mobileemail = 'monster@monstergolf.org' where userid = 313
---update mg_users set mobileemail = 'aaronwald@hotmail.com' where userid = 257
-
 select tp.* from mg_TourneyTeamPlayers tp
  where tp.tournamentId =@tId
  
@@ -77,14 +73,7 @@ select tp.*, ts.hcp, tu.hcpindex, ts.name from mg_TourneyTeamPlayers tp
 join mg_tourneyusers tu on tp.userId = tu.userId
 left join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamentid and ts.roundnum = 1
  where tp.tournamentId =@tId
- 
--- update mg_TourneyTeamPlayers set mg_TourneyTeamPlayers.Handicap = ts.hcp
--- FROM mg_TourneyTeamPlayers tp
---join mg_tourneyusers tu on tp.userId = tu.userId
---join mg_tourneyScores ts on ts.UserId = tu.webid and ts.tourneyid = tp.tournamentid and ts.roundnum = 1
--- where tp.tournamentId =@tId
- 
-
+  
 -- score with course 
  select ttp.ID, ttu.UserId, mu.Handicap, ttu.WebId, Max(mc.DateOfRound)  
  from mg_TourneyTeamPlayers ttp 
@@ -107,10 +96,6 @@ WHERE tp.TournamentID = 23 ORDER BY ts.RoundNum, tp.TeamID, u.LastName, u.FirstN
 select * from mg_TourneyScores
 
 select * from mg_TourneyCourses order by courseid desc
---update  mg_TourneyCourses set DateOfRound = '5-17-2014 13:00'
---where CourseId = 47
-
---update mg_tourney set Slogan = 'Monster XXIV', Location = 'Chandler, AZ', Description= '2014' WHERE TournamentID = 23
 
 select * from mg_tourneyTeams
 where tournamentid = @tId
@@ -119,5 +104,5 @@ where tournamentid = @tId
 insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, CourseSlope, CourseRating) select c.TournamentId, c.[Round], 27, 'Dewey Wald', 'e07b75b4a1', c.Course, d.Slope, Round(d.Rating,1) from mg_tourneycourses c join mg_TourneyCourseDetails d on d.CourseId = c.CourseId AND d.TeeNumber = 0 where c.TournamentId = 23 and c.[Round] = 1 and  NOT Exists(select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27);
 
 select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27;
-update mg_TourneyScores set HCP = Round((CourseSlope*10.9)/113,0) WHERE TourneyId = 23 and RoundNum = 1 and userID = 27;
+
 select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27;

@@ -111,7 +111,7 @@ public class ScoreInfo
     public static List<ScoreInfo> LoadTourneyRound(string tourneyid, string round, string order)
     {
         DB db = new DB();
-        SqlDataReader sdr = db.Get(string.Format("select UserId,GroupId,Name,StartingHole from mg_tourneyscores where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
+        SqlDataReader sdr = db.Get(string.Format("select distinct s.UserId,s.GroupId,s.Name,s.StartingHole,t.TeamId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
         List<ScoreInfo> si = new List<ScoreInfo>();
         while (sdr.Read()) si.Add(new ScoreInfo(sdr[0].ToString(), tourneyid, round, true));
         db.Close(sdr);
