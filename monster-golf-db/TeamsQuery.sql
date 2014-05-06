@@ -2,7 +2,7 @@
 Declare @tId int;
 Set @tId = 23;
 select tt.TeamId,
-	(u1.Handicap+u2.Handicap) as TeamHCP, tt.Flight, 
+	Round(u1.Handicap+u2.Handicap,1) as TeamHCP, tt.Flight, 
 	ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex as 'TourneyUserHCP', ttp1.Handicap as 'TourneyTeamPlayersHCP', u1.Handicap as 'UsersHCP', ts1_1.HCP AS 'TourneyScoresR1HCP', ts1_2.HCP AS 'TourneyScoresR2HCP',
 	u1.Email, u1.MobileEmail,
 	u1.GHIN as 'HCP Location', s1.DateOfRound, s1.DateEntered,
@@ -25,7 +25,10 @@ from mg_TourneyTeams tt
 where tt.TournamentId = @tId
 order by tt.Flight, (u1.Handicap+u2.Handicap), tt.teamid
 
-select * from mg_scores
+-- get groups
+select distinct RoundNum,s.StartingHole, s.Name, s.HCP,t.TeamId, GroupId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId=23
+ order by RoundNum, StartingHole, GroupId, TeamId, Name
+
 
 select distinct s.*, t.TeamId from mg_tourneyscores s 
 join mg_tourneyUsers u on u.WebId = s.UserId
