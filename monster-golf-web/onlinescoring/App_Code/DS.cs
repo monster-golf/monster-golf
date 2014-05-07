@@ -90,13 +90,19 @@ public class ScoreInfo
         DB db = new DB();
         SqlDataReader sdr = db.Get(string.Format("select UserId, UserLookup from mg_tourneyscores where GroupId='{0}' order by dateofround;", DB.stringSql(groupid)));
         List<ScoreInfo> si = new List<ScoreInfo>();
+        int playersingroup = 0;
         while (sdr.Read())
         {
             string userid = sdr.IsDBNull(0) ? "0" : sdr[0].ToString();
             string lookup = sdr.IsDBNull(1) ? "" : sdr[1].ToString();
             si.Add(new ScoreInfo(userid, lookup, groupid, false));
+            playersingroup++;
         }
         db.Close(sdr);
+        foreach (ScoreInfo s in si)
+        {
+            s.PlayersInGroup = playersingroup;
+        }
         return si;
     }
     public static List<ScoreInfo> LoadGroup(string tourneyid, string round, string lookupid)
@@ -113,8 +119,39 @@ public class ScoreInfo
         DB db = new DB();
         SqlDataReader sdr = db.Get(string.Format("select distinct s.UserId,s.GroupId,s.Name,s.StartingHole,t.TeamId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
         List<ScoreInfo> si = new List<ScoreInfo>();
-        while (sdr.Read()) si.Add(new ScoreInfo(sdr[0].ToString(), tourneyid, round, true));
+        int playersingroup = 0;
+        string currgroupid = null;
+        while (sdr.Read())
+        {
+            si.Add(new ScoreInfo(sdr[0].ToString(), tourneyid, round, true));
+            if (order != null && order.ToLower().Contains("groupid"))
+            {
+                if (currgroupid == null) currgroupid = si[si.Count - 1].GroupID;
+                if (si[si.Count - 1].GroupID == "")
+                {
+                    si[si.Count - 1].PlayersInGroup = 1;
+                }
+                else if (currgroupid == si[si.Count - 1].GroupID || currgroupid == "") playersingroup++;
+                else if (playersingroup > 0)
+                {
+                    for (int x = si.Count - playersingroup - 1; x < si.Count - 1; x++)
+                    {
+                        si[x].PlayersInGroup = playersingroup;
+                    }
+                    playersingroup = 1;
+                }
+                currgroupid = si[si.Count - 1].GroupID;
+            }
+        }
         db.Close(sdr);
+        if (playersingroup > 0)
+        {
+            for (int x = si.Count - playersingroup - 1; x < si.Count; x++)
+            {
+                si[x].PlayersInGroup = playersingroup;
+            }
+            playersingroup = 0;
+        }
         return si;
     }
     public static bool IsCurrentRound(SqlDataReader sdr, string round) {
@@ -226,7 +263,8 @@ public class ScoreInfo
         GroupId,
         EmailSent,
         TourneyScoreID,
-        StartingHole
+        StartingHole,
+        PlayersInGroup
     }
     public static List<string> empty18List(bool useNum)
     {
@@ -331,6 +369,7 @@ public class ScoreInfo
         Scores.Add(ScoreKey.EmailSent.ToString(), emailsent.ToString());
         Scores.Add(ScoreKey.TourneyScoreID.ToString(), tourneyscoreid);
         Scores.Add(ScoreKey.StartingHole.ToString(), startinghole.ToString());
+        Scores.Add(ScoreKey.PlayersInGroup.ToString(), "0");
     }
     public ScoreInfo(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net)
     {
@@ -358,6 +397,11 @@ public class ScoreInfo
         bool.TryParse(Scores[sk.ToString()], out complete);
         return complete;
     }
+    private int IntCheck(ScoreKey sk) {
+        int complete = 0;
+        int.TryParse(Scores[sk.ToString()], out complete);
+        return complete;
+    }
     public bool RoundComplete { get { return BoolCheck(ScoreKey.RoundComplete); } }
     public bool CardSigned { get { return BoolCheck(ScoreKey.CardSigned); } }
     public bool CardAttested { get { return BoolCheck(ScoreKey.CardAttested); } }
@@ -368,6 +412,14 @@ public class ScoreInfo
     public bool EmailSent { get { return BoolCheck(ScoreKey.EmailSent); } }
     public string TourneyScoreID { get { return Scores[ScoreKey.TourneyScoreID.ToString()]; } }
     public string StartingHole { get { return Scores[ScoreKey.StartingHole.ToString()]; } }
+    public int PlayersInGroup
+    {
+        get { return IntCheck(ScoreKey.PlayersInGroup); }
+        set
+        {
+            Scores[ScoreKey.PlayersInGroup.ToString()] = value.ToString();
+        }
+    }
 }
 
 /// <summary>

@@ -80,6 +80,10 @@ public partial class TourneyXml : System.Web.UI.Page
                         DB.stringSql(groupid), tourneyid, roundnum, player);
                 }
             }
+            else if (Request.Form["startingholeforgroup"] != null)
+            {
+                update = string.Format("update mg_TourneyScores set StartingHole = {0} WHERE GroupId = '{1}'", Request.Form["hole"], DB.stringSql(Request["startingholeforgroup"]));
+            }
             else if (Request["breakgroup"] != null)
             {
                 update += string.Format("update mg_tourneyScores set GroupId = '',EmailSent=0,StartingHole=NULL where GroupId = '{0}';", DB.stringSql(Request["breakgroup"]));
@@ -161,24 +165,26 @@ public partial class TourneyXml : System.Web.UI.Page
 
                 for (int x = 0; x < coursesInfo.Count; x++)
                 {
-                    if (x==0) sb.AppendFormat("<div>{0}</div>", tourneyNames[x]);
+                    //if (x==0) sb.AppendFormat("<div>{0}</div>", tourneyNames[x]);
                     detailround = x + 1;
-                    sb.AppendFormat("<div style='margin-top:20px;'>Round: {0} on <span id='rounddate'>{1}</span> at {2} ", detailround, dateOfRounds[x], courseNames[x]);
-                    if (needssetup.Contains(detailround)) sb.AppendFormat(" <a href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
+                    DateTime dOfRound = DateTime.MinValue;
+                    sb.AppendFormat("<div class='PageBreak' style='margin:20px 5px 10px;'>{0}<br/>Round: {1} on <span id='rounddate'>{2}</span> at {3} ", tourneyNames[x], detailround, dateOfRounds[x], courseNames[x]);
+                    if (needssetup.Contains(detailround)) sb.AppendFormat("<br/><a class='header' href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
                     else
                     {
-                        sb.AppendFormat(" <a href='javascript:ViewRound({0});'>View Players</a>", detailround);
-                        DateTime dOfRound = DateTime.Parse(dateOfRounds[x]);
-                        if (dOfRound.Day == DateTime.Now.Day && dOfRound > DateTime.Now) sb.AppendFormat(" <a href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
+                        sb.AppendFormat("<br/><a class='header' href='javascript:ViewRound({0});'>View Players</a>", detailround);
+                        dOfRound = DateTime.Parse(dateOfRounds[x]);
+                        if (dOfRound.Day == DateTime.Now.Day && dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
                     }
-                    if (needsscores.Contains(detailround)) sb.AppendFormat(" <a href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
+                    if (needsscores.Contains(detailround)) sb.AppendFormat("<br/><a class='header' href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
                     sb.AppendFormat("</div><div style='clear:both' id='playerscores{0}'> </div>", detailround);
-                    w.TourneyRow(db, sb, new ScoreInfo("label", "", "Hole", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net"));
+                    sb.Append("<table cellpadding='0' cellspacing='0'>");
+                    w.TourneyRow(db, sb, new ScoreInfo("label", "", "Hole", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net"), 0, 0, dOfRound > DateTime.Now, false, "", true, 0, false);
                     foreach (ScoreInfo si in coursesInfo[x])
                     {
-                        w.TourneyRow(db, sb, si);
+                        w.TourneyRow(db, sb, si, 0, 0, dOfRound > DateTime.Now, false, "", true, 0, false);
                     }
-                    sb.Append("<div style='clear:both'> </div>");
+                    sb.Append("</table><div style='clear:both'> </div>");
                 }
             }
             sb.Append("\n</div>");
@@ -300,15 +306,6 @@ public partial class TourneyXml : System.Web.UI.Page
             Response.End();
         }
     }
-    private void StartingHoleForGroup()
-    {
-        if (Request.Form["startingholeforgroup"] != null)
-        {
-            StringBuilder update = new StringBuilder();
-            update.AppendFormat("update mg_TourneyScores set StartingHole = {0} WHERE GroupId = '{1}'", Request.Form["hole"], DB.stringSql(Request["startingholeforgroup"]));
-            db.Exec(update.ToString());
-        }
-    }
     protected void Page_Load(object sender, EventArgs e)
     {
         db = new DB();
@@ -316,7 +313,6 @@ public partial class TourneyXml : System.Web.UI.Page
         SetTourneyScores();
         GetTourneyDetails();
         GetTourneyScores();
-        StartingHoleForGroup();
         EmailGroups();
         EmailScores();
         Response.Write("<complete>true</complete>");

@@ -82,14 +82,10 @@ public class WEB
 		//
 	}
 
-    public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s)
-    {
-        TourneyRow(db, sb, s, 0, 0, false, false, "", false);
-    }
-    public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s, int roundnum, int tourneyid, bool email, bool enterscores, string groupclass, bool addstartinghole)
+    public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s, int roundnum, int tourneyid, bool email, bool enterscores, string groupclass, bool addstartinghole, int golfersingroup, bool addpagebreak)
     {
         string name = "";
-        string hole = "";
+        string group = "";
         if (s.LookupID != "" && s.GroupID == "")
         {
             name = string.Format("<input type='checkbox' class='cb' name='playerchk' id='playerchk{0}' onclick='ChkPlayer(this, {0}, {1});' />", s.ID, roundnum);
@@ -97,65 +93,79 @@ public class WEB
         else if (s.LookupID != "" && s.GroupID != "" && roundnum > 0 && tourneyid > 0)
         {
             string scoringlink = string.Format("http://monstergolf.org/monsterscoring/?t={0}&r={1}&u={2}&overwrite=1", tourneyid, roundnum, s.LookupID);
-            if (email) name += string.Format("<a href=\"javascript:BreakGroup('{0}',{1});\">Change</a> ", s.GroupID, roundnum);
-            if (enterscores) name += string.Format("<a href='{0}' target='scoreenter'>Enter Scores</a> ", scoringlink);
-            if (addstartinghole) hole = string.Format("<input type='number' class='tb' name='startinghole{0}' maxlength='2' onchange=\"StartingHole(this, '{0}');\" value='{1}' />", s.GroupID, s.StartingHole);
+            if (email) group += string.Format("<a href=\"javascript:BreakGroup('{0}',{1});\">Change</a> ", s.GroupID, roundnum);
+            if (enterscores) group += string.Format("<a href='{0}' target='scoreenter'>Scores</a> ", scoringlink);
         }
-        name += s.Name + hole;
-        sb.AppendFormat("<div class='Detail1" + groupclass + "'>{0}</div>", name);
-        for (int x = 1; x <= 18; x++)
+        name += s.Name;
+        sb.AppendFormat("<tr{0}>", (addpagebreak) ? " class='PageBreak'" : "");
+        if (addstartinghole) sb.AppendFormat("<td class='Detail" + groupclass + " DetailStart'{0}>", (golfersingroup > 1) ? "rowspan='" + golfersingroup + "'" : "");
+        if (addstartinghole && golfersingroup > 1)
         {
-            if (x == 10) sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.Out == "") ? " " : s.Out));
-            string score = s.Scores[x.ToString()];
-            if (score == "") score += " ";
-            sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", score);
+            if (email) sb.AppendFormat("<input type='number' pattern='[0-9]*' class='starthole' name='startinghole{0}' maxlength='2' onchange=\"StartingHole(this, '{0}', '{2}');\" value='{1}' />", s.GroupID, s.StartingHole, roundnum);
+            else sb.AppendFormat("<div class='starthole'>{0}</div>", s.StartingHole);
+            if (group != "") sb.AppendFormat("<div>{0}</div>", group);
         }
-        sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.In == "") ? " " : s.In));
-        sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.Total == "") ? " " : s.Total));
-        sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.HCP == "") ? " " : s.HCP));
-        sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.Net == "") ? " " : s.Net));
-        sb.Append("<div style='clear:both'> </div>");
+        if (addstartinghole) sb.Append("</td>");
+        sb.AppendFormat("<td class='Detail1" + groupclass + "'>{0}</td>", name);
+
+        if (!email)
+        {
+            for (int x = 1; x <= 18; x++)
+            {
+                if (x == 10) sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.Out == "") ? " " : s.Out));
+                string score = s.Scores[x.ToString()];
+                if (score == "") score += " ";
+                sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", score);
+            }
+        }
+        if (!email) sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.In == "") ? " " : s.In));
+        if (!email) sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.Total == "") ? " " : s.Total));
+        sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.HCP == "") ? " " : s.HCP));
+        if (!email) sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.Net == "") ? " " : s.Net));
+        sb.Append("</tr>");    
+        //sb.Append("<div style='clear:both'> </div>");
     }
     public StringBuilder TourneyScores(DB db, int tourneyid, int roundnum, bool email, bool enterscores, string order)
     {
-        StringBuilder sb = new StringBuilder("<div style='position:relative;'>");
+        StringBuilder sb = new StringBuilder("<div style='position:relative;'><table cellpadding='0' cellspacing='0'>");
         sb.AppendFormat("<input type='button' id='setgroup{0}' onclick='SetGroup({0})' value='Set Group' style='position:absolute;display:none;top:0;left:30;z-index:10;' />", roundnum);
         List<ScoreInfo> si = ScoreInfo.LoadTourneyRound(tourneyid.ToString(), roundnum.ToString(), order);
         ScoreInfo headerCol = new ScoreInfo("label", "", "Player", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net");
         if (si.Count == 0) sb.Append("No Scores Available");
-        else TourneyRow(db, sb, headerCol, 0, 0, false, false, "_Head", false);
+        else TourneyRow(db, sb, headerCol, 0, 0, email, false, "_Head", true, 0, false);
         string currGroupId = "";
         string groupclass = "";
         int count = 1;
         foreach (ScoreInfo s in si)
         {
             bool addstartinghole = false;
+            int golfersingroup = 0;
             if (order.ToLower().Contains("groupid"))
             {
                 if (currGroupId == "")
                 {
                     currGroupId = s.GroupID;
-                    addstartinghole = email;
+                    addstartinghole = true;
+                    golfersingroup = s.PlayersInGroup;
                 }
                 if (currGroupId != "" && currGroupId != s.GroupID)
                 {
-                    addstartinghole = email;
+                    addstartinghole = true;
                     currGroupId = s.GroupID;
                     if (groupclass == "") groupclass = "_2";
                     else groupclass = "";
+                    golfersingroup = s.PlayersInGroup;
                 }
             }
-            if (count == 25)
+            if (count >= 48 && addstartinghole)
             {
-                sb.Append("<div style='page-break-before:always'></div>");
-                //TourneyRow(db, sb, s, 0, 0, false, false, "");
-                TourneyRow(db, sb, headerCol, 0, 0, false, false, "_Head", false);
+                TourneyRow(db, sb, headerCol, 0, 0, email, false, "_Head", true, 0, true);
                 count = 1;
             }
             count++;
-            TourneyRow(db, sb, s, roundnum, tourneyid, email && !s.CardSigned, enterscores, groupclass, addstartinghole);
+            TourneyRow(db, sb, s, roundnum, tourneyid, email && !s.CardSigned, enterscores, groupclass, addstartinghole, golfersingroup, false);
         }
-        sb.Append("</div>");
+        sb.Append("</table></div>");
         return sb;
     }
     public static void WriteEndResponse(HttpResponse resp, StringBuilder output)
