@@ -138,10 +138,9 @@ input.starthole {width:40px;}
         var tid = TourneyId();
         if (tid != -1) document.location.href = "Results.aspx?t=" + tid;
     }
-    function StartingHole(hole, groupid, roundid) {
+    function StartingHole(hole, groupid) {
         var tid = TourneyId();
-        playerscores = document.getElementById("playerscores" + roundid);
-        if (tid > -1 && !isNaN(parseInt(hole.value))) SendForm("viewtourneyround=" + roundid + "&tourneyid=" + tid + "&startingholeforgroup=" + groupid + "&hole=" + hole.value, "", ViewRoundDone);
+        if (tid > -1) SendForm("tourneyid=" + tid + "&startingholeforgroup=" + groupid + "&hole=" + hole.value, "");
     }
 </script>
 </head>

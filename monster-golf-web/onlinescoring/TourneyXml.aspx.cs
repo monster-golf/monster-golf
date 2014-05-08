@@ -80,10 +80,6 @@ public partial class TourneyXml : System.Web.UI.Page
                         DB.stringSql(groupid), tourneyid, roundnum, player);
                 }
             }
-            else if (Request.Form["startingholeforgroup"] != null)
-            {
-                update = string.Format("update mg_TourneyScores set StartingHole = {0} WHERE GroupId = '{1}'", Request.Form["hole"], DB.stringSql(Request["startingholeforgroup"]));
-            }
             else if (Request["breakgroup"] != null)
             {
                 update += string.Format("update mg_tourneyScores set GroupId = '',EmailSent=0,StartingHole=NULL where GroupId = '{0}';", DB.stringSql(Request["breakgroup"]));
@@ -306,6 +302,15 @@ public partial class TourneyXml : System.Web.UI.Page
             Response.End();
         }
     }
+    private void StartingHoleForGroup()
+    {
+        if (Request.Form["startingholeforgroup"] != null)
+        {
+            StringBuilder update = new StringBuilder();
+            update.AppendFormat("update mg_TourneyScores set StartingHole = {0} WHERE GroupId = '{1}'", Request.Form["hole"], DB.stringSql(Request["startingholeforgroup"]));
+            db.Exec(update.ToString());
+        }
+    }
     protected void Page_Load(object sender, EventArgs e)
     {
         db = new DB();
@@ -313,6 +318,7 @@ public partial class TourneyXml : System.Web.UI.Page
         SetTourneyScores();
         GetTourneyDetails();
         GetTourneyScores();
+        StartingHoleForGroup();
         EmailGroups();
         EmailScores();
         Response.Write("<complete>true</complete>");
