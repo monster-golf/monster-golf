@@ -29,7 +29,7 @@ foreach($file in $files)
     }
     $directory += "/";
     if ($directory -eq "\bin/") {$directory = "/.." + $directory }
-    if ("$file" -eq "Web.config" -or "$file" -eq "PrecompiledApp.config" -or "$file" -eq "PublishProfiles" -or "$file" -eq "website.publishproj" -or "$file" -eq "monsterscoring.pubxml" -or "$file" -eq "App_Data" -or "$file" -eq "bin") {
+    if ("$file" -eq "Web.config" -or "$file" -eq "PrecompiledApp.config" -or "$file" -eq "PublishProfiles" -or "$file" -eq "website.publishproj" -or "$file" -eq "monsterscoring.pubxml" -or "$file" -eq "App_Data" -or "$file" -eq "bin" -or "$file" -eq "logs") {
         "Skipping $file"
     } else {
         $ftp_command = $ftp + $directory + $file
