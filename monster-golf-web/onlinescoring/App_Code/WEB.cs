@@ -175,6 +175,20 @@ public class WEB
         resp.Write(output);
         resp.End();
     }
+    public static MailAddress CreateAddress(string emailnameitem, bool overwriteemail) {
+        MailAddress m = null;
+        string[] emname = emailnameitem.Split(':');
+        string email = null, name = null;
+        if (emname.Length > 0) email = emname[0];
+        if (emname.Length > 1) name = emname[1];
+        if (!string.IsNullOrEmpty(email))
+        {
+            if (overwriteemail) email = "aaronwald@hotmail.com";
+            if (string.IsNullOrEmpty(name)) m = new MailAddress(email);
+            else m = new MailAddress(email, name);
+        }
+        return m;
+    }
     public static bool SendMessage(string email, string subject, string body, bool isHtml, List<Attachment> attachments, HttpServerUtility webserver)
     {
         bool success = true;
@@ -184,33 +198,23 @@ public class WEB
             string mailsvr = ConfigurationManager.AppSettings.Get("mailserver");
             SmtpClient client = new SmtpClient(mailsvr);
             client.UseDefaultCredentials = false;
-            MailAddress from;
             string mailfrom = ConfigurationManager.AppSettings.Get("mailfrom");
-            string[] emname = mailfrom.Split(':');
-            if (emname.Length == 2) from = new MailAddress(emname[0], emname[1]);
-            else from = new MailAddress(emname[0]);
+            MailAddress from = CreateAddress(mailfrom, false);
+            if (from == null) return false;
             client.Credentials = new System.Net.NetworkCredential(from.Address, ConfigurationManager.AppSettings.Get("mailpassword"));
-            string[] emailnamelist = email.Split(';');
-            emname = emailnamelist[0].Split(':');
-            MailAddress to;
-            if (emname.Length == 2) to = new MailAddress(emname[0], emname[1]);
-            else to = new MailAddress(emname[0]);
-            MailMessage msg = new MailMessage(from, to);
+            MailMessage msg = new MailMessage();
+            msg.From = from;
             string mailreplyto = ConfigurationManager.AppSettings.Get("mailreplyto");
-            string[] replyto = mailreplyto.Split(':');
-            if (replyto.Length > 1) msg.ReplyTo = new MailAddress(replyto[0], replyto[1]);
-            else msg.ReplyTo = new MailAddress(replyto[0]);
+            MailAddress reply = CreateAddress(mailreplyto, false);
+            if (reply != null) msg.ReplyTo = reply;
             msg.Subject = subject;
             msg.Body = body;
             msg.IsBodyHtml = true;
-            for (int x = 1; x < emailnamelist.Length; x++)
+            string[] emailnamelist = email.Split(';');
+            for (int x = 0; x < emailnamelist.Length; x++)
             {
-                if (emailnamelist[x].Trim() != "")
-                {
-                    emname = emailnamelist[x].Split(':');
-                    if (emname.Length == 2) msg.To.Add(new MailAddress(emname[0], emname[1]));
-                    else msg.To.Add(new MailAddress(emname[0]));
-                }
+                MailAddress to = CreateAddress(emailnamelist[x], false);
+                if (to != null) msg.To.Add(to);
             }
             if (attachments != null && attachments.Count > 0)
             {
@@ -229,7 +233,14 @@ public class WEB
                 string msg = ex.Message;
                 msg += string.Format("\n\nTo: {0}\nSubject: {1}\nAttachments: {2}\nBody: {3}", email, subject, ((attachments == null) ? 0 : attachments.Count), body);
                 string writefile = string.Format("{0}SendError_{1}.txt", webserver.MapPath(".\\logs\\"), DateTime.Now.ToString("yyMMddhhmmss", System.Globalization.DateTimeFormatInfo.InvariantInfo));
-                System.IO.File.WriteAllText(writefile, ex.Message);
+                if (ex.InnerException != null)
+                {
+                    System.IO.File.WriteAllText(writefile, ex.Message + "\n\n" + ex.InnerException.Message);
+                }
+                else
+                {
+                    System.IO.File.WriteAllText(writefile, ex.Message);
+                }
             }
         }
         return success;

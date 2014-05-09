@@ -33,7 +33,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     if (startofround > DateTime.Now)
                     {
                         update.AppendFormat("update mg_TourneyTeamPlayers set Handicap = {0} where ID = {1};\n", sdr["Handicap"], sdr["ID"]);
-                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{0})/113,0),DateOfRound='{3}' where UserId = {1} and TourneyId = {2} and CardSigned = 0 and CardAttested = 0;\n", sdr["Handicap"], sdr["WebId"], tourneyid, startofround);
+                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{0})/113,0) where UserId = {1} and TourneyId = {2} and CardSigned = 0 and CardAttested = 0;\n", sdr["Handicap"], sdr["WebId"], tourneyid, startofround);
                     }
                 }
                 db.Close(sdr, false);
@@ -52,8 +52,8 @@ public partial class TourneyXml : System.Web.UI.Page
             while (sdr.Read())
             {
                 //TODO: cannot compare agains round in the sql string because round could be a comma seperated list of round numbers
-                update.AppendFormat("insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, CourseSlope, CourseRating) " +
-                        "select c.TournamentId, c.[Round], {0}, '{1}', '{2}', c.Course, d.Slope, Round(d.Rating,1) from mg_tourneycourses c " +
+                update.AppendFormat("insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, DateOfRound, CourseSlope, CourseRating) " +
+                        "select c.TournamentId, c.[Round], {0}, '{1}', '{2}', c.Course, c.DateOfRound, d.Slope, Round(d.Rating,1) from mg_tourneycourses c " +
                         "join mg_TourneyCourseDetails d on d.CourseId = c.CourseId AND d.TeeNumber = {5} " +
                         "where c.TournamentId = {3} and c.[Round] = {4} and  NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
                         sdr[0], DB.stringSql(sdr[1].ToString()), ScoreInfo.GetId(), tourneyid, roundnum, sdr[3]);
@@ -194,14 +194,20 @@ public partial class TourneyXml : System.Web.UI.Page
             int.TryParse(Request["tourneyid"], out tourneyid))
         {
             string emailfails = "";
-            SqlDataReader sdr = db.Get("select Distinct t.Location, t.Slogan, t.[Description], t.NumRounds, tc.Course, tc.[Round], tc.DateOfRound, ts.GroupId from mg_Tourney t " +
+            SqlDataReader sdr = db.Get("select Distinct t.Location, t.Slogan, t.[Description], t.NumRounds, tc.Course, tc.[Round], tc.DateOfRound, ts.GroupId " +
+                                       "from mg_Tourney t " +
                                        "join mg_tourneyCourses tc on tc.tournamentid = t.tournamentid " +
                                        "join mg_tourneyScores ts on ts.tourneyid = t.tournamentid and " +
-                                       "	(convert(nvarchar(2), ts.RoundNum) = tc.[Round] OR " +
-                                       "	 tc.[Round] like convert(nvarchar(2), ts.RoundNum) + ',%' OR " +
-                                       "	 tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) OR " +
-                                       "	 tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) + ',%') " +
-                                       "where t.tournamentId = " + tourneyid + " and ts.EmailSent <> 1 and ts.GroupId IS NOT NULL and ts.GroupId <> ''");
+                                       "    (convert(nvarchar(2), ts.RoundNum) = tc.[Round] OR " +
+                                       "     tc.[Round] like convert(nvarchar(2), ts.RoundNum) + ',%' OR " +
+                                       "     tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) OR " +
+                                       "     tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) + ',%') " +
+                                       "where t.tournamentId = " + tourneyid + 
+                                       "    and ts.EmailSent <> 1 " +
+                                       "    and ts.GroupId IS NOT NULL " +
+                                       "    and ts.GroupId <> '' " +
+                                       "    and ts.RoundNum = " + roundnum);
+
             while (sdr.Read())
             {
                 if (ScoreInfo.IsCurrentRound(sdr, roundnum.ToString()))

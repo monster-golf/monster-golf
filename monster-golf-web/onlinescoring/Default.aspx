@@ -81,7 +81,8 @@ function ScoresSave(obj, e) {
     if (obj) return ScoresAdd(obj, e);
 }
 var scoresTO;
-function ScoresAdd(obj,e) {
+function ScoresAdd(obj, e) {
+    if (!obj.parentNode) return KeyEntKill(e);
     var scoreobj = obj.parentNode.firstChild;
     var f9 = 0;
     var b9 = 0;
@@ -511,7 +512,7 @@ function CheckScoresPost(e) {
 <asp:Panel ID="pnlPlayerHelp" runat="server" CssClass="PlayerHelp" style="display:none;">
 Enter player names, hit the search icon <img src="find.png" alt="find player" style="vertical-align:middle;" /> when it appears to the left of the name or hit the enter/go key on your keyboard. Also, it will auto search after you type 3 characters.  If a name is found in the Monster handicap system it will show up in a list below the name box, make sure to click on the name.
 </asp:Panel>
-<asp:Panel ID="pnlSaveFailed" CssClass="SaveFailed" style="display:none;" runat="server" onclick="ScoresSaveAll();">Your last score did not save successfully, you may be offline.  Will try to post after the next hole, or click here to try again.</asp:Panel>
+<asp:Panel ID="pnlSaveFailed" CssClass="SaveFailed" style="display:none;" runat="server" onclick="ErrHide(); ScoresSaveAll();">Your last score did not save successfully, you may be offline.  Will try to post after the next hole, or click here to try again.</asp:Panel>
 <asp:Panel ID="pnlScoresList" CssClass="ScoresList" runat="server" />
 <asp:Panel ID="pnlScorerSign" CssClass="ScoresRow" runat="server">
     <p>Your round is complete.<br />
