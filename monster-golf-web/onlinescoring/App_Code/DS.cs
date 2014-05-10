@@ -69,13 +69,23 @@ public class DB
         }
         return val;
     }
+    public static string stringSql(SqlDataReader sdr, int col)
+    {
+        if (sdr.IsDBNull(col)) return stringSql("NULL", false);
+        else return stringSql(sdr[col].ToString(), true);
+    }
     public static string stringSql(string val)
+    {
+        return stringSql(val, false);
+    }
+    public static string stringSql(string val, bool addouterapos)
     {
         val = stripWord(val, "delete");
         val = stripWord(val, "insert");
         val = stripWord(val, "update");
         val = stripWord(val, "alter");
         val = val.Replace("'", "''");
+        if (addouterapos) return "'" + val + "'";
         return val;
     }
 }

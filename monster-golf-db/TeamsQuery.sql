@@ -104,8 +104,6 @@ select * from mg_tourneyTeams
 where tournamentid = @tId
 
 
-insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, CourseSlope, CourseRating) select c.TournamentId, c.[Round], 27, 'Dewey Wald', 'e07b75b4a1', c.Course, d.Slope, Round(d.Rating,1) from mg_tourneycourses c join mg_TourneyCourseDetails d on d.CourseId = c.CourseId AND d.TeeNumber = 0 where c.TournamentId = 23 and c.[Round] = 1 and  NOT Exists(select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27);
+select * from mg_TourneyScores WHERE TourneyId = 23 and userID = 467;
 
-select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27;
-
-select * from mg_TourneyScores WHERE TourneyId = 23 and RoundNum = 1 and userID = 27;
+select distinct s.UserId,s.GroupId,s.Name,s.StartingHole,t.TeamId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId={0} and RoundNum={1}     

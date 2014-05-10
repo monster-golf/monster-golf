@@ -83,7 +83,7 @@ input.starthole {width:40px;}
         if (ti) ti.style.display = (TourneyId() == -1) ? "none" : "";
     }
     function SetRound(roundid) {
-        GetHTMLAsync("settourneyround=" + roundid + "&tourneyid=" + TourneyId(), function() { alert('Round scores setup complete'); });
+        GetHTMLAsync("settourneyround=" + roundid + "&tourneyid=" + TourneyId(), function() { alert('Round scores setup complete'); ViewRound(roundid); });
     }
     var playerscores;
     function ViewRound(roundid) {

@@ -41,24 +41,37 @@ public partial class TourneyXml : System.Web.UI.Page
             }
         }
     }
-    protected void SetTourneyScores()
+    protected void InitTourneyScores()
     {
         int roundnum, tourneyid;
         if (int.TryParse(Request["settourneyround"], out roundnum) &&
             int.TryParse(Request["tourneyid"], out tourneyid))
         {
             StringBuilder update = new StringBuilder();
-            SqlDataReader sdr = db.Get("select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = " + tourneyid);
+            SqlDataReader sdr = db.Get("select CourseID, TournamentID, Round, Course, DateOfRound from mg_TourneyCourses where TournamentId = " + tourneyid);
             while (sdr.Read())
             {
-                //TODO: cannot compare agains round in the sql string because round could be a comma seperated list of round numbers
-                update.AppendFormat("insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, DateOfRound, CourseSlope, CourseRating) " +
-                        "select c.TournamentId, c.[Round], {0}, '{1}', '{2}', c.Course, c.DateOfRound, d.Slope, Round(d.Rating,1) from mg_tourneycourses c " +
-                        "join mg_TourneyCourseDetails d on d.CourseId = c.CourseId AND d.TeeNumber = {5} " +
-                        "where c.TournamentId = {3} and c.[Round] = {4} and  NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
-                        sdr[0], DB.stringSql(sdr[1].ToString()), ScoreInfo.GetId(), tourneyid, roundnum, sdr[3]);
-                update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0) WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
-                    sdr[0], sdr[2], tourneyid, roundnum);
+                if (ScoreInfo.IsCurrentRound(sdr, roundnum.ToString()))
+                {
+                    string courseId = sdr[0].ToString();
+                    string coursename = DB.stringSql(sdr,3);
+                    string dateofround = DB.stringSql(sdr,4);
+                    db.Close(sdr, false);
+                    sdr = db.Get("select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = " + tourneyid);
+                    while (sdr.Read())
+                    {
+                        update.AppendFormat(
+                            "insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, DateOfRound, CourseSlope, CourseRating) " +
+                            "select {3}, {4}, {0}, {1}, {2}, {7}, {8}, d.Slope, Round(d.Rating,1) " +
+                            "from mg_TourneyCourseDetails d " +
+                            "where d.TeeNumber = {5} and " +
+                            "	d.CourseId = {6} and " +
+                            "	NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
+                            sdr[0], DB.stringSql(sdr, 1), DB.stringSql(ScoreInfo.GetId(), true), tourneyid, roundnum, sdr[3], courseId, coursename, dateofround);
+                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0), DateOfRound={4} WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
+                            sdr[0], sdr[2], tourneyid, roundnum, dateofround);
+                    }
+                }
             }
             db.Close(sdr, false);
             db.Exec(update.ToString());
@@ -170,6 +183,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     {
                         sb.AppendFormat("<br/><a class='header' href='javascript:ViewRound({0});'>View Players</a>", detailround);
                         dOfRound = DateTime.Parse(dateOfRounds[x]);
+                        if (dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
                         if (dOfRound.Day == DateTime.Now.Day && dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
                     }
                     if (needsscores.Contains(detailround)) sb.AppendFormat("<br/><a class='header' href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
@@ -321,7 +335,7 @@ public partial class TourneyXml : System.Web.UI.Page
     {
         db = new DB();
         UpdateTourneyUsers();
-        SetTourneyScores();
+        InitTourneyScores();
         GetTourneyDetails();
         GetTourneyScores();
         StartingHoleForGroup();

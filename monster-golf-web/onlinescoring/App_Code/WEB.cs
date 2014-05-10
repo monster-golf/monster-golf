@@ -106,6 +106,9 @@ public class WEB
             if (group != "") sb.AppendFormat("<div>{0}</div>", group);
         }
         if (addstartinghole) sb.Append("</td>");
+
+        //TODO: add flight, need to add to ScoreInfo
+        //sb.AppendFormat("<td class='Detail1" + groupclass + "'>{0}</td>", "");
         sb.AppendFormat("<td class='Detail1" + groupclass + "'>{0}</td>", name);
 
         if (!email)
