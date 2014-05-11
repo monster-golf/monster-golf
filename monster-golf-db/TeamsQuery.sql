@@ -1,6 +1,6 @@
 -- This will get a list of teams and handicaps for the tournament
 Declare @tId int;
-Set @tId = 23;
+Set @tId = 24;
 select tt.TeamId,
 	Round(u1.Handicap+u2.Handicap,1) as TeamHCP, tt.Flight, 
 	ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex as 'TourneyUserHCP', ttp1.Handicap as 'TourneyTeamPlayersHCP', u1.Handicap as 'UsersHCP', ts1_1.HCP AS 'TourneyScoresR1HCP', ts1_2.HCP AS 'TourneyScoresR2HCP',
@@ -29,6 +29,11 @@ order by tt.Flight, (u1.Handicap+u2.Handicap), tt.teamid
 select distinct RoundNum,s.StartingHole, s.Name, s.HCP,t.TeamId, GroupId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId=23
  order by RoundNum, StartingHole, GroupId, TeamId, Name
 
+select * from mg_tourneyscores where tourneyid = 24
+select * from mg_tourneycourses where tournamentid = 24
+select * from mg_tourneyteamplayers where tournamentid = 24
+update mg_tourneycourses set DateOfround = '5-15-2014 09:36'
+where tournamentid = 24
 
 select distinct s.*, t.TeamId from mg_tourneyscores s 
 join mg_tourneyUsers u on u.WebId = s.UserId
@@ -107,3 +112,15 @@ where tournamentid = @tId
 select * from mg_TourneyScores WHERE TourneyId = 23 and userID = 467;
 
 select distinct s.UserId,s.GroupId,s.Name,s.StartingHole,t.TeamId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId={0} and RoundNum={1}     
+
+update
+mg_TourneyScores
+set DateOfRound = DateAdd(mi, (9*(StartingHole-1)), dateofRound)
+where tourneyid = 24
+
+
+select * from mg_tourneycourses where tournamentid = 24
+
+update mg_tourneycourses
+set DateOfRound = '2014-05-15 09:36:00.000'
+where tournamentid = 24

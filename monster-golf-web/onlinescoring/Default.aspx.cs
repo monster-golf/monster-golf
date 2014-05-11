@@ -305,7 +305,7 @@ public partial class _Default : System.Web.UI.Page
         }
         int hcp = 0;
         int.TryParse(Request.Form["score_hcp_" + id], out hcp);
-        return new ScoreInfo(id, "", Request.Form["score_name_" + id], scores, f9.ToString(), b9.ToString(), (f9 + b9).ToString(), hcp.ToString(), (f9 + b9 - hcp).ToString(), Request["courseName"], Request["courseSlope"], Request["courseRating"], false, "", 1);
+        return new ScoreInfo(id, "", Request.Form["score_name_" + id], scores, f9.ToString(), b9.ToString(), (f9 + b9).ToString(), hcp.ToString(), (f9 + b9 - hcp).ToString(), Request["courseName"], Request["courseSlope"], Request["courseRating"], false, "", 1, "");
     }
     protected void FillReq(string reqid, out string id, out string userid)
     {

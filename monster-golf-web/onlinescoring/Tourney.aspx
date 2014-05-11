@@ -13,7 +13,7 @@ a.header {margin-right:15px;}
 .Detail { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc;}
 .Detail1 { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px;}
 .DetailStart { min-width:65px; }
-
+.DetailStart div {padding-top:2px;}
 .Detail_2 { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc; background-color:#008EFF;}
 .Detail1_2 { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px; background-color:#008EFF; }
 

@@ -127,7 +127,7 @@ public class ScoreInfo
     public static List<ScoreInfo> LoadTourneyRound(string tourneyid, string round, string order)
     {
         DB db = new DB();
-        SqlDataReader sdr = db.Get(string.Format("select distinct s.UserId,s.GroupId,s.Name,s.StartingHole,t.TeamId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
+        SqlDataReader sdr = db.Get(string.Format("select distinct s.UserId,s.GroupId,s.Name,s.StartingHole,s.DateOfRound,t.TeamId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
         List<ScoreInfo> si = new List<ScoreInfo>();
         int playersingroup = 0;
         string currgroupid = null;
@@ -289,12 +289,13 @@ public class ScoreInfo
     public Dictionary<string, string> Scores = new Dictionary<string, string>();
     public ScoreInfo(string id)
     {
-        Load(id, GetId(), "", empty18List(), "", "", "", "", "", false, false, "", "", "113", "72", false, "", 1);
+        Load(id, GetId(), "", empty18List(), "", "", "", "", "", false, false, "", "", "113", "72", false, "", 1, "");
     }
     public ScoreInfo(string userid, string id1, string id2, bool usetourney)
     {
-        string sql = "select Name, Hole1, Hole2, Hole3, Hole4, Hole5, Hole6, Hole7, Hole8, Hole9, Hole10, Hole11, Hole12, Hole13, Hole14, Hole15, Hole16, Hole17, Hole18, HCP, CardSigned, CardAttested, UserLookup, GroupId, CourseName, CourseSlope, CourseRating, EmailSent, TourneyScoreID, StartingHole from mg_tourneyscores where UserId={0} and UserLookup='{1}' and GroupId='{2}';";
-        if (usetourney) sql = "select Name, Hole1, Hole2, Hole3, Hole4, Hole5, Hole6, Hole7, Hole8, Hole9, Hole10, Hole11, Hole12, Hole13, Hole14, Hole15, Hole16, Hole17, Hole18, HCP, CardSigned, CardAttested, UserLookup, GroupId, CourseName, CourseSlope, CourseRating, EmailSent, TourneyScoreID, StartingHole from mg_tourneyscores where UserId={0} and TourneyId={1} and RoundNum={2};";
+        string sql = "select Name, Hole1, Hole2, Hole3, Hole4, Hole5, Hole6, Hole7, Hole8, Hole9, Hole10, Hole11, Hole12, Hole13, Hole14, Hole15, Hole16, Hole17, Hole18, HCP, CardSigned, CardAttested, UserLookup, GroupId, CourseName, CourseSlope, CourseRating, EmailSent, TourneyScoreID, StartingHole, DateOfRound from mg_tourneyscores where UserId={0}";
+        if (usetourney) sql += " and TourneyId={1} and RoundNum={2};";
+        else sql += " and UserLookup='{1}' and GroupId='{2}';";
         LoadDB(userid, string.Format(sql, userid, DB.stringSql(id1), DB.stringSql(id2)));
     }
     private void LoadDB(string id, string select)
@@ -342,16 +343,17 @@ public class ScoreInfo
             string shole = (!sdr.IsDBNull(29)) ? sdr[29].ToString() : "1";
             int starthole;
             int.TryParse(shole, out starthole);
+            string dateofround = (!sdr.IsDBNull(30)) ? sdr[30].ToString() : "";
 
-            Load(id, userlookup, name, scores, f9, b9, tot, shcp, snet, cardsigned, cardattested, groupid, course, slope, rating, emailsent, tourneyscoreid, starthole);
+            Load(id, userlookup, name, scores, f9, b9, tot, shcp, snet, cardsigned, cardattested, groupid, course, slope, rating, emailsent, tourneyscoreid, starthole, dateofround);
         }
         else
         {
-            Load(id, "", "", empty18List(), "", "", "", "", "", false, false, "", "", "113", "72", false, "", 1);
+            Load(id, "", "", empty18List(), "", "", "", "", "", false, false, "", "", "113", "72", false, "", 1, "");
         }
         db.Close(sdr);
     }
-    private void Load(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net, bool cardsigned, bool cardattested, string groupid, string coursename, string slope, string rating, bool emailsent, string tourneyscoreid, int startinghole)
+    private void Load(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net, bool cardsigned, bool cardattested, string groupid, string coursename, string slope, string rating, bool emailsent, string tourneyscoreid, int startinghole, string dateofround)
     {
         int x = 1;
         bool roundcomplete = true;
@@ -380,14 +382,15 @@ public class ScoreInfo
         Scores.Add(ScoreKey.TourneyScoreID.ToString(), tourneyscoreid);
         Scores.Add(ScoreKey.StartingHole.ToString(), startinghole.ToString());
         Scores.Add(ScoreKey.PlayersInGroup.ToString(), "0");
+        Scores.Add(ScoreKey.DateOfRound.ToString(), dateofround);
     }
     public ScoreInfo(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net)
     {
-        Load(id, lookupid, name, scores, f9total, b9total, total, hcp, net, false, false, "", "", "113", "72", false, "", 1);
+        Load(id, lookupid, name, scores, f9total, b9total, total, hcp, net, false, false, "", "", "113", "72", false, "", 1, "");
     }
-    public ScoreInfo(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net, string course, string slope, string rating, bool emailsent, string tourneyscoreid, int startinghole)
+    public ScoreInfo(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net, string course, string slope, string rating, bool emailsent, string tourneyscoreid, int startinghole, string dateofround)
     {
-        Load(id, lookupid, name, scores, f9total, b9total, total, hcp, net, false, false, "", course, slope, rating, emailsent, tourneyscoreid, startinghole);
+        Load(id, lookupid, name, scores, f9total, b9total, total, hcp, net, false, false, "", course, slope, rating, emailsent, tourneyscoreid, startinghole, dateofround);
     }
     public string ID
     { 
@@ -422,6 +425,15 @@ public class ScoreInfo
     public bool EmailSent { get { return BoolCheck(ScoreKey.EmailSent); } }
     public string TourneyScoreID { get { return Scores[ScoreKey.TourneyScoreID.ToString()]; } }
     public string StartingHole { get { return Scores[ScoreKey.StartingHole.ToString()]; } }
+    public DateTime DateOfRound
+    {
+        get
+        {
+            DateTime dt = DateTime.MinValue;
+            DateTime.TryParse(Scores[ScoreKey.DateOfRound.ToString()], out dt);
+            return dt;
+        }
+    }
     public int PlayersInGroup
     {
         get { return IntCheck(ScoreKey.PlayersInGroup); }

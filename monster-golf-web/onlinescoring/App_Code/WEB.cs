@@ -101,8 +101,10 @@ public class WEB
         if (addstartinghole) sb.AppendFormat("<td class='Detail" + groupclass + " DetailStart'{0}>", (golfersingroup > 1) ? "rowspan='" + golfersingroup + "'" : "");
         if (addstartinghole && golfersingroup > 1)
         {
+            sb.Append("<div>Hole</div>");
             if (email) sb.AppendFormat("<input type='number' pattern='[0-9]*' class='starthole' name='startinghole{0}' maxlength='2' onchange=\"StartingHole(this, '{0}');\" value='{1}' />", s.GroupID, s.StartingHole);
             else sb.AppendFormat("<div class='starthole'>{0}</div>", s.StartingHole);
+            if (s.DateOfRound != DateTime.MinValue) sb.AppendFormat("<div>{0}</div>", s.DateOfRound.ToShortTimeString());
             if (group != "") sb.AppendFormat("<div>{0}</div>", group);
         }
         if (addstartinghole) sb.Append("</td>");

@@ -109,7 +109,7 @@ public partial class TourneyXml : System.Web.UI.Page
             }
             db.Close(sdr, false);
             WEB w = new WEB();
-            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, startofround < DateTime.Now, "StartingHole, GroupId, TeamId, Name"));
+            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, startofround < DateTime.Now, "StartingHole, DateOfRound, GroupId, TeamId, Name"));
         }
     }
     protected void GetTourneyDetails()
@@ -184,7 +184,7 @@ public partial class TourneyXml : System.Web.UI.Page
                         sb.AppendFormat("<br/><a class='header' href='javascript:ViewRound({0});'>View Players</a>", detailround);
                         dOfRound = DateTime.Parse(dateOfRounds[x]);
                         if (dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
-                        if (dOfRound.Day == DateTime.Now.Day && dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
+                        if ((dOfRound.Day - 1 == DateTime.Now.Day || dOfRound.Day == DateTime.Now.Day) && dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
                     }
                     if (needsscores.Contains(detailround)) sb.AppendFormat("<br/><a class='header' href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
                     sb.AppendFormat("</div><div style='clear:both' id='playerscores{0}'> </div>", detailround);
