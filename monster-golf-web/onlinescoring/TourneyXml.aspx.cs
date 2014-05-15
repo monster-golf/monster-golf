@@ -208,7 +208,7 @@ public partial class TourneyXml : System.Web.UI.Page
             int.TryParse(Request["tourneyid"], out tourneyid))
         {
             string emailfails = "";
-            SqlDataReader sdr = db.Get("select Distinct t.Location, t.Slogan, t.[Description], t.NumRounds, tc.Course, tc.[Round], tc.DateOfRound, ts.GroupId " +
+            SqlDataReader sdr = db.Get("select Distinct t.Location, t.Slogan, t.[Description], t.NumRounds, tc.Course, tc.[Round], ts.DateOfRound, ts.GroupId " +
                                        "from mg_Tourney t " +
                                        "join mg_tourneyCourses tc on tc.tournamentid = t.tournamentid " +
                                        "join mg_tourneyScores ts on ts.tourneyid = t.tournamentid and " +
@@ -221,7 +221,6 @@ public partial class TourneyXml : System.Web.UI.Page
                                        "    and ts.GroupId IS NOT NULL " +
                                        "    and ts.GroupId <> '' " +
                                        "    and ts.RoundNum = " + roundnum);
-
             while (sdr.Read())
             {
                 if (ScoreInfo.IsCurrentRound(sdr, roundnum.ToString()))
@@ -254,7 +253,13 @@ public partial class TourneyXml : System.Web.UI.Page
                             SqlDataReader sdrEm = db1.Get("select MobileEmail, Email from mg_users where userid = " + s.ID);
                             if (sdrEm.Read())
                             {
-                                string email = (sdrEm.IsDBNull(sdrEm.GetOrdinal("MobileEmail"))) ? (sdrEm.IsDBNull(sdrEm.GetOrdinal("Email"))) ? "" : sdrEm["Email"].ToString() : sdrEm["MobileEmail"].ToString();
+                                string email = (sdrEm.IsDBNull(sdrEm.GetOrdinal("MobileEmail"))) ? "" : sdrEm["MobileEmail"].ToString();
+                                email = email.Trim();
+                                if (string.IsNullOrEmpty(email))
+                                {
+                                    email = (sdrEm.IsDBNull(sdrEm.GetOrdinal("Email"))) ? "" : sdrEm["Email"].ToString();
+                                    email = email.Trim();
+                                }
                                 db1.Close(sdrEm, false);
                                 if (email != "")
                                 {

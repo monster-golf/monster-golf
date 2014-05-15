@@ -1,6 +1,6 @@
 -- This will get a list of teams and handicaps for the tournament
 Declare @tId int;
-Set @tId = 24;
+Set @tId = 23;
 select tt.TeamId,
 	Round(u1.Handicap+u2.Handicap,1) as TeamHCP, tt.Flight, 
 	ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex as 'TourneyUserHCP', ttp1.Handicap as 'TourneyTeamPlayersHCP', u1.Handicap as 'UsersHCP', ts1_1.HCP AS 'TourneyScoresR1HCP', ts1_2.HCP AS 'TourneyScoresR2HCP',
