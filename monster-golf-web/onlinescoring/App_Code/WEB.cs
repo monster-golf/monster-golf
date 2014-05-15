@@ -98,7 +98,7 @@ public class WEB
         }
         name += s.Name;
         sb.AppendFormat("<tr{0}>", (addpagebreak) ? " class='PageBreak'" : "");
-        if (addstartinghole) sb.AppendFormat("<td class='Detail" + groupclass + " DetailStart'{0}>", (golfersingroup > 1) ? "rowspan='" + golfersingroup + "'" : "");
+        if (addstartinghole) sb.AppendFormat("<td class='Detail" + groupclass + " DetailStart'{0}>", (golfersingroup > 1) ? " rowspan='" + golfersingroup + "'" : "");
         if (addstartinghole && golfersingroup > 1)
         {
             sb.Append("<div>Hole</div>");
