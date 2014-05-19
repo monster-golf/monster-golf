@@ -12,6 +12,7 @@ Tourney Site:
     Edit HCP inline
     Make a no-edit view
     Put edit behind a login
+    No way to have a team's in tournament with different players on different rounds.
     
 Monster site:
     Pull tourney list from mg_ tables not the user access file
