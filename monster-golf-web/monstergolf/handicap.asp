@@ -28,7 +28,7 @@ Set oConn = GetConnection
 Set g_oConn = oConn
 strAlreadyAUser = ""
 
-SubmitEdits Request("SubmitEdits"), Request("RemoveScore"), Request("EditScore")
+SubmitEdits Request("SubmitEdits"), Request("RemoveScore"), Request("EditScore"), Session("UserID"), Request("EditHandicap")
 SubmitFriendScore Request("SubmitFriendScore"), Request("PostFriend")
 
 If Request("AddUser") = "True" Then
@@ -324,7 +324,7 @@ Else
 <input type=hidden name=NewUser value=''>
 <table align=center border=1 bordercolor=black cellspacing=0 cellpadding=5>
 <tr><td colspan=3>
-<% HeaderDisplay strCurrHandicap, strHandicapTrend, strAlreadyAUser, oRS("FirstName"), oRS("LastName"), oRS("UserName"), oRS("Email") %>
+<% HeaderDisplay strCurrHandicap, strHandicapTrend, strAlreadyAUser, oRS("FirstName"), oRS("LastName"), oRS("UserName"), oRS("Email"), Session("AllUser") %>
 </td></tr>
 <tr>
 <td valign="top">

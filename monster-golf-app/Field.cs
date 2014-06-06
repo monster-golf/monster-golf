@@ -407,12 +407,15 @@ namespace MonsterGolf
 
             if (e.NewValue == System.Windows.Forms.CheckState.Checked)
             {
-               Team t = new Team();
-               t.AddGolfer(t.NumberOfGolfers, golfer);
-               m_tournament.AddTeam(t);
+                Team t = new Team();
+                t.AddGolfer(t.NumberOfGolfers, golfer);
+                m_tournament.AddTeam(t);
             }
             else
-               m_tournament.RemoveGolfer(golfer.ID);
+            {
+                m_tournament.RemoveGolfer(golfer.ID);
+                WEBDB.Execute("delete from mg_Tourneyscores where UserID = (select WebId from mg_tourneyUsers Where UserID = " + golfer.ID + ") and TourneyID = " + m_tournament.TournamentID);
+            }
             inTournament();
             this.Cursor = Cursors.Default;
          }
@@ -646,20 +649,25 @@ namespace MonsterGolf
             
             int curRow = -1;
             int prevRow = -1;
+            int teamId = -1;
             for (int i = 0; i < this.dataGridTournament.SelectedCells.Count; i++)
             {
                curRow = this.dataGridTournament.SelectedCells[i].OwningRow.Index;
                if (curRow != prevRow)
                {
-                  reset = true;
-                  SetTeam(int.Parse(this.dataGridTournament.Rows[curRow].Cells["GolferID"].Value.ToString()),
-                     int.Parse(this.dataGridTournament.Rows[curRow].Cells["TeamID"].Value.ToString()),
-                     -1);
+                   reset = true;
+                   teamId = int.Parse(this.dataGridTournament.Rows[curRow].Cells["TeamID"].Value.ToString());
+                   SetTeam(int.Parse(this.dataGridTournament.Rows[curRow].Cells["GolferID"].Value.ToString()),
+                      teamId,
+                      -1);
                }
                prevRow = curRow;
             }
             if (reset)
-               this.inTournament();
+            {
+                WEBDB.Execute("delete from mg_TourneyTeamPlayers where TeamID = " + teamId);
+                this.inTournament();
+            }
 
             this.Cursor = Cursors.Default;
          }

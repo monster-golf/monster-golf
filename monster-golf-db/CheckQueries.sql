@@ -12,12 +12,24 @@ left join mg_scores s on u.userId = s.userId
 Group by u.userid, tu.LastName,tu.FIrstName, GHIN, u.lastName, u.firstName, u.handicap, tu.hcpIndex,u.email, u.mobileemail
 order by TotalScores ASC
 
+
+select * from mg_Users order by userid DESC
+
+select * from mg_Tourney order by tournamentId Desc
+select * from mg_TourneyTeams order by tournamentId Desc
+select * from mg_TourneyCourses order by tournamentId Desc
+select * from mg_TourneyTeams order by tournamentId Desc
+
+
+select * from mg_TourneyUsers order by lastname asc
+update mg_tourneyUsers set WebId = 55 where userId = 78
 update mg_users set mobileemail = 'grobertson@russocorp.com' where userid = 392
 
 update mg_users set mobileemail = 'jonhanson22@gmail.com' where userid = 398
 
 update mg_users set email = 'monster@monstergolf.org' where userid = 405
 
+select * from mg_Tourney
 select * from mg_TourneyUsers where lastname = 'Perna' order by userID desc
 select * from mg_tourneyTeams where tournamentId = 21
 select * from mg_tourneyTeamPlayers where tournamentId = 21

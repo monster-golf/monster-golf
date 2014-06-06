@@ -805,7 +805,7 @@ function asyncNext(q, func, errfunc) {
     };
 }
 function SendForm(formdata, q, updone, uperr) {
-    SendForm(formdata, q, updone, updone, "application/x-www-form-urlencoded", null);
+    SendFormType(formdata, q, updone, uperr, "application/x-www-form-urlencoded", null);
 }
 function SendFormType(formdata, q, updone, uperr, contenttype, headers) {
     if (formdata != "") {

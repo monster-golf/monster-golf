@@ -7,22 +7,26 @@
 <title id="titleTag" runat="server">Tourney View</title>
 <style type="text/css" id="stylDef" runat="server">
 body{font-family:sans-serif, arial; margin:10px;font-size:12px;background-color:#1F58AE; color:#ffffff;}
-a {color:#ffffff; margin:5px;}
+a {color:#ffffff;}
 a:hover { color:#FF3F19;}
-.Detail { position:relative;float:left;min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc;}
-.Detail1 { position:relative;float:left;min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px;}
+a.header {margin-right:15px;}
+.Detail { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc;}
+.Detail1 { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px;}
+.DetailStart { min-width:65px; }
+.DetailStart div {padding-top:2px;}
+.Detail_2 { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc; background-color:#008EFF;}
+.Detail1_2 { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px; background-color:#008EFF; }
 
-.Detail_2 { position:relative;float:left;min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc;}
-.Detail1_2 { position:relative;float:left;min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px; background-color:#008EFF; }
+.Detail_Head { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc;background-color:#0229AE;}
+.Detail1_Head { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px;background-color:#0229AE; }
 
-.Detail_Head { position:relative;float:left;min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc;background-color:#0229AE;}
-.Detail1_Head { position:relative;float:left;min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px;background-color:#0229AE; }
-
-.Loading { position:absolute;top:100px; left:100px; font-size:30px; color:#EFE486; font-weight:bold; text-decoration:blink; z-index:100;}
+.Loading { position:fixed;top:200px; left:100px; font-size:30px; color:#EFE486; font-weight:bold; z-index:100;}
 .cb { padding: 0px 3px; margin:0px; }
-.tb { width: 15px; margin-left:3px;font-size:9pt;height:10px;padding:1px; }
+.starthole { height:20px;font-size:10pt;padding:1px;text-align:center; }
+input.starthole {width:40px;}
 .UserUpdate { float:left; margin: 3px 30px 0px;}
 .TourneyInfo { clear: both; padding-top: 20px; }
+.PageBreak {page-break-before:always;}
 </style>
 <script type="text/javascript" language="javascript" src="XmlHttp.js"></script>
 <script type="text/javascript" language="javascript">
@@ -57,7 +61,7 @@ a:hover { color:#FF3F19;}
         var loadingit = document.getElementById("loadingScreen");
         if (loadingit) {
             loadingit.style.display = (hide) ? "none" : "";
-            if (!hide) loadingit.style.top = (100 + ScrollTop()) + "px";
+            //if (!hide) loadingit.style.top = (100 + ScrollTop()) + "px";
         }
     }
     function TourneyDetails() {
@@ -71,7 +75,7 @@ a:hover { color:#FF3F19;}
         if (ti) {
             var currDate = new Date();
             var roundDate = new Date(ti.innerHTML);
-            if (roundDate.getDate() < currDate.getDate()) afterrounddate = true;
+            if (roundDate < currDate) afterrounddate = true;
         }
         ti = document.getElementById("updateUsers");
         if (ti) ti.style.display = (afterrounddate || TourneyId() == -1) ? "none" : "";
@@ -79,7 +83,7 @@ a:hover { color:#FF3F19;}
         if (ti) ti.style.display = (TourneyId() == -1) ? "none" : "";
     }
     function SetRound(roundid) {
-        GetHTMLAsync("settourneyround=" + roundid + "&tourneyid=" + TourneyId(), function() { alert('Round scores setup complete'); });
+        GetHTMLAsync("settourneyround=" + roundid + "&tourneyid=" + TourneyId(), function() { alert('Round scores setup complete'); ViewRound(roundid); });
     }
     var playerscores;
     function ViewRound(roundid) {
@@ -109,16 +113,18 @@ a:hover { color:#FF3F19;}
         if (players.length >= 3) {
             groupbtn.style.display = "";
             groupbtn.style.top = chk.parentNode.offsetTop + "px";
-            groupbtn.style.left = (chk.offsetLeft + chk.offsetWidth + 10) + "px";
+            groupbtn.style.left = (chk.parentNode.offsetLeft + groupbtn.offsetWidth) + "px";
         } else groupbtn.display = "none";
     }
     function SetGroup(roundid) {
         var formdata = "setgroup=1";
         while (players.length > 0) formdata += "&player=" + players.pop();
+        playerscores = document.getElementById("playerscores" + roundid);
         SendForm(formdata, "viewtourneyround=" + roundid + "&tourneyid=" + TourneyId(), ViewRoundDone);
     }
     function BreakGroup(groupid, roundid) {
         var formdata = "breakgroup=" + groupid;
+        playerscores = document.getElementById("playerscores" + roundid);
         SendForm(formdata, "viewtourneyround=" + roundid + "&tourneyid=" + TourneyId(), ViewRoundDone);
     }
     function EnterScores(roundid) {

@@ -424,31 +424,34 @@ namespace MonsterGolf
       {
 
       }
-
+      private void AddTeeDetails(DataSet teeData, int gcID, int tee)
+      {
+          if (!DB.IsEmpty(teeData))
+          {
+              string parcols = "";
+              string hcpcols = "";
+              string parvals = "";
+              string hcpvals = "";
+              for (int h = 1; h <= 18; h++)
+              {
+                  parcols += ",Par" + h;
+                  hcpcols += ",Handicap" + h;
+                  parvals += "," + DB.Str(teeData.Tables[0].Rows[0], "Par" + h);
+                  hcpvals += "," + DB.Str(teeData.Tables[0].Rows[0], "Handicap" + h);
+              }
+              string sql = "SET IDENTITY_INSERT mg_TourneyCourseDetails ON; INSERT INTO mg_TourneyCourseDetails (ID, CourseID, TeeNumber, Slope, Rating" + parcols + hcpcols;
+              sql += ") VALUES (";
+              sql += DB.Str(teeData.Tables[0].Rows[0], "ID") + "," + gcID + "," + tee + "," + DB.Str(teeData.Tables[0].Rows[0], "Slope") + "," + DB.Str(teeData.Tables[0].Rows[0], "Rating");
+              sql += parvals + hcpvals + "); SET IDENTITY_INSERT mg_TourneyCourseDetails OFF";
+              WEBDB.Execute(sql);
+          }
+      }
       private void AddTeeDetails(GolfCourse gc)
       {
           for (int tee = 0; tee < gc.NumberOfTees; tee++)
           {
               DataSet teeData = gc.TeeData(tee);
-              if (!DB.IsEmpty(teeData))
-              {
-                  string parcols = "";
-                  string hcpcols = "";
-                  string parvals = "";
-                  string hcpvals = "";
-                  for (int h = 1; h <= 18; h++)
-                  {
-                      parcols += ",Par" + h;
-                      hcpcols += ",Handicap" + h;
-                      parvals += "," + DB.Str(teeData.Tables[0].Rows[0], "Par" + h);
-                      hcpvals += "," + DB.Str(teeData.Tables[0].Rows[0], "Handicap" + h);
-                  }
-                  string sql = "SET IDENTITY_INSERT mg_TourneyCourseDetails ON; INSERT INTO mg_TourneyCourseDetails (ID, CourseID, TeeNumber, Slope, Rating" + parcols + hcpcols;
-                  sql += ") VALUES (";
-                  sql += DB.Str(teeData.Tables[0].Rows[0], "ID") + "," + gc.ID + "," + tee + "," + DB.Str(teeData.Tables[0].Rows[0], "Slope") + "," + DB.Str(teeData.Tables[0].Rows[0], "Rating");
-                  sql += parvals + hcpvals + "); SET IDENTITY_INSERT mg_TourneyCourseDetails OFF";
-                  WEBDB.Execute(sql);
-              }
+              AddTeeDetails(teeData, gc.ID, tee);
           }
       }
 
@@ -456,20 +459,20 @@ namespace MonsterGolf
       {
           string name = m_tournament.Name.Replace("'", "''");
           string sql = "SELECT tournamentId from MG_Tourney where tournamentId = " + m_tournament.TournamentID;
-          DataSet ds = WEBDB.GetDataSet(sql);
-          if (DB.IsEmpty(ds))
-          {
-              sql = "INSERT INTO MG_Tourney (TournamentID, Slogan, NumRounds) VALUES (";
-              sql += m_tournament.TournamentID + ",'" + name + "', " + m_tournament.NumberOfRounds + ");";
-          }
-          else
-          {
-              sql = "update mg_Tourney set Slogan = '" + name + "', NumRounds = " + m_tournament.NumberOfRounds + " where TournamentID = " + m_tournament.TournamentID;
-          }
-          WEBDB.Execute(sql);
+          //DataSet ds = WEBDB.GetDataSet(sql);
+          //if (DB.IsEmpty(ds))
+          //{
+          //    sql = "INSERT INTO MG_Tourney (TournamentID, Slogan, NumRounds) VALUES (";
+          //    sql += m_tournament.TournamentID + ",'" + name + "', " + m_tournament.NumberOfRounds + ");";
+          //}
+          //else
+          //{
+          //    sql = "update mg_Tourney set Slogan = '" + name + "', NumRounds = " + m_tournament.NumberOfRounds + " where TournamentID = " + m_tournament.TournamentID;
+          //}
+          //WEBDB.Execute(sql);
 
           sql = "select c.CourseID, c.[Round], c.Course, cd.ID from mg_TourneyCourses c left join mg_TourneyCourseDetails cd on cd.CourseID = c.CourseID where tournamentId = " + m_tournament.TournamentID;
-          ds = WEBDB.GetDataSet(sql);
+          DataSet ds = WEBDB.GetDataSet(sql);
           for (int i = 0; i < m_tournament.NumberOfCourses; i++)
           {
               GolfCourse gc = m_tournament.Course(i, 0);
@@ -499,17 +502,25 @@ namespace MonsterGolf
                           DataSet teeData = gc.TeeData(tee);
                           if (!DB.IsEmpty(teeData))
                           {
-                              string parcols = "";
-                              string hcpcols = "";
-                              for (int h = 1; h <= 18; h++)
+                              string teeID = DB.Str(teeData.Tables[0].Rows[0], "ID");
+
+                              sql = "select * from mg_TourneyCourseDetails where ID = " + teeID;
+                              DataSet finddetails = WEBDB.GetDataSet(sql);
+                              if (DB.IsEmpty(finddetails)) AddTeeDetails(teeData, gc.ID, tee);
+                              else
                               {
-                                  parcols += ",Par" + h + " = " + DB.Str(teeData.Tables[0].Rows[0], "Par" + h);
-                                  hcpcols += ",Handicap" + h + " = " + DB.Str(teeData.Tables[0].Rows[0], "Handicap" + h);
+                                  string parcols = "";
+                                  string hcpcols = "";
+                                  for (int h = 1; h <= 18; h++)
+                                  {
+                                      parcols += ",Par" + h + " = " + DB.Str(teeData.Tables[0].Rows[0], "Par" + h);
+                                      hcpcols += ",Handicap" + h + " = " + DB.Str(teeData.Tables[0].Rows[0], "Handicap" + h);
+                                  }
+                                  sql = "UPDATE mg_TourneyCourseDetails set CourseID = " + gc.ID + ", TeeNumber = " + tee + ", Slope = " + DB.Str(teeData.Tables[0].Rows[0], "Slope") + ", Rating = " + DB.Str(teeData.Tables[0].Rows[0], "Rating");
+                                  sql += parcols + hcpcols;
+                                  sql += " where ID = " + DB.Str(teeData.Tables[0].Rows[0], "ID");
+                                  WEBDB.Execute(sql);
                               }
-                              sql = "UPDATE mg_TourneyCourseDetails set CourseID = " + gc.ID + ", TeeNumber = " + tee + ", Slope = " + DB.Str(teeData.Tables[0].Rows[0], "Slope") + ", Rating = " + DB.Str(teeData.Tables[0].Rows[0], "Rating");
-                              sql += parcols + hcpcols;
-                              sql += " where ID = " + DB.Str(teeData.Tables[0].Rows[0], "ID");
-                              WEBDB.Execute(sql);
                           }
                       }
                   }

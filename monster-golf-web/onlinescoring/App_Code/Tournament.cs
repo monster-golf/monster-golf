@@ -622,7 +622,7 @@ namespace MonsterGolfOnline
                 {
                     DB.Exec(sql);
                 }
-                catch (Exception ex)
+                catch
                 {
                 }
                 DB.Close();

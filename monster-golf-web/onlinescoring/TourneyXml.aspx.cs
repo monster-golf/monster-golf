@@ -33,7 +33,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     if (startofround > DateTime.Now)
                     {
                         update.AppendFormat("update mg_TourneyTeamPlayers set Handicap = {0} where ID = {1};\n", sdr["Handicap"], sdr["ID"]);
-                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{0})/113,0) where UserId = {1} and TourneyId = {2} and CardSigned = 0 and CardAttested = 0;\n", sdr["Handicap"], sdr["WebId"], tourneyid);
+                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{0})/113,0) where UserId = {1} and TourneyId = {2} and CardSigned = 0 and CardAttested = 0;\n", sdr["Handicap"], sdr["WebId"], tourneyid, startofround);
                     }
                 }
                 db.Close(sdr, false);
@@ -41,24 +41,37 @@ public partial class TourneyXml : System.Web.UI.Page
             }
         }
     }
-    protected void SetTourneyScores()
+    protected void InitTourneyScores()
     {
         int roundnum, tourneyid;
         if (int.TryParse(Request["settourneyround"], out roundnum) &&
             int.TryParse(Request["tourneyid"], out tourneyid))
         {
             StringBuilder update = new StringBuilder();
-            SqlDataReader sdr = db.Get("select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = " + tourneyid);
+            SqlDataReader sdr = db.Get("select CourseID, TournamentID, Round, Course, DateOfRound from mg_TourneyCourses where TournamentId = " + tourneyid);
             while (sdr.Read())
             {
-                //TODO: cannot compare agains round in the sql string because round could be a comma seperated list of round numbers
-                update.AppendFormat("insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, CourseSlope, CourseRating) " +
-                        "select c.TournamentId, c.[Round], {0}, '{1}', '{2}', c.Course, d.Slope, Round(d.Rating,1) from mg_tourneycourses c " +
-                        "join mg_TourneyCourseDetails d on d.CourseId = c.CourseId AND d.TeeNumber = {5} " +
-                        "where c.TournamentId = {3} and c.[Round] = {4} and  NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
-                        sdr[0], DB.stringSql(sdr[1].ToString()), ScoreInfo.GetId(), tourneyid, roundnum, sdr[3]);
-                update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0) WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
-                    sdr[0], sdr[2], tourneyid, roundnum);
+                if (ScoreInfo.IsCurrentRound(sdr, roundnum.ToString()))
+                {
+                    string courseId = sdr[0].ToString();
+                    string coursename = DB.stringSql(sdr,3);
+                    string dateofround = DB.stringSql(sdr,4);
+                    db.Close(sdr, false);
+                    sdr = db.Get("select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = " + tourneyid);
+                    while (sdr.Read())
+                    {
+                        update.AppendFormat(
+                            "insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, DateOfRound, CourseSlope, CourseRating) " +
+                            "select {3}, {4}, {0}, {1}, {2}, {7}, {8}, d.Slope, Round(d.Rating,1) " +
+                            "from mg_TourneyCourseDetails d " +
+                            "where d.TeeNumber = {5} and " +
+                            "	d.CourseId = {6} and " +
+                            "	NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
+                            sdr[0], DB.stringSql(sdr, 1), DB.stringSql(ScoreInfo.GetId(), true), tourneyid, roundnum, sdr[3], courseId, coursename, dateofround);
+                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0), DateOfRound={4} WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
+                            sdr[0], sdr[2], tourneyid, roundnum, dateofround);
+                    }
+                }
             }
             db.Close(sdr, false);
             db.Exec(update.ToString());
@@ -82,7 +95,7 @@ public partial class TourneyXml : System.Web.UI.Page
             }
             else if (Request["breakgroup"] != null)
             {
-                update += string.Format("update mg_tourneyScores set GroupId = '',EmailSent=0 where GroupId = '{0}';", DB.stringSql(Request["breakgroup"]));
+                update += string.Format("update mg_tourneyScores set GroupId = '',EmailSent=0,StartingHole=NULL where GroupId = '{0}';", DB.stringSql(Request["breakgroup"]));
             }
             if (update != "") db.Exec(update);
             SqlDataReader sdr = db.Get("select DateOfRound, [Round] from mg_tourneyCourses where tournamentId = " + tourneyid);
@@ -96,7 +109,7 @@ public partial class TourneyXml : System.Web.UI.Page
             }
             db.Close(sdr, false);
             WEB w = new WEB();
-            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, startofround < DateTime.Now, "StartingHole, GroupId, Name"));
+            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, startofround < DateTime.Now, "StartingHole, DateOfRound, GroupId, TeamId, Name"));
         }
     }
     protected void GetTourneyDetails()
@@ -161,23 +174,27 @@ public partial class TourneyXml : System.Web.UI.Page
 
                 for (int x = 0; x < coursesInfo.Count; x++)
                 {
-                    if (x==0) sb.AppendFormat("<div>{0}</div>", tourneyNames[x]);
+                    //if (x==0) sb.AppendFormat("<div>{0}</div>", tourneyNames[x]);
                     detailround = x + 1;
-                    sb.AppendFormat("<div style='margin-top:20px;'>Round: {0} on <span id='rounddate'>{1}</span> at {2} ", detailround, dateOfRounds[x], courseNames[x]);
-                    if (needssetup.Contains(detailround)) sb.AppendFormat(" <a href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
+                    DateTime dOfRound = DateTime.MinValue;
+                    sb.AppendFormat("<div class='PageBreak' style='margin:20px 5px 10px;'>{0}<br/>Round: {1} on <span id='rounddate'>{2}</span> at {3} ", tourneyNames[x], detailround, dateOfRounds[x], courseNames[x]);
+                    if (needssetup.Contains(detailround)) sb.AppendFormat("<br/><a class='header' href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
                     else
                     {
-                        sb.AppendFormat(" <a href='javascript:ViewRound({0});'>View Player Scores</a>", detailround);
-                        if (DateTime.Parse(dateOfRounds[x]) > DateTime.Now) sb.AppendFormat(" <a href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
+                        sb.AppendFormat("<br/><a class='header' href='javascript:ViewRound({0});'>View Players</a>", detailround);
+                        dOfRound = DateTime.Parse(dateOfRounds[x]);
+                        if (dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
+                        if ((dOfRound.Day - 1 == DateTime.Now.Day || dOfRound.Day == DateTime.Now.Day) && dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
                     }
-                    if (needsscores.Contains(detailround)) sb.AppendFormat(" <a href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
+                    if (needsscores.Contains(detailround)) sb.AppendFormat("<br/><a class='header' href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
                     sb.AppendFormat("</div><div style='clear:both' id='playerscores{0}'> </div>", detailround);
-                    w.TourneyRow(db, sb, new ScoreInfo("label", "", "Hole", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net"));
+                    sb.Append("<table cellpadding='0' cellspacing='0'>");
+                    w.TourneyRow(db, sb, new ScoreInfo("label", "", "Hole", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net"), 0, 0, dOfRound > DateTime.Now, false, "", true, 0, false);
                     foreach (ScoreInfo si in coursesInfo[x])
                     {
-                        w.TourneyRow(db, sb, si);
+                        w.TourneyRow(db, sb, si, 0, 0, dOfRound > DateTime.Now, false, "", true, 0, false);
                     }
-                    sb.Append("<div style='clear:both'> </div>");
+                    sb.Append("</table><div style='clear:both'> </div>");
                 }
             }
             sb.Append("\n</div>");
@@ -191,14 +208,19 @@ public partial class TourneyXml : System.Web.UI.Page
             int.TryParse(Request["tourneyid"], out tourneyid))
         {
             string emailfails = "";
-            SqlDataReader sdr = db.Get("select Distinct t.Location, t.Slogan, t.[Description], t.NumRounds, tc.Course, tc.[Round], tc.DateOfRound, ts.GroupId from mg_Tourney t " +
+            SqlDataReader sdr = db.Get("select Distinct t.Location, t.Slogan, t.[Description], t.NumRounds, tc.Course, tc.[Round], ts.DateOfRound, ts.GroupId " +
+                                       "from mg_Tourney t " +
                                        "join mg_tourneyCourses tc on tc.tournamentid = t.tournamentid " +
                                        "join mg_tourneyScores ts on ts.tourneyid = t.tournamentid and " +
-                                       "	(convert(nvarchar(2), ts.RoundNum) = tc.[Round] OR " +
-                                       "	 tc.[Round] like convert(nvarchar(2), ts.RoundNum) + ',%' OR " +
-                                       "	 tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) OR " +
-                                       "	 tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) + ',%') " +
-                                       "where t.tournamentId = " + tourneyid + " and ts.EmailSent <> 1 and ts.GroupId IS NOT NULL and ts.GroupId <> ''");
+                                       "    (convert(nvarchar(2), ts.RoundNum) = tc.[Round] OR " +
+                                       "     tc.[Round] like convert(nvarchar(2), ts.RoundNum) + ',%' OR " +
+                                       "     tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) OR " +
+                                       "     tc.[Round] like '%,' + convert(nvarchar(2), ts.RoundNum) + ',%') " +
+                                       "where t.tournamentId = " + tourneyid + 
+                                       "    and ts.EmailSent <> 1 " +
+                                       "    and ts.GroupId IS NOT NULL " +
+                                       "    and ts.GroupId <> '' " +
+                                       "    and ts.RoundNum = " + roundnum);
             while (sdr.Read())
             {
                 if (ScoreInfo.IsCurrentRound(sdr, roundnum.ToString()))
@@ -214,7 +236,7 @@ public partial class TourneyXml : System.Web.UI.Page
                         DateTime.TryParse(sdr["DateOfRound"].ToString(), out startofround);
                     }
                     string starttime = "";
-                    if (startofround != DateTime.MinValue) starttime = startofround.ToString("M/d/yy h:mm tt");
+                    if (startofround != DateTime.MinValue) starttime = startofround.ToString("M/d/yyyy h:mm tt");
                     string subject = sdr["Slogan"] + addday + " at " + sdr["Course"];
                     string te = "Welcome to " + subject + ".<br/>Start of round " + starttime + "<br/>{1}<br/>To keep score for your group, click on the link<br/><br/>{0}<br/>Also, turn in your paper card, to Aaron Wald or Brian Giesinger, for validation.<br/><br/>When your card is fully filled out validate all scores, scroll down to below the score card and select a golfer from the other team to attest the scores. Then, you sign the card, and when you are done click Confirm Signing.  Hand your mobile device to the attester from the other team and they should validate the scores, then sign the card.<br/><br/>Once the scores have been attested you can no longer make changes.<br/><br/>Any questions? See Aaron Wald or Brian Giesinger at the end of the round.";
 
@@ -231,7 +253,13 @@ public partial class TourneyXml : System.Web.UI.Page
                             SqlDataReader sdrEm = db1.Get("select MobileEmail, Email from mg_users where userid = " + s.ID);
                             if (sdrEm.Read())
                             {
-                                string email = (sdrEm.IsDBNull(sdrEm.GetOrdinal("MobileEmail"))) ? (sdrEm.IsDBNull(sdrEm.GetOrdinal("Email"))) ? "" : sdrEm["Email"].ToString() : sdrEm["MobileEmail"].ToString();
+                                string email = (sdrEm.IsDBNull(sdrEm.GetOrdinal("MobileEmail"))) ? "" : sdrEm["MobileEmail"].ToString();
+                                email = email.Trim();
+                                if (string.IsNullOrEmpty(email))
+                                {
+                                    email = (sdrEm.IsDBNull(sdrEm.GetOrdinal("Email"))) ? "" : sdrEm["Email"].ToString();
+                                    email = email.Trim();
+                                }
                                 db1.Close(sdrEm, false);
                                 if (email != "")
                                 {
@@ -312,7 +340,7 @@ public partial class TourneyXml : System.Web.UI.Page
     {
         db = new DB();
         UpdateTourneyUsers();
-        SetTourneyScores();
+        InitTourneyScores();
         GetTourneyDetails();
         GetTourneyScores();
         StartingHoleForGroup();

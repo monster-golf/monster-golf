@@ -17,7 +17,6 @@ public partial class Results : System.Web.UI.Page
     private int m_currentRound = -1;
     private string m_currentSort;
     private bool m_hasflights = true;
-    private System.Data.DataSet DSResults;
     private DataTable DTResults;
     private int _throwoutrounds = 0;
     private int m_golfersperteam = 1;

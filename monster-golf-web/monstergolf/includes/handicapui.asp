@@ -66,12 +66,18 @@ Sub ScoreList(NumScores, AllVals, AllUser)
 <%
 End Sub
 
-Sub HeaderDisplay(Handicap, HandicapTrend, AlreadyAUser, FirstName, LastName, UserName, Email)
+Sub HeaderDisplay(Handicap, HandicapTrend, AlreadyAUser, FirstName, LastName, UserName, Email, AllUser)
 %>
 <table width='100%'>
 <tr>
 <td>
-<%=AlreadyAUser%><big>What's up <%=oRS("FirstName")%> your handicap is currently <b><%=Handicap%></b></big> &nbsp;&nbsp;(trending to <%=HandicapTrend%>)<br>
+<%=AlreadyAUser%><big>What's up <%=oRS("FirstName")%> your handicap is currently 
+<% If AllUser = "waldadminmonster" Then %>
+    <input type="text" style="width:50px;font-size:15px;" value="<%=Handicap%>" name="EditHandicap" /></b>
+<% Else %>
+    <b><%=Handicap%></b>
+<% End If %>
+</big> &nbsp;&nbsp;(trending to <%=HandicapTrend%>)<br>
 <%=FirstName & " " & LastName & " &nbsp;&nbsp;&nbsp;User Name: " & UserName & " &nbsp;&nbsp;&nbsp;Email: " & Email%><br>
 Your handicap will only update twice a month on the 15th and last day of the month.<br>Your trend is where your handicap is headed using all of the latest scores.
 </td>
@@ -287,12 +293,17 @@ Sub Statistics(UserID)
    End If
 End Sub
 
-Sub SubmitEdits(DoEdits, RemoveScore, EditScore)
+Sub SubmitEdits(DoEdits, RemoveScore, EditScore, UserID, EditHandicap)
+   If UserID <> "" And EditHandicap <> "" Then
+		Response.Write "Updating Handicap To: " & EditHandicap & "<br>"
+		GetRecords oConn, "UPDATE MG_Users SET Handicap = " & EditHandicap & " WHERE UserID = " & UserID
+   End If
+
    If DoEdits <> "" Then
 	   Dim sID
 	   sID = ""
-   	
-	   For Each sID In RemoveScore
+	   
+       For Each sID In RemoveScore
 		   Response.Write "Deleting Record: " & sID & "<br>"
 		   GetRecords oConn, "DELETE FROM MG_Scores WHERE [ID] = " & sID
 	   Next

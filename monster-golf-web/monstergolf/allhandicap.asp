@@ -13,7 +13,7 @@
 <% Dim oConn, oUsers, lNum, oLastDate, sSortBy, sql
 
 If Request("user") <> "" Then
- If Request("user") = "waldadmin" Then
+ If Request("user") = "waldadmin" Or Request("user") = "waldadminmonster" Then
   Session("AllUser") = Request("user")
  End If
 End If

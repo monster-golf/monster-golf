@@ -82,14 +82,10 @@ public class WEB
 		//
 	}
 
-    public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s)
-    {
-        TourneyRow(db, sb, s, 0, 0, false, false, "", false);
-    }
-    public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s, int roundnum, int tourneyid, bool email, bool enterscores, string groupclass, bool addstartinghole)
+    public void TourneyRow(DB db, StringBuilder sb, ScoreInfo s, int roundnum, int tourneyid, bool email, bool enterscores, string groupclass, bool addstartinghole, int golfersingroup, bool addpagebreak)
     {
         string name = "";
-        string hole = "";
+        string group = "";
         if (s.LookupID != "" && s.GroupID == "")
         {
             name = string.Format("<input type='checkbox' class='cb' name='playerchk' id='playerchk{0}' onclick='ChkPlayer(this, {0}, {1});' />", s.ID, roundnum);
@@ -97,65 +93,84 @@ public class WEB
         else if (s.LookupID != "" && s.GroupID != "" && roundnum > 0 && tourneyid > 0)
         {
             string scoringlink = string.Format("http://monstergolf.org/monsterscoring/?t={0}&r={1}&u={2}&overwrite=1", tourneyid, roundnum, s.LookupID);
-            if (email) name += string.Format("<a href=\"javascript:BreakGroup('{0}',{1});\">Change</a> ", s.GroupID, roundnum);
-            if (enterscores) name += string.Format("<a href='{0}' target='scoreenter'>Enter Scores</a> ", scoringlink);
-            if (addstartinghole) hole = string.Format("<input type='number' class='tb' name='startinghole{0}' maxlength='2' onchange=\"StartingHole(this, '{0}');\" value='{1}' />", s.GroupID, s.StartingHole);
+            if (email) group += string.Format("<a href=\"javascript:BreakGroup('{0}',{1});\">Change</a> ", s.GroupID, roundnum);
+            if (enterscores) group += string.Format("<a href='{0}' target='scoreenter'>Scores</a> ", scoringlink);
         }
-        name += s.Name + hole;
-        sb.AppendFormat("<div class='Detail1" + groupclass + "'>{0}</div>", name);
-        for (int x = 1; x <= 18; x++)
+        name += s.Name;
+        sb.AppendFormat("<tr{0}>", (addpagebreak) ? " class='PageBreak'" : "");
+        if (addstartinghole) sb.AppendFormat("<td class='Detail" + groupclass + " DetailStart'{0}>", (golfersingroup > 1) ? " rowspan='" + golfersingroup + "'" : "");
+        if (addstartinghole && golfersingroup > 1)
         {
-            if (x == 10) sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.Out == "") ? " " : s.Out));
-            string score = s.Scores[x.ToString()];
-            if (score == "") score += " ";
-            sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", score);
+            sb.Append("<div>Hole</div>");
+            if (email) sb.AppendFormat("<input type='number' pattern='[0-9]*' class='starthole' name='startinghole{0}' maxlength='2' onchange=\"StartingHole(this, '{0}');\" value='{1}' />", s.GroupID, s.StartingHole);
+            else sb.AppendFormat("<div class='starthole'>{0}</div>", s.StartingHole);
+            if (s.DateOfRound != DateTime.MinValue) sb.AppendFormat("<div>{0}</div>", s.DateOfRound.ToShortTimeString());
+            if (group != "") sb.AppendFormat("<div>{0}</div>", group);
         }
-        sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.In == "") ? " " : s.In));
-        sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.Total == "") ? " " : s.Total));
-        sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.HCP == "") ? " " : s.HCP));
-        sb.AppendFormat("<div class='Detail" + groupclass + "'>{0}</div>", ((s.Net == "") ? " " : s.Net));
-        sb.Append("<div style='clear:both'> </div>");
+        if (addstartinghole) sb.Append("</td>");
+
+        //TODO: add flight, need to add to ScoreInfo
+        //sb.AppendFormat("<td class='Detail1" + groupclass + "'>{0}</td>", "");
+        sb.AppendFormat("<td class='Detail1" + groupclass + "'>{0}</td>", name);
+
+        if (!email)
+        {
+            for (int x = 1; x <= 18; x++)
+            {
+                if (x == 10) sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.Out == "") ? " " : s.Out));
+                string score = s.Scores[x.ToString()];
+                if (score == "") score += " ";
+                sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", score);
+            }
+        }
+        if (!email) sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.In == "") ? " " : s.In));
+        if (!email) sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.Total == "") ? " " : s.Total));
+        sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.HCP == "") ? " " : s.HCP));
+        if (!email) sb.AppendFormat("<td class='Detail" + groupclass + "'>{0}</td>", ((s.Net == "") ? " " : s.Net));
+        sb.Append("</tr>");    
+        //sb.Append("<div style='clear:both'> </div>");
     }
     public StringBuilder TourneyScores(DB db, int tourneyid, int roundnum, bool email, bool enterscores, string order)
     {
-        StringBuilder sb = new StringBuilder("<div style='position:relative;'>");
+        StringBuilder sb = new StringBuilder("<div style='position:relative;'><table cellpadding='0' cellspacing='0'>");
         sb.AppendFormat("<input type='button' id='setgroup{0}' onclick='SetGroup({0})' value='Set Group' style='position:absolute;display:none;top:0;left:30;z-index:10;' />", roundnum);
         List<ScoreInfo> si = ScoreInfo.LoadTourneyRound(tourneyid.ToString(), roundnum.ToString(), order);
         ScoreInfo headerCol = new ScoreInfo("label", "", "Player", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net");
         if (si.Count == 0) sb.Append("No Scores Available");
-        else TourneyRow(db, sb, headerCol, 0, 0, false, false, "_Head", false);
+        else TourneyRow(db, sb, headerCol, 0, 0, email, false, "_Head", true, 0, false);
         string currGroupId = "";
         string groupclass = "";
         int count = 1;
         foreach (ScoreInfo s in si)
         {
             bool addstartinghole = false;
+            int golfersingroup = 0;
             if (order.ToLower().Contains("groupid"))
             {
                 if (currGroupId == "")
                 {
                     currGroupId = s.GroupID;
-                    addstartinghole = email;
+                    addstartinghole = true;
+                    golfersingroup = s.PlayersInGroup;
                 }
                 if (currGroupId != "" && currGroupId != s.GroupID)
                 {
-                    addstartinghole = email;
+                    addstartinghole = true;
                     currGroupId = s.GroupID;
                     if (groupclass == "") groupclass = "_2";
                     else groupclass = "";
+                    golfersingroup = s.PlayersInGroup;
                 }
             }
-            if (count == 25)
+            if (count >= 48 && addstartinghole)
             {
-                sb.Append("<div style='page-break-before:always'></div>");
-                //TourneyRow(db, sb, s, 0, 0, false, false, "");
-                TourneyRow(db, sb, headerCol, 0, 0, false, false, "_Head", false);
+                TourneyRow(db, sb, headerCol, 0, 0, email, false, "_Head", true, 0, true);
                 count = 1;
             }
             count++;
-            TourneyRow(db, sb, s, roundnum, tourneyid, email && !s.CardSigned, enterscores, groupclass, addstartinghole);
+            TourneyRow(db, sb, s, roundnum, tourneyid, email && !s.CardSigned, enterscores, groupclass, addstartinghole, golfersingroup, false);
         }
-        sb.Append("</div>");
+        sb.Append("</table></div>");
         return sb;
     }
     public static void WriteEndResponse(HttpResponse resp, StringBuilder output)
@@ -164,6 +179,20 @@ public class WEB
         output.Replace("&amp;amp;", "&amp;");
         resp.Write(output);
         resp.End();
+    }
+    public static MailAddress CreateAddress(string emailnameitem, bool overwriteemail) {
+        MailAddress m = null;
+        string[] emname = emailnameitem.Split(':');
+        string email = null, name = null;
+        if (emname.Length > 0) email = emname[0];
+        if (emname.Length > 1) name = emname[1];
+        if (!string.IsNullOrEmpty(email))
+        {
+            if (overwriteemail) email = "aaronwald@hotmail.com";
+            if (string.IsNullOrEmpty(name)) m = new MailAddress(email);
+            else m = new MailAddress(email, name);
+        }
+        return m;
     }
     public static bool SendMessage(string email, string subject, string body, bool isHtml, List<Attachment> attachments, HttpServerUtility webserver)
     {
@@ -174,33 +203,23 @@ public class WEB
             string mailsvr = ConfigurationManager.AppSettings.Get("mailserver");
             SmtpClient client = new SmtpClient(mailsvr);
             client.UseDefaultCredentials = false;
-            MailAddress from;
             string mailfrom = ConfigurationManager.AppSettings.Get("mailfrom");
-            string[] emname = mailfrom.Split(':');
-            if (emname.Length == 2) from = new MailAddress(emname[0], emname[1]);
-            else from = new MailAddress(emname[0]);
+            MailAddress from = CreateAddress(mailfrom, false);
+            if (from == null) return false;
             client.Credentials = new System.Net.NetworkCredential(from.Address, ConfigurationManager.AppSettings.Get("mailpassword"));
-            string[] emailnamelist = email.Split(';');
-            emname = emailnamelist[0].Split(':');
-            MailAddress to;
-            if (emname.Length == 2) to = new MailAddress(emname[0], emname[1]);
-            else to = new MailAddress(emname[0]);
-            MailMessage msg = new MailMessage(from, to);
+            MailMessage msg = new MailMessage();
+            msg.From = from;
             string mailreplyto = ConfigurationManager.AppSettings.Get("mailreplyto");
-            string[] replyto = mailreplyto.Split(':');
-            if (replyto.Length > 1) msg.ReplyTo = new MailAddress(replyto[0], replyto[1]);
-            else msg.ReplyTo = new MailAddress(replyto[0]);
+            MailAddress reply = CreateAddress(mailreplyto, false);
+            if (reply != null) msg.ReplyTo = reply;
             msg.Subject = subject;
             msg.Body = body;
             msg.IsBodyHtml = true;
-            for (int x = 1; x < emailnamelist.Length; x++)
+            string[] emailnamelist = email.Split(';');
+            for (int x = 0; x < emailnamelist.Length; x++)
             {
-                if (emailnamelist[x].Trim() != "")
-                {
-                    emname = emailnamelist[x].Split(':');
-                    if (emname.Length == 2) msg.To.Add(new MailAddress(emname[0], emname[1]));
-                    else msg.To.Add(new MailAddress(emname[0]));
-                }
+                MailAddress to = CreateAddress(emailnamelist[x], false);
+                if (to != null) msg.To.Add(to);
             }
             if (attachments != null && attachments.Count > 0)
             {
@@ -219,7 +238,14 @@ public class WEB
                 string msg = ex.Message;
                 msg += string.Format("\n\nTo: {0}\nSubject: {1}\nAttachments: {2}\nBody: {3}", email, subject, ((attachments == null) ? 0 : attachments.Count), body);
                 string writefile = string.Format("{0}SendError_{1}.txt", webserver.MapPath(".\\logs\\"), DateTime.Now.ToString("yyMMddhhmmss", System.Globalization.DateTimeFormatInfo.InvariantInfo));
-                System.IO.File.WriteAllText(writefile, ex.Message);
+                if (ex.InnerException != null)
+                {
+                    System.IO.File.WriteAllText(writefile, ex.Message + "\n\n" + ex.InnerException.Message);
+                }
+                else
+                {
+                    System.IO.File.WriteAllText(writefile, ex.Message);
+                }
             }
         }
         return success;
