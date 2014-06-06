@@ -238,7 +238,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     string starttime = "";
                     if (startofround != DateTime.MinValue) starttime = startofround.ToString("M/d/yyyy h:mm tt");
                     string subject = sdr["Slogan"] + addday + " at " + sdr["Course"];
-                    string te = "{2}<br/><br/>Welcome to " + subject + ".<br/>Start of round " + starttime + "<br/>{1}<br/>To keep score for your group, click on the link<br/><br/>{0}<br/>Also, turn in your paper card, to Aaron Wald or Brian Giesinger, for validation.<br/><br/>When your card is fully filled out validate all scores, scroll down to below the score card and select a golfer from the other team to attest the scores. Then, you sign the card, and when you are done click Confirm Signing.  Hand your mobile device to the attester from the other team and they should validate the scores, then sign the card.<br/><br/>Once the scores have been attested you can no longer make changes.<br/><br/>Any questions? See Aaron Wald or Brian Giesinger at the end of the round.";
+                    string te = "Welcome to " + subject + ".<br/>Start of round " + starttime + "<br/>{1}<br/>To keep score for your group, click on the link<br/><br/>{0}<br/>Also, turn in your paper card, to Aaron Wald or Brian Giesinger, for validation.<br/><br/>When your card is fully filled out validate all scores, scroll down to below the score card and select a golfer from the other team to attest the scores. Then, you sign the card, and when you are done click Confirm Signing.  Hand your mobile device to the attester from the other team and they should validate the scores, then sign the card.<br/><br/>Once the scores have been attested you can no longer make changes.<br/><br/>Any questions? See Aaron Wald or Brian Giesinger at the end of the round.";
 
                     List<ScoreInfo> si = ScoreInfo.LoadGroup(sdr["GroupId"].ToString());
                     string groupnames = "<br/>Starting Hole " + si[0].StartingHole + "<table><tr><td style='padding-top:10px;padding-left:10px;'>Player</td><td style='padding-top:10px;padding-left:5px;'>HCP</td></tr>";
@@ -264,7 +264,7 @@ public partial class TourneyXml : System.Web.UI.Page
                                 if (email != "")
                                 {
                                     string scoringlink = string.Format("<div style='font-size:15px;font-weight:bold;'><a href='http://monstergolf.org/monsterscoring/?t={0}&r={1}&u={2}&h={3}'>Start Scoring</a></div>", tourneyid, roundnum, s.LookupID, s.StartingHole);
-                                    if (WEB.SendMessage(email + ":" + s.Name, subject, string.Format(te, scoringlink, groupnames, s.Name), true, null, Server))
+                                    if (WEB.SendMessage(email + ":" + s.Name, subject, string.Format(te, scoringlink, groupnames), true, null, Server))
                                     {
                                         db1.Exec("update mg_tourneyscores set EmailSent = 1 WHERE TourneyScoreID = " + s.TourneyScoreID);
                                     }
