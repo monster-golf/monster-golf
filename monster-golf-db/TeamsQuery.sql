@@ -1,25 +1,25 @@
 -- This will get a list of teams and handicaps for the tournament
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 Declare @tId int;
-Set @tId = 23;
-select tt.TeamId,
-	Round(u1.Handicap+u2.Handicap,1) as TeamHCP, tt.Flight, 
-	ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, ttu1.HcpIndex as 'TourneyUserHCP', ttp1.Handicap as 'TourneyTeamPlayersHCP', u1.Handicap as 'UsersHCP', ts1_1.HCP AS 'TourneyScoresR1HCP', ts1_2.HCP AS 'TourneyScoresR2HCP',
-	u1.Email, u1.MobileEmail,
-	u1.GHIN as 'HCP Location', s1.DateOfRound, s1.DateEntered,
-	ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, ttu2.HcpIndex as 'TourneyUserHCP', ttp2.Handicap as 'TourneyTeamPlayersHCP', u2.Handicap as 'UsersHCP', ts2_1.HCP AS 'TourneyScoresR1HCP', ts2_2.HCP AS 'TourneyScoresR2HCP', 
+Set @tId = 25;
+select tt.TeamId, Round(u1.Handicap+u2.Handicap,1) as TeamHCP, tt.Flight, 
+	ttp1.UserId, ttu1.FirstName, ttu1.LastName, ttu1.WebId, 
+    ttu1.HcpIndex as 'TourneyUserHCP', ttp1.Handicap as 'TourneyTeamPlayersHCP', u1.Handicap as 'UsersHCP', ts1_1.HCP AS 'TourneyScoresR1HCP', ts1_2.HCP AS 'TourneyScoresR2HCP',
+    u1.Email, u1.MobileEmail, u1.GHIN as 'HCP Location',
+    ScoresEntered = (select Count(*) from mg_scores s where s.UserID = u1.UserID), LastScored = (select Max(DateEntered) from mg_scores s where s.UserID = u1.UserID),
+	ttp2.UserID, ttu2.FirstName, ttu2.LastName, ttu2.WebId, 
+    ttu2.HcpIndex as 'TourneyUserHCP', ttp2.Handicap as 'TourneyTeamPlayersHCP', u2.Handicap as 'UsersHCP', ts2_1.HCP AS 'TourneyScoresR1HCP', ts2_2.HCP AS 'TourneyScoresR2HCP', 
 	u2.Email, u2.MobileEmail, u2.GHIN as 'HCP Location', 
-	s2.DateOfRound, s2.DateEntered
+    ScoresEntered = (select Count(*) from mg_scores s where s.UserID = u2.UserID), LastScored = (select Max(DateEntered) from mg_scores s where s.UserID = u2.UserID)
 from mg_TourneyTeams tt 
 	join mg_TourneyTeamPlayers ttp1 on tt.TeamId = ttp1.TeamId AND ttp1.UserID = (Select Min(UserId) from mg_TourneyTeamPlayers innerttp1  WHERE innerttp1.TeamId = tt.TeamId)
 	join mg_TourneyUsers ttu1 on ttu1.UserId = ttp1.UserId 
 	join mg_Users u1 on u1.UserId = ttu1.WebId
-	left join mg_scores s1 on s1.ID = (select Max(ID) from mg_scores WHERE UserId = u1.UserID)
 	left join mg_Tourneyscores ts1_1 on ts1_1.UserId = u1.UserID AND ts1_1.TourneyId = tt.TournamentId AND ts1_1.RoundNum = 1
 	left join mg_Tourneyscores ts1_2 on ts1_2.UserId = u1.UserID AND ts1_2.TourneyId = tt.TournamentId AND ts1_2.RoundNum = 2
 	join mg_TourneyTeamPlayers ttp2 on tt.TeamId = ttp2.TeamId AND ttp2.UserID = (Select Max(UserId) from mg_TourneyTeamPlayers innerttp2  WHERE innerttp2.TeamId = tt.TeamId)
 	join mg_TourneyUsers ttu2 on ttu2.UserId = ttp2.UserId 
 	join mg_Users u2 on u2.UserId = ttu2.WebId
-	left join mg_scores s2 on s2.ID = (select Max(ID) from mg_scores WHERE UserId = u2.UserID)
 	left join mg_Tourneyscores ts2_1 on ts2_1.UserId = u2.UserID AND ts2_1.TourneyId = tt.TournamentId AND ts2_1.RoundNum = 1
 	left join mg_Tourneyscores ts2_2 on ts2_2.UserId = u2.UserID AND ts2_2.TourneyId = tt.TournamentId AND ts2_2.RoundNum = 2
 where tt.TournamentId = @tId
@@ -52,6 +52,17 @@ select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap
 select UserId,GroupId,Name,StartingHole,* from mg_tourneyscores ts
 join mg_tourneyTeamPlayers tp on tp.WebId = ts.UserId
  where TourneyId=23
+
+select Count(*) from mg_scores where userid = 7
+select Count(*) from mg_scores where userid = 398
+
+select * from mg_tourneyTeams where teamid  = 1625
+Select Min(UserId) from mg_TourneyTeamPlayers innerttp1  WHERE innerttp1.TeamId =1625
+Select Max(UserId) from mg_TourneyTeamPlayers innerttp2  WHERE innerttp2.TeamId = 1625
+select * from mg_TourneyTeamPlayers where teamid  = 1625
+select * from mg_TourneyUsers where userid in (19,20)
+select * from mg_Users where userid in (502, 100)
+
 
 select t.TournamentID, Location, Slogan, Description, tc.CourseID, tc.[Round], Course, DateOfRound, ID, TeeNumber, Slope, Rating, Par1, Par2, Par3, Par4, Par5, Par6, Par7, Par8, Par9, Par10, Par11, Par12, Par13, Par14, Par15, Par16, Par17, Par18, Handicap1, Handicap2, Handicap3, Handicap4, Handicap5, Handicap6, Handicap7, Handicap8, Handicap9, Handicap10, Handicap11, Handicap12, Handicap13, Handicap14, Handicap15, Handicap16, Handicap17, Handicap18 
 from mg_Tourney t 

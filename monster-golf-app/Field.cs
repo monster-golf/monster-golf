@@ -810,7 +810,7 @@ namespace MonsterGolf
                   }
                   else 
                   {
-                      string currwebId = GetWebIdFromGolfer(fname, lname, false);
+                      string currwebId = GetWebIdFromGolfer(fname, lname, webId == "0");
                       if (webId != currwebId && currwebId != "0")
                       {
                           WEBDB.Execute("update mg_TourneyUsers Set WebId = " + currwebId + ", HCPIndex = " + handicap + " WHERE UserId = " + DB.Str(dr, "UserId"));

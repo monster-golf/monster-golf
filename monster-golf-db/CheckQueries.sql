@@ -43,18 +43,31 @@ select * from mg_TourneyScores where tourneyId = 21
 alter table mg_TourneyScores add EmailSent bit not null constraint df_mg_TourneyScores_EmailSent DEFAult (0)
 
 select
-select * from mg_t
-select * from mg_users where lastName = 'Larson' where userid = 18
-select * from mg_TourneyUsers where lastName = 'Bichler'
+	select * from mg_tourney where tournamentid = 25
+	select * from mg_tourneyCourses where tournamentid = 25
+	select * from mg_tourneyCourseDetails where CourseID in (select CourseId from mg_tourneyCourses where tournamentid = 25)
+select * from mg_users order by firstname, LastName--where lastName = 'Moore' where userid = 18
+select * from mg_Users where lastName = 'Gomez'
+select * from mg_TourneyUsers where UserID = 19
 select * from mg_TourneyTeams where tournamentid = 20 = 292 
 select * from mg_tourneyScores where tourneyid = 20 and emailsent = 0
 update mg_tourneyScores set emailsent = 0 where tourneyid = 20 and userID = 7
 where userid in (7) and tourneyid = 20
 
+select * from mg_TourneyUsers order by userid where lastname = 'Gomez'
 
 
-select * from mg_tourneyscores m1 
+update mg_tourney set Location = 'Scottsdale, AZ', Slogan = 'Monster XXV', Description = '2015'
+where TournamentID = 25
+
+
+select * from mg_tourneyUsers where lastname = 'Gomez' order by webid m1 
 where m1.TourneyId=20 and m1.RoundNum=1 and m1.GroupId='380d6be537'
+
+update mg_tourneyUsers set FirstName = 'Marco', LastName= 'Gomez', WebId = 0 where userid = 329
+select * from mg_users where LastName = 'Gomez'
+
+
 
 update mg_tourneyscores SET
 Hole1 =NULL
