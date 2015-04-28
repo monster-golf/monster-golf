@@ -18,7 +18,12 @@ select * from mg_Users order by userid DESC
 select * from mg_Tourney order by tournamentId Desc
 select * from mg_TourneyTeams order by tournamentId Desc
 select * from mg_TourneyCourses order by tournamentId Desc
-select * from mg_TourneyTeams order by tournamentId Desc
+
+select * from mg_TourneyTeams where tournamentId = 25 order by tournamentId Desc
+select * from mg_tourneyteamplayers where tournamentid = 25
+select * from mg_tourneycourses where tournamentid = 25
+update mg_tourneycourses set DateOfRound = '6/5/2015 08:30' where courseId = 49
+update mg_tourneycourses set DateOfRound = '6/6/2015 12:30' where courseId = 50
 
 
 select * from mg_TourneyUsers order by lastname asc
@@ -101,4 +106,26 @@ join mg_tourneyScores ts on ts.tourneyid = t.tournamentid
 where t.tournamentId = 20 and ts.EmailSent <> 0
 
 select DateOfRound from mg_tourneyCourses where tournamentId = 20 and [round] = 1
-select * from m
+
+
+select Distinct ttu.UserId, ttu.WebId, ttu.FirstName, ttu.LastName, ttu.HcpIndex, InTourney = CASE WHEN ttp.TeamID IS NULL THEN 0 ELSE 1 END from mg_TourneyUsers ttu left join mg_TourneyTeamPlayers ttp on ttu.UserId = ttp.UserId and ttp.TournamentId = 25 order by InTourney DESC, ttu.LastName, ttu.FirstName
+
+
+	select * from mg_tourneyusers
+	select * from mg_tourneyTeams where tournamentId = 25
+		select * from mg_tourneyTeamplayers where tournamentId = 25
+
+INSERT INTO MG_TourneyTeams (TeamName, RoundNumber, TournamentID) VALUES ('Bartsch, Jason - Benson, Michael',0,25);
+INSERT INTO mg_TourneyTeamPlayers (TeamID, UserID, TeeNumber, TournamentID, Handicap) select MAX(TeamID),64,0,25,8.3 FROM MG_TourneyTeams;
+INSERT INTO mg_TourneyTeamPlayers (TeamID, UserID, TeeNumber, TournamentID, Handicap) select MAX(TeamID),67,0,25,24.7 FROM MG_TourneyTeams; 
+
+select t.userId, webId,u.UserName,t.FirstName, t.LastName from mg_tourneyusers t
+left join mg_users u on u.userid = t.webId
+where u.email = 'monster@monstergolf.org'
+order by t.lastName
+where t.firstname like '% %'
+
+delete from mg_tourneyusers where userId in 
+(select t.userId from mg_tourneyusers t
+where t.firstname like '% %')
+
