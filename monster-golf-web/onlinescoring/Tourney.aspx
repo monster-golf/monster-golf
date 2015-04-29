@@ -16,10 +16,8 @@ a.header {margin-right:15px;}
 .DetailStart div {padding-top:2px;}
 .Detail_2 { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc; background-color:#008EFF;}
 .Detail1_2 { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px; background-color:#008EFF; }
-
 .Detail_Head { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc;background-color:#0229AE;}
 .Detail1_Head { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px;background-color:#0229AE; }
-
 .Loading { position:fixed;top:200px; left:100px; font-size:30px; color:#EFE486; font-weight:bold; z-index:100;}
 .cb { padding: 0px 3px; margin:0px; }
 .starthole { height:20px;font-size:10pt;padding:1px;text-align:center; }
@@ -37,6 +35,7 @@ input.starthole {width:40px;}
 #lastName { width: 180px; margin-left:7px; }
 #emailName { width: 180px; }
 #addPlayer { margin-left:33px;}
+.flight { width:20px; font-size:9pt;}
 </style>
 <script type="text/javascript" language="javascript" src="XmlHttp.js"></script>
 <script type="text/javascript" language="javascript">
@@ -209,10 +208,13 @@ input.starthole {width:40px;}
         GetHTMLAsync(setteamplayers, function (html) { TeamsDone(html); GetHTMLAsync("playerslist=1&t=" + TourneyId(), PlayersDone); });
         return CE(e);
     }
-    function RemoveTeam(teamId, e) {
+    function RemoveTeam(teamId) {
         var setteamplayers = "teamslist=1&t=" + TourneyId() + "&removeteam=" + teamId;
         GetHTMLAsync(setteamplayers, function (html) { TeamsDone(html); GetHTMLAsync("playerslist=1&t=" + TourneyId(), PlayersDone); } );
-        return CE(e);
+    }
+    function TeamFlight(flighttxt, teamid) {
+        var setteam = "flight=" + flighttxt.value + "&t=" + TourneyId() + "&teamid=" + teamid;
+        GetHTMLAsync(setteam);
     }
     function AddPlayer() {
         var addplayer = "playerslist=1&t=" + TourneyId();
@@ -227,6 +229,10 @@ input.starthole {width:40px;}
     function RemovePlayer(userId) {
         var removeplayer = "playerslist=1&t=" + TourneyId() + "&removeplayer=" + userId;
         GetHTMLAsync(removeplayer, PlayersDone);
+    }
+    function SetTournamentCheck(checkobj, teamid) {
+        var setteamplayers = "tournamentcheck=" + checkobj.checked + "&t=" + TourneyId() + "&" + checkobj.id + "=" + teamid;
+        GetHTMLAsync(setteamplayers);
     }
 </script>
 </head>

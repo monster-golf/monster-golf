@@ -270,7 +270,7 @@ namespace MonsterGolfOnline
         {
             DB DB = new DB();
             string[] flights = null;
-            DataSet ds = DB.GetDataSet("select distinct flight from mg_tourneyteams where tournamentid = " + this.TournamentID.ToString());
+            DataSet ds = DB.GetDataSet("select distinct isnull(flight,'') as flight from mg_tourneyteams where tournamentid = " + this.TournamentID.ToString());
             if (ds != null && ds.Tables[0].Rows.Count > 0)
             {
                 flights = new string[ds.Tables[0].Rows.Count];

@@ -59,7 +59,7 @@ public partial class Results : System.Web.UI.Page
                 }
                 if (showdata)
                 {
-                    DTResults = Formulas.CalculateScores(m_tourney, teamlist, ddScoring.SelectedValue, _throwoutrounds, false);
+                    DTResults = Formulas.CalculateScores(m_tourney, teamlist, ddScoring.SelectedValue, _throwoutrounds, false, chkSideBets.Checked);
                     SetDefaultSort();
                     OutputDataGrid();
                 }
@@ -76,8 +76,24 @@ public partial class Results : System.Web.UI.Page
 
     public void InitResults(int TournamentID)
     {
-        m_tourney = new Tournament(TournamentID);
-        teamlist = m_tourney.Teams();
+        if (Session["tourneyinit" + TournamentID] == null)
+        {
+            m_tourney = new Tournament(TournamentID);
+            Session["tourneyinit" + TournamentID] = m_tourney;
+        }
+        else
+        {
+            m_tourney = (Tournament)Session["tourneyinit" + TournamentID];
+        }
+        if (Session["tourneyteams" + TournamentID] == null)
+        {
+            teamlist = m_tourney.Teams();
+            Session["tourneyteams" + TournamentID] = teamlist;
+        }
+        else
+        {
+            teamlist = (Team[])Session["tourneyteams" + TournamentID];
+        }
 
         txtGridHeader.Text = m_tourney.Name + " - Results";
 
@@ -1033,7 +1049,7 @@ public partial class Results : System.Web.UI.Page
         ListItem li = ddScoring.SelectedItem;
         if (li.Value != "-1")
         {
-            DTResults = Formulas.CalculateScores(m_tourney, teamlist, li.Value, _throwoutrounds, false);
+            DTResults = Formulas.CalculateScores(m_tourney, teamlist, li.Value, _throwoutrounds, false, chkSideBets.Checked);
         }
         else
         {

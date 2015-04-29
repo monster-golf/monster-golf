@@ -408,7 +408,7 @@ public partial class TourneyXml : System.Web.UI.Page
             sql += " left join mg_TourneyTeamPlayers ttp on ttu.UserId = ttp.UserId and ttp.TournamentId = " + tourneyid;
             sql += " left join mg_TourneyTeamPlayers ttpall on ttu.UserId = ttpall.UserId ";
             sql += " group by ttu.UserId, ttu.WebId, ttu.FirstName, ttu.LastName, ttu.HcpIndex ";
-            sql += " order by ttu.LastName, ttu.FirstName";
+            sql += " order by InTourneyCount DESC, ttu.LastName, ttu.FirstName";
             sdr = db.Get(sql);
 
             StringBuilder playersTable = new StringBuilder("<table class='PlayersTable' cellspacing='0'><tr><th>Name</th><th>HCP</th><th>In</th></tr>");
@@ -486,6 +486,43 @@ public partial class TourneyXml : System.Web.UI.Page
             return name;
         }
     }
+    private player GetPlayer(string userId)
+    {
+        DB db = new DB();
+        SqlDataReader sdr = db.Get("select FirstName, LastName, HcpIndex from mg_tourneyUsers where UserID = " + userId);
+        player p = new player();
+        if (sdr.Read())
+        {
+            p.userId = userId;
+            if (!sdr.IsDBNull(sdr.GetOrdinal("LastName")))
+            {
+                p.lastName = sdr["LastName"].ToString();
+            }
+            if (!sdr.IsDBNull(sdr.GetOrdinal("FirstName")))
+            {
+                p.firstName = sdr["FirstName"].ToString();
+            }
+            if (!sdr.IsDBNull(sdr.GetOrdinal("HcpIndex")))
+            {
+                p.hcp = sdr["HcpIndex"].ToString();
+            }
+        }
+        db.Close();
+        return p;
+    }
+    private SortedList<string, player> GetTeam(string teamID)
+    {
+        DB db = new DB();
+        SortedList<string, player> sortName = new SortedList<string, player>();
+        SqlDataReader sdr = db.Get("select userID from mg_TourneyTeamPlayers where teamId = " + teamID);
+        while (sdr.Read())
+        {
+            player p = GetPlayer(sdr["userID"].ToString());
+            sortName.Add(p.fullName(), p);
+        }
+        db.Close();
+        return sortName;
+    }
     private void TeamsList()
     {
         int tourneyid;
@@ -493,34 +530,21 @@ public partial class TourneyXml : System.Web.UI.Page
             int.TryParse(Request["t"], out tourneyid))
         {
             SqlDataReader sdr;
+            SortedList<string, player> sortName = new SortedList<string, player>();
             if (Request["player"] != null)
             {
                 string insertteam = "";
+                string insertteamindividuals = "";
                 string teamname = "";
-                SortedList<string, player> sortName = new SortedList<string, player>();
+                string existsselect = "";
+                string notexistsselect = "";
                 foreach (string userId in Request["player"].ToString().Split(','))
                 {
-                    sdr = db.Get("select FirstName, LastName, HcpIndex from mg_tourneyUsers where UserID = " + userId);
-                    while (sdr.Read())
+                    player p = GetPlayer(userId);
+                    if (!string.IsNullOrEmpty(p.userId))
                     {
-                        player p = new player();
-                        p.userId = userId;
-                        if (!sdr.IsDBNull(sdr.GetOrdinal("LastName")))
-                        {
-                            p.lastName = sdr["LastName"].ToString();
-                        }
-                        if (!sdr.IsDBNull(sdr.GetOrdinal("FirstName")))
-                        {
-                            p.firstName = sdr["FirstName"].ToString();
-                        }
-                        if (!sdr.IsDBNull(sdr.GetOrdinal("HcpIndex")))
-                        {
-                            p.hcp = sdr["HcpIndex"].ToString();
-                        }
-
                         sortName.Add(p.fullName(), p);
                     }
-                    db.Close(sdr, false);
                 }
                 foreach (string key in sortName.Keys)
                 {
@@ -531,10 +555,31 @@ public partial class TourneyXml : System.Web.UI.Page
                     }
                     teamname += key;
 
-                    insertteam += "INSERT INTO mg_TourneyTeamPlayers (TeamID, UserID, TeeNumber, TournamentID, Handicap) ";
-                    insertteam += "select MAX(TeamID)," + p.userId + ",0," + tourneyid + "," + p.hcp + " FROM MG_TourneyTeams; ";
+                    insertteamindividuals += "INSERT INTO mg_TourneyTeamPlayers (TeamID, UserID, TeeNumber, TournamentID, Handicap) ";
+                    insertteamindividuals += "select MAX(TeamID)," + p.userId + ",0," + tourneyid + "," + p.hcp + " FROM MG_TourneyTeams; ";
+                    string finduser = "select 1 from mg_TourneyTeamPlayers WHERE UserID = " + p.userId + " and TournamentID = " + tourneyid;
+                    if (!string.IsNullOrEmpty(existsselect)) { existsselect += " AND "; }
+                    if (!string.IsNullOrEmpty(notexistsselect)) { notexistsselect += " OR "; }
+                    existsselect += " EXISTS(" + finduser + ") ";
+                    notexistsselect += " NOT EXISTS(" + finduser + ") ";
                 }
-                insertteam = "INSERT INTO MG_TourneyTeams (TeamName, RoundNumber, TournamentID) VALUES (" + DB.stringSql(teamname, true) + ",0," + tourneyid + ");" + insertteam;
+
+                sdr = db.Get("SELECT TeamID FROM MG_TourneyTeams WHERE TournamentID = " + tourneyid + " AND TeamName = " + DB.stringSql(teamname, true));
+                if (sdr.Read())
+                {
+                    insertteam = "UPDATE MG_TourneyTeams SET SideBet = 1 WHERE TeamID = " + sdr["TeamID"].ToString();
+                }
+                else
+                {
+                    insertteam = "INSERT INTO MG_TourneyTeams (TeamName, RoundNumber, TournamentID, SideBet, TourneyTeam) ";
+                    insertteam += " SELECT " + DB.stringSql(teamname, true) + ",0," + tourneyid + ",1,0 WHERE ";
+                    insertteam += existsselect + ";";
+                    insertteam += "INSERT INTO MG_TourneyTeams (TeamName, RoundNumber, TournamentID, SideBet, TourneyTeam) ";
+                    insertteam += " SELECT " + DB.stringSql(teamname, true) + ",0," + tourneyid + ",0,1 WHERE ";
+                    insertteam += notexistsselect + ";";
+                    insertteam += insertteamindividuals;
+                }
+                db.Close(sdr, false);
                 db.Exec(insertteam);
             }
             int teamId;
@@ -543,23 +588,74 @@ public partial class TourneyXml : System.Web.UI.Page
                 string removeteam = "delete from mg_TourneyTeamPlayers where teamId = " + teamId + ";delete from MG_TourneyTeams where teamId = " + teamId + ";";
                 db.Exec(removeteam);
             }
-            StringBuilder teamsTable = new StringBuilder("<table class='TeamsTable' cellspacing='0'><tr><th>Team</th><th>Flight</th></tr>");
-            sdr = db.Get("select TeamId, TeamName, Flight from mg_tourneyTeams where tournamentId = " + tourneyid + " ORDER BY TeamName");
+            string sql = "select tt.TeamId, tt.TeamName, tt.Flight, tt.SideBet, tt.TourneyTeam, ROUND(SUM(ttp.Handicap),2) AS TeamHCP, ttp1.Handicap AS HCP1, ttp2.Handicap AS HCP2 ";
+            sql += " from mg_tourneyTeams tt ";
+            sql += " JOIN mg_tourneyTeamPlayers ttp ON tt.TeamID = ttp.TeamID ";
+            sql += " join mg_TourneyTeamPlayers ttp1 on tt.TeamId = ttp1.TeamId AND ttp1.UserID = (SELECT TOP 1 innerm1.UserId FROM mg_TourneyTeamPlayers innerm1 JOIN mg_TourneyUsers inneru1 on inneru1.UserId = innerm1.UserId WHERE innerm1.TeamId = tt.TeamId ORDER BY inneru1.LastName + ', ' + inneru1.FirstName ASC) ";
+            sql += " join mg_TourneyTeamPlayers ttp2 on tt.TeamId = ttp2.TeamId AND ttp2.UserID = (SELECT TOP 1 innerm1.UserId FROM mg_TourneyTeamPlayers innerm1 JOIN mg_TourneyUsers inneru1 on inneru1.UserId = innerm1.UserId WHERE innerm1.TeamId = tt.TeamId ORDER BY inneru1.LastName + ', ' + inneru1.FirstName DESC) ";
+            sql += " where tt.tournamentId = " + tourneyid;
+            sql += " group BY tt.TeamId, tt.TeamName, tt.Flight, tt.SideBet, tt.TourneyTeam, ttp1.Handicap, ttp2.Handicap ";
+            sql += " ORDER BY TourneyTeam,TeamHCP,TeamName ";
+            sdr = db.Get(sql);
+            StringBuilder teamsTable = new StringBuilder("<table class='TeamsTable' cellspacing='0'><tr><th>#</th><th>Tournament Team</th><th>Team HCP</th><th>HCP 1</th><th>HCP 2</th><th>Flight</th><th>Side Bet</th><th></th></tr>");
+            int x = 0;
             while (sdr.Read())
             {
                 if (!sdr.IsDBNull(sdr.GetOrdinal("TeamId")))
                 {
                     teamsTable.Append("<tr><td>");
-                    teamsTable.AppendFormat("<input type='button' id='removeteam{0}' onclick='RemoveTeam({0},event)' value='Remove' /> ", sdr["TeamId"]);
+                    teamsTable.Append(++x);
+                    teamsTable.Append("</td><td>");
+                    teamsTable.AppendFormat("<input type='checkbox' id='intournament' onchange='SetTournamentCheck(this,{0})' {1}/>", sdr["TeamId"], sdr["TourneyTeam"].ToString() == "True" ? "checked='checked'" : "");
                     teamsTable.Append(sdr["TeamName"]);
                     teamsTable.Append("</td><td>");
-                    teamsTable.Append(sdr["Flight"]);
+                    teamsTable.Append(sdr["TeamHCP"]);
+                    teamsTable.Append("</td><td>");
+                    teamsTable.Append(sdr["HCP1"]);
+                    teamsTable.Append("</td><td>");
+                    teamsTable.Append(sdr["HCP2"]);
+                    teamsTable.Append("</td><td>");
+                    teamsTable.AppendFormat("<input id='flight{0}' class='flight' onchange='TeamFlight(this,{0})' value='{1}' /> ", sdr["TeamId"], sdr["Flight"]);
+                    teamsTable.Append("</td><td>");
+                    teamsTable.AppendFormat("<input type='checkbox' id='sidebet' onchange='SetTournamentCheck(this,{0})' {1}/>", sdr["TeamId"], sdr["SideBet"].ToString() == "True" ? "checked='checked'" : "");
+                    teamsTable.Append("</td><td>");
+                    teamsTable.AppendFormat("<a id='removeteam{0}' href='javascript:RemoveTeam({0})'>remove</a>", sdr["TeamId"]);
                     teamsTable.Append("</td></tr>");
                 }
             }
             db.Close(sdr, false);
             teamsTable.Append("</table>");
             WEB.WriteEndResponse(Response, teamsTable);
+        }
+    }
+    private void TeamSettings()
+    {
+        int tourneyid = 0;
+        bool tournamentcheck;
+        int teamid;
+        if (bool.TryParse(Request["tournamentcheck"], out tournamentcheck) &&
+            int.TryParse(Request["t"], out tourneyid))
+        {
+            string sql = null;
+            if (int.TryParse(Request["intournament"], out teamid))
+            {
+                sql = "update mg_tourneyteams set TourneyTeam =" + (tournamentcheck ? "1" : "0") + " where teamid = " + teamid;
+            }
+            else if (int.TryParse(Request["sidebet"], out teamid))
+            {
+                sql = "update mg_tourneyteams set SideBet =" + (tournamentcheck ? "1" : "0") + " where teamid = " + teamid;
+            }
+            if (!string.IsNullOrEmpty(sql))
+            {
+                db.Exec(sql);
+            }
+        }
+        if (Request["flight"] != null &&
+            tourneyid > 0 &&
+            int.TryParse(Request["teamid"], out teamid))
+        {
+            string sql = "update mg_tourneyteams set Flight =" + DB.stringSql(Request["flight"], true) + " where teamid = " + teamid;
+            db.Exec(sql);
         }
     }
     protected void Page_Load(object sender, EventArgs e)
@@ -574,6 +670,7 @@ public partial class TourneyXml : System.Web.UI.Page
         EmailScores();
         PlayersList();
         TeamsList();
+        TeamSettings();
         Response.Write("<complete>true</complete>");
     }
     protected override void OnUnload(EventArgs e)

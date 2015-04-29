@@ -62,6 +62,7 @@ a:hover { color:#FF3F19;}
     <asp:CheckBox ID="chkIncludeIndividuals" Text="Include Individuals" runat="server" />&nbsp;&nbsp;&nbsp;&nbsp;
     <asp:CheckBox ID="chkHighlightBest" Text="Highlight Best" runat="server" />&nbsp;&nbsp;&nbsp;&nbsp;
     <asp:CheckBox ID="chkColorFlights" Text="Color Flights" runat="server" />&nbsp;&nbsp;&nbsp;&nbsp;
+    <asp:CheckBox ID="chkSideBets" Text="Side Bets" runat="server" />&nbsp;&nbsp;&nbsp;&nbsp;
     <br />
     Round <asp:DropDownList ID="ddRound" runat="server" />&nbsp;&nbsp;&nbsp;&nbsp;
     Scoring <asp:DropDownList ID="ddScoring" runat="server" />

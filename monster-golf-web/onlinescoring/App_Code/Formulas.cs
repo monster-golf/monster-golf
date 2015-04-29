@@ -148,12 +148,12 @@ namespace MonsterGolfOnline
                 st = ScoringType.GrossParPoints;
             return st;
         }
-        public static DataTable CalculateScores(Tournament tourney, string scoringOption, int throwOutWorst, bool includeLast)
+        public static DataTable CalculateScores(Tournament tourney, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets)
         {
             Team[] teamlist = tourney.Teams();
-            return CalculateScores(tourney, teamlist, scoringOption, throwOutWorst, includeLast);
+            return CalculateScores(tourney, teamlist, scoringOption, throwOutWorst, includeLast, sideBets);
         }
-        public static DataTable CalculateScores(Tournament tourney, Team[] teamlist, string scoringOption, int throwOutWorst, bool includeLast)
+        public static DataTable CalculateScores(Tournament tourney, Team[] teamlist, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets)
         {
             DB DB = new DB();
             GolfCourse course = null;
@@ -231,10 +231,11 @@ namespace MonsterGolfOnline
             //   "WHERE tp.TournamentID = " + tourney.TournamentID.ToString() + " ORDER BY ts.RoundNumber, tp.TeamID, u.LastName, u.FirstName");
             string q = "SELECT tp.TeamID, tp.UserId AS TPUserId, t.TeamName, t.Flight, tp.TeeNumber, tp.Handicap AS TPHandicap, ts.*, u.LastName, u.FirstName, u.Image" +
                 " FROM mg_tourneyTeamPlayers AS tp" +
-                " INNER JOIN mg_tourneyTeams AS t on t.TeamID = tp.TeamID" +
+                " INNER JOIN mg_tourneyTeams AS t on t.TeamID = tp.TeamID AND " + (sideBets ? "SideBet = 1" : "TourneyTeam = 1") +
                 " INNER JOIN mg_tourneyUsers AS u on u.userid = tp.UserID" +
                 " LEFT OUTER JOIN mg_TourneyScores AS ts on u.WebID = ts.UserID AND tp.TournamentID = ts.TourneyId" +
                 " WHERE tp.TournamentID = " + tourney.TournamentID.ToString() + " ORDER BY ts.RoundNum, tp.TeamID, u.LastName, u.FirstName";
+            
             DataSet dsScores = DB.GetDataSet(q);
 
             DataRow curResultRow = null;
