@@ -33,6 +33,10 @@ input.starthole {width:40px;}
 .PlayersTable td { border: solid 1px white; padding:6px; }
 .TeamsTable table { border-collapse: collapse; cursor:pointer;}
 .TeamsTable td { border: solid 1px white; padding:6px; }
+#firstName { width: 180px; margin-left:6px; }
+#lastName { width: 180px; margin-left:7px; }
+#emailName { width: 180px; }
+#addPlayer { margin-left:33px;}
 </style>
 <script type="text/javascript" language="javascript" src="XmlHttp.js"></script>
 <script type="text/javascript" language="javascript">
@@ -158,7 +162,9 @@ input.starthole {width:40px;}
         GetHTMLAsync("playerslist=1&t=" + TourneyId(), PlayersDone);
         GetHTMLAsync("teamslist=1&t=" + TourneyId(), TeamsDone);
     }
+    var teamPlayers;
     function PlayersDone(html) {
+        teamPlayers = new Array();
         var playersList = document.getElementById("playersList");
         if (playersList) {
             playersList.innerHTML = html;
@@ -172,7 +178,6 @@ input.starthole {width:40px;}
             teamsList.style.display = "inline-block";
         }
     }
-    var teamPlayers = new Array();
     function SelectTeamPlayer(userId) {
         var findPlayer = teamPlayers.indexOf(userId);
         if (findPlayer == -1) {
@@ -185,8 +190,8 @@ input.starthole {width:40px;}
             }
         } else {
             UnSelectTeamPlayer(userId);
-            teamPlayers = teamPlayers.slice(findPlayer, 1);
-        }
+            teamPlayers.splice(findPlayer, 1);
+       }
     }
     function UnSelectTeamPlayer(userId) {
         var obj = document.getElementById("setteam" + userId);
@@ -208,6 +213,20 @@ input.starthole {width:40px;}
         var setteamplayers = "teamslist=1&t=" + TourneyId() + "&removeteam=" + teamId;
         GetHTMLAsync(setteamplayers, function (html) { TeamsDone(html); GetHTMLAsync("playerslist=1&t=" + TourneyId(), PlayersDone); } );
         return CE(e);
+    }
+    function AddPlayer() {
+        var addplayer = "playerslist=1&t=" + TourneyId();
+        var obj = document.getElementById("firstName");
+        if (obj) addplayer += "&firstname=" + obj.value;
+        obj = document.getElementById("lastName");
+        if (obj) addplayer += "&lastname=" + obj.value;
+        obj = document.getElementById("emailName");
+        if (obj) addplayer += "&emailname=" + obj.value;
+        GetHTMLAsync(addplayer, PlayersDone);
+    }
+    function RemovePlayer(userId) {
+        var removeplayer = "playerslist=1&t=" + TourneyId() + "&removeplayer=" + userId;
+        GetHTMLAsync(removeplayer, PlayersDone);
     }
 </script>
 </head>

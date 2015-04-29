@@ -342,8 +342,76 @@ public partial class TourneyXml : System.Web.UI.Page
         if (Request.QueryString["playerslist"] == "1" &&
             int.TryParse(Request["t"], out tourneyid))
         {
+            string firstName = Request["firstname"];
+            string lastName = Request["lastname"];
+            string emailName = Request["emailname"];
+            SqlDataReader sdr;
+            string sql;
+            string webId = "0";
+            if (!string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName))
+            {
+                sql = "SELECT UserId as WebId FROM mg_Users WHERE FirstName = " + DB.stringSql(firstName, true) + " and LastName = " + DB.stringSql(lastName, true);
+                sdr = db.Get(sql);
+                if (!sdr.HasRows)
+                {
+                    db.Close(sdr, false);
+                    db.Exec("INSERT INTO MG_Users (UserName, Email, FirstName, LastName, UserTypeID, Handicap) VALUES ('" + DB.stringSql(firstName, false) + DB.stringSql(lastName, false) + "', " + DB.stringSql(emailName, true) + ", " + DB.stringSql(firstName, true) + ", " + DB.stringSql(lastName, true) + ",1,0)");
+                    //use the select stmt from above to get the id
+                    sdr = db.Get(sql);
+                }
+                if (sdr.Read())
+                {
+                    webId = sdr["WebId"].ToString();
+                    db.Close(sdr, false);
+                    sql = "SELECT UserId FROM mg_TourneyUsers WHERE FirstName = " + DB.stringSql(firstName, true) + " and LastName = " + DB.stringSql(lastName, true);
+                    sdr = db.Get(sql);
+                    if (sdr.Read())
+                    {
+                        sql = "UPDATE mg_TourneyUsers Set WebId = " + webId + " WHERE UserId = " + sdr["UserId"].ToString();
+                    }
+                    else 
+                    {
+                        sql = "INSERT INTO mg_TourneyUsers (FirstName, LastName, HCPIndex, WebID) VALUEs (";
+                        sql += DB.stringSql(firstName, true) + "," + DB.stringSql(lastName, true) + ",0," + webId + ")";
+                    }
+                    db.Close(sdr, false);
+                    db.Exec(sql);
+                }
+            }
+            int removeplayer;
+            if (int.TryParse(Request["removeplayer"], out removeplayer))
+            {
+                sql = "SELECT WebId FROM mg_TourneyUsers WHERE UserId = " + removeplayer;
+                sdr = db.Get(sql);
+                if (sdr.Read())
+                {
+                    webId = sdr["WebId"].ToString();
+                    // this query checks if they have no scores entered so they are safe to delete from mg_users
+                    sql = "select u.UserId from mg_Users u left join mg_scores s on s.userId = u.UserId where s.ID is NULL and u.UserId = " + webId;
+                    db.Close(sdr, false);
+                    sdr = db.Get(sql);
+                    if (sdr.Read())
+                    {
+                        db.Close(sdr, false);
+                        sql = "DELETE mg_Users WHERE UserId = " + webId;
+                        db.Exec(sql);
+                    }
+                    else
+                    {
+                        db.Close(sdr, false);
+                    }
+                }
+                sql = "DELETE mg_TourneyUsers WHERE UserId = " + removeplayer;
+                db.Exec(sql);
+            }
+            sql = "select ttu.UserId, ttu.WebId, ttu.FirstName, ttu.LastName, ttu.HcpIndex, InTourneyCount = COUNT(DISTINCT ttp.TeamID), InTourneyAll = COUNT(DISTINCT ttpall.TeamID) from mg_TourneyUsers ttu ";
+            sql += " left join mg_TourneyTeamPlayers ttp on ttu.UserId = ttp.UserId and ttp.TournamentId = " + tourneyid;
+            sql += " left join mg_TourneyTeamPlayers ttpall on ttu.UserId = ttpall.UserId ";
+            sql += " group by ttu.UserId, ttu.WebId, ttu.FirstName, ttu.LastName, ttu.HcpIndex ";
+            sql += " order by ttu.LastName, ttu.FirstName";
+            sdr = db.Get(sql);
+
             StringBuilder playersTable = new StringBuilder("<table class='PlayersTable' cellspacing='0'><tr><th>Name</th><th>HCP</th><th>In</th></tr>");
-            SqlDataReader sdr = db.Get("select Distinct ttu.UserId, ttu.WebId, ttu.FirstName, ttu.LastName, ttu.HcpIndex, InTourney = CASE WHEN ttp.TeamID IS NULL THEN 0 ELSE 1 END from mg_TourneyUsers ttu left join mg_TourneyTeamPlayers ttp on ttu.UserId = ttp.UserId and ttp.TournamentId = " + tourneyid + " order by ttu.LastName, ttu.FirstName");
             while (sdr.Read())
             {
                 if (!sdr.IsDBNull(sdr.GetOrdinal("UserId")))
@@ -368,16 +436,37 @@ public partial class TourneyXml : System.Web.UI.Page
                         playersTable.Append(sdr["HcpIndex"]);
                     }
                     playersTable.Append("</td><td>");
-                    if (!sdr.IsDBNull(sdr.GetOrdinal("InTourney")))
+                    int intourney;
+                    if (!sdr.IsDBNull(sdr.GetOrdinal("InTourneyCount")))
                     {
-                        if (sdr["InTourney"].ToString() == "1")
+                        if (int.TryParse(sdr["InTourneyCount"].ToString(), out intourney))
                         {
-                            playersTable.Append("yes");
+                            if (intourney > 0)
+                            {
+                                playersTable.Append(intourney);
+                            }
+                        }
+                    }
+                    playersTable.Append("</td><td>");
+                    if (!sdr.IsDBNull(sdr.GetOrdinal("InTourneyAll")))
+                    {
+                        if (int.TryParse(sdr["InTourneyAll"].ToString(), out intourney))
+                        {
+                            if (intourney == 0)
+                            {
+                                playersTable.AppendFormat("<a href='javascript:RemovePlayer({0});'>remove</a>", sdr["UserId"]);
+                            }
                         }
                     }
                     playersTable.Append("</td></tr>");
                 }
             }
+            playersTable.Append("<tr><td colspan='4'>");
+            playersTable.Append("First <input id='firstName' name='firstName' value=''/><br/>");
+            playersTable.Append("Last <input id='lastName' name='lastName' value=''/><br/>");
+            playersTable.Append("Email <input id='emailName' name='emailName' value='monster@monstergolf.org'/><br/>");
+            playersTable.Append("<input type='button' id='addPlayer' onclick='AddPlayer()' value='Add Player' />");
+            playersTable.Append("</td></tr>");
             playersTable.Append("</table>");
             WEB.WriteEndResponse(Response, playersTable);
         }
