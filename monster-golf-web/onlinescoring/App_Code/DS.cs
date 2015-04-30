@@ -8,6 +8,7 @@ using System.IO;
 using System.Text;
 using System.Web.UI;
 using System.Data.SqlClient;
+using System.Net;
 
 public class DB
 {
@@ -274,7 +275,8 @@ public class ScoreInfo
         EmailSent,
         TourneyScoreID,
         StartingHole,
-        PlayersInGroup
+        PlayersInGroup,
+        Email
     }
     public static List<string> empty18List(bool useNum)
     {
@@ -383,6 +385,7 @@ public class ScoreInfo
         Scores.Add(ScoreKey.StartingHole.ToString(), startinghole.ToString());
         Scores.Add(ScoreKey.PlayersInGroup.ToString(), "0");
         Scores.Add(ScoreKey.DateOfRound.ToString(), dateofround);
+        Scores.Add(ScoreKey.Email.ToString(), "");
     }
     public ScoreInfo(string id, string lookupid, string name, List<string> scores, string f9total, string b9total, string total, string hcp, string net)
     {
@@ -423,6 +426,7 @@ public class ScoreInfo
     public string CourseSlope { get { return Scores[ScoreKey.CourseSlope.ToString()]; } }
     public string CourseRating { get { return Scores[ScoreKey.CourseRating.ToString()]; } }
     public bool EmailSent { get { return BoolCheck(ScoreKey.EmailSent); } }
+    public string Email { get { return Scores[ScoreKey.Email.ToString()]; } set { Scores[ScoreKey.Email.ToString()] = value; } }
     public string TourneyScoreID { get { return Scores[ScoreKey.TourneyScoreID.ToString()]; } }
     public string StartingHole { get { return Scores[ScoreKey.StartingHole.ToString()]; } }
     public DateTime DateOfRound
@@ -444,6 +448,45 @@ public class ScoreInfo
     }
 }
 
+namespace DSModels
+{
+    public class errorDetails
+    {
+        public string errorCode;
+        public string message;
+    }
+    public class user
+    {
+        public string userName;
+        public string userId;
+        public string email;
+        public string userType;
+        public string userStatus;
+        public string uri;
+        public string loginStatus;
+        public string sendActivationEmail;
+        public string activationAccessCode;
+        public errorDetails errorDetails;
+    }
+    public class group
+    {
+        public string groupId;
+        public string groupName;
+        public string permissionProfileId;
+        public string groupType;
+        public string usersCount;
+        public user[] users;
+        public errorDetails errorDetails;
+    }
+    public class grouplist
+    {
+        public group[] groups;
+    }
+    public class userlist
+    {
+        public user[] users;
+    }
+}
 /// <summary>
 /// Summary description for DS
 /// </summary>
@@ -485,8 +528,193 @@ public class DS
         return _dsapi;
     }
     public EnvelopeStatus EnvStatus { get { return _envstatus; } }
-    public bool Send(List<ScoreInfo> players, string scorername, string scorerid, string attestname, string attestid, string courseName, string courseSlope, string courseRating, Dictionary<string, string> nameemails)
+
+    private string RestGetCred()
     {
+        return "<DocuSignCredentials><Username>" + ConfigurationManager.AppSettings["ds_email"] + "</Username><Password>" + ConfigurationManager.AppSettings["ds_pass"] + "</Password><IntegratorKey>" + ConfigurationManager.AppSettings["ds_key"] + "</IntegratorKey></DocuSignCredentials>";
+    }
+    private Stream RestRunCall(HttpWebRequest req)
+    {
+        Stream responseStr = null;
+        HttpWebResponse resp = req.GetResponse() as HttpWebResponse;
+        responseStr = resp.GetResponseStream();
+        return responseStr;
+    }
+    private HttpWebRequest RestStartRequest(string endpoint, string boundary, string method)
+    {
+        HttpWebRequest req = WebRequest.Create(endpoint) as HttpWebRequest;
+        if (method == "POST")
+        {
+            if (string.IsNullOrEmpty(boundary)) req.ContentType = "application/json";
+            else req.ContentType = "multipart/form-data; boundary=" + boundary;
+        }
+        req.Headers.Add("X-DocuSign-Authentication", RestGetCred());
+        req.Method = method;
+        req.Accept = "application/json";
+        return req;
+    }
+    private string WriteResponseGetStr(Stream response)
+    {
+        UTF8Encoding encoding = new UTF8Encoding();
+        string txt = encoding.GetString(WriteResponse(response));
+        return txt;
+    }
+    private byte[] WriteResponse(Stream response)
+    {
+        MemoryStream ms = new MemoryStream();
+        response.CopyTo(ms);
+        byte[] reqBytes = ms.ToArray();
+        return reqBytes;
+    }
+    private void WriteString(string req, Stream reqStream)
+    {
+        UTF8Encoding encoding = new UTF8Encoding();
+        WriteBytes(encoding.GetBytes(req), reqStream);
+    }
+    private void WriteBytes(byte[] reqBytes, Stream reqStream)
+    {
+        reqStream.Write(reqBytes, 0, reqBytes.Length);
+    }
+    public string CreateSigningGroup(List<ScoreInfo> players, Dictionary<string, string> nameemails, string scorer)
+    {
+        string resturl = ConfigurationManager.AppSettings["ds_resturl"] + "/accounts/" + ConfigurationManager.AppSettings["ds_accountid"] + "/signinggroups";
+        HttpWebRequest req = RestStartRequest(resturl + "?include_users=true", "", "GET");
+
+        DSModels.grouplist groups;
+        try
+        {
+            using (Stream responseStr = RestRunCall(req))
+            {
+                string txt = WriteResponseGetStr(responseStr);
+                groups = (DSModels.grouplist)Newtonsoft.Json.JsonConvert.DeserializeObject(txt, typeof(DSModels.grouplist));
+            }
+        }
+        catch (Exception ex)
+        {
+            return "";
+        }
+
+        DSModels.grouplist newgroups = new DSModels.grouplist();
+        newgroups.groups = new DSModels.group[1];
+        DSModels.group newgroup = new DSModels.group();
+        newgroups.groups[0] = newgroup;
+        newgroup.groupName = "Monster_" + players[0].GroupID;
+        newgroup.groupType = "sharedSigningGroup";
+        newgroup.users = new DSModels.user[players.Count - 1];
+        int x=0;
+        string foundgroupId = "";
+        DSModels.userlist deleteList = new DSModels.userlist();
+        deleteList.users = new DSModels.user[0];
+        foreach (DSModels.group g in groups.groups)
+        {
+            Dictionary<string, string> ingroup = new Dictionary<string, string>();
+
+            foreach (ScoreInfo p in players)
+            {
+                if (p.Name != scorer && x < newgroup.users.Length)
+                {
+                    newgroup.users[x] = new DSModels.user();
+                    newgroup.users[x].userName = p.Name;
+                    if (string.IsNullOrEmpty(p.Email))
+                    {
+                        p.Email = nameemails[p.Name];
+                    }
+                    newgroup.users[x].email = p.Email;
+                    x++;
+                }
+                if (g.users != null)
+                {
+                    foreach (DSModels.user u in g.users)
+                    {
+                        if (u.userName == p.Name && u.email == p.Email)
+                        {
+                            ingroup.Add(u.userName, u.email);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (g.users != null && ingroup.Count == g.users.Length && g.users.Length == newgroup.users.Length)
+            {
+                foundgroupId = g.groupId;
+                break;
+            }
+            else if (newgroup.groupName == g.groupName)
+            {
+                newgroup.groupId = g.groupId;
+                if (g.users != null)
+                {
+                    deleteList.users = new DSModels.user[g.users.Length - ingroup.Count];
+                    int d = 0;
+                    foreach (DSModels.user u in g.users)
+                    {
+                        if (!ingroup.ContainsKey(u.userName))
+                        {
+                            deleteList.users[d++] = u;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        if (string.IsNullOrEmpty(foundgroupId))
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(newgroup.groupId))
+                {
+                    req = RestStartRequest(resturl, "", "POST");
+                    Stream reqStream = req.GetRequestStream();
+                    WriteString(Newtonsoft.Json.JsonConvert.SerializeObject(newgroups), reqStream);
+                    using (Stream responseStr = RestRunCall(req))
+                    {
+                        string txt = WriteResponseGetStr(responseStr);
+                        groups = (DSModels.grouplist)Newtonsoft.Json.JsonConvert.DeserializeObject(txt, typeof(DSModels.grouplist));
+                        if (groups != null && groups.groups != null && groups.groups.Length > 0)
+                        {
+                            foundgroupId = groups.groups[0].groupId;
+                        }
+                    }
+                }
+                else
+                {
+                    foundgroupId = newgroup.groupId;
+                    req = RestStartRequest(resturl + "/" + foundgroupId, "", "PUT");
+                    Stream reqStream = req.GetRequestStream();
+                    WriteString(Newtonsoft.Json.JsonConvert.SerializeObject(newgroup), reqStream);
+                    using (Stream responseStr = RestRunCall(req))
+                    {
+                        string txt = WriteResponseGetStr(responseStr);
+                        newgroup = (DSModels.group)Newtonsoft.Json.JsonConvert.DeserializeObject(txt, typeof(DSModels.group));
+                    }
+
+                    newgroup.users = deleteList.users;
+                    req = RestStartRequest(resturl + "/" + foundgroupId, "", "DELETE");
+                    reqStream = req.GetRequestStream();
+                    WriteString(Newtonsoft.Json.JsonConvert.SerializeObject(newgroup), reqStream);
+                    using (Stream responseStr = RestRunCall(req))
+                    {
+                        string txt = WriteResponseGetStr(responseStr);
+                        DSModels.userlist userDeletes = (DSModels.userlist)Newtonsoft.Json.JsonConvert.DeserializeObject(txt, typeof(DSModels.userlist));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        return foundgroupId;
+    }
+    public bool Send(string tourneyid, string roundnum, string userlookup, List<ScoreInfo> players, string scorername, string scorerid, string attestname, string attestid, string courseName, string courseSlope, string courseRating, Dictionary<string, string> nameemails, bool remotesigning)
+    {
+        string signingGroup = "";
+        if (remotesigning)
+        {
+            signingGroup = CreateSigningGroup(players, nameemails, scorername);
+        }
+
         Envelope _envelope = new Envelope();
 
         List<Document> documents = new List<Document>();
@@ -495,14 +723,22 @@ public class DS
         _envelope.Documents = documents.ToArray();
         List<Recipient> recipients = new List<Recipient>();
         int recipid = 1;
-        recipients.Add(DSRecip(recipid++, scorerid, scorername, "", RecipientTypeCode.Signer));
-        bool addattest = attestid != "" && attestname != "" && (attestid != scorerid || attestname != scorername);
-        if (addattest)
+        recipients.Add(DSRecip(recipid++, scorerid, scorername, "", RecipientTypeCode.Signer, ""));
+        bool addattest = true;
+        if (remotesigning)
         {
-            recipients.Add(DSRecip(recipid++, attestid, attestname, "", RecipientTypeCode.Signer));
+            recipients.Add(DSRecip(recipid++, "", "", "", RecipientTypeCode.Signer, signingGroup));
+            _envelope.EventNotification = DSEvent(tourneyid, roundnum, userlookup);
         }
-        //recipients.Add(DSRecip(recipid, "", "", "", RecipientTypeCode.CarbonCopy));
-        foreach (string key in nameemails.Keys) recipients.Add(DSRecip(recipid, "", nameemails[key], key, RecipientTypeCode.CarbonCopy));
+        else
+        {
+            addattest = attestid != "" && attestname != "" && (attestid != scorerid || attestname != scorername);
+            if (addattest)
+            {
+                recipients.Add(DSRecip(recipid++, attestid, attestname, "", RecipientTypeCode.Signer, ""));
+            }
+            foreach (string key in nameemails.Keys) recipients.Add(DSRecip(recipid, "", key, nameemails[key], RecipientTypeCode.CarbonCopy, ""));
+        }
         _envelope.Recipients = recipients.ToArray();
         _envelope.Subject = "Monster Scoring";
 
@@ -627,7 +863,7 @@ public class DS
         tab.RecipientID = recipid;
         return tab;
     }
-    private Recipient DSRecip(int recipid, string userid, string name, string email, RecipientTypeCode type)
+    private Recipient DSRecip(int recipid, string userid, string name, string email, RecipientTypeCode type, string signerGroupId)
     {
         Recipient recip = new Recipient();
         recip.ID = recipid.ToString();
@@ -645,13 +881,39 @@ public class DS
             recip.Email = (email == "") ? "monster@monstergolf.org" : email;
             recip.UserName = name;
         }
-        if (userid != "")
+        if (userid != "" && signerGroupId == "")
         {
             RecipientCaptiveInfo rci = new RecipientCaptiveInfo();
             rci.ClientUserId = userid;
             recip.CaptiveInfo = rci;
         }
+        if (signerGroupId != "")
+        {
+            recip.SigningGroupId = long.Parse(signerGroupId);
+            recip.SigningGroupIdSpecified = true;
+        }
         return recip;
+    }
+    private EventNotification DSEvent(string tourneyid, string roundnum, string userlookup)
+    {
+        string backurl = string.Format(ConfigurationManager.AppSettings["ds_backurl"] + "dscatch.aspx?c=complete&e=[[envelopeId]]&t={0}&r={1}&u={2}", tourneyid, roundnum, userlookup);
+        EventNotification eventNot = new EventNotification();
+        eventNot.IncludeCertificateOfCompletion = false;
+        eventNot.IncludeCertificateOfCompletionSpecified = true;
+        eventNot.IncludeCertificateWithSoap = false;
+        eventNot.IncludeCertificateWithSoapSpecified = true;
+        eventNot.EnvelopeEvents = new EnvelopeEvent[1];
+        eventNot.EnvelopeEvents[0].EnvelopeEventStatusCode = EnvelopeEventStatusCode.Completed;
+        eventNot.IncludeDocumentFields = false;
+        eventNot.IncludeDocumentFieldsSpecified = true;
+        eventNot.IncludeDocuments = false;
+        eventNot.IncludeDocumentsSpecified = true;
+        eventNot.RequireAcknowledgment = false;
+        eventNot.RequireAcknowledgmentSpecified = true;
+        eventNot.SignMessageWithX509Cert = false;
+        eventNot.SignMessageWithX509CertSpecified = true;
+        eventNot.URL = backurl;
+        return eventNot;
     }
 }
 

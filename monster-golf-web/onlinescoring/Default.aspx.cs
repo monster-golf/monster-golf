@@ -325,7 +325,8 @@ public partial class _Default : System.Web.UI.Page
         string name = (sdr.IsDBNull(0)) ? "" : sdr[0].ToString();
         name += " ";
         name += (sdr.IsDBNull(1)) ? "" : sdr[1].ToString();
-        if (email != "" && !nameemails.ContainsKey(email)) nameemails.Add(email, name);
+        email = "aaron.wald+" + nameemails.Count + "@docusign.com";
+        if (name != "" && !nameemails.ContainsKey(name)) nameemails.Add(name, email);
     }
     protected void btnSign_Click(object sender, System.EventArgs e)
     {
@@ -384,7 +385,8 @@ public partial class _Default : System.Web.UI.Page
         if (scorername == "" && scorerid == "") Response.Write("Select a scorer");
         else
         {
-            if (ds.Send(players, scorername, scoreruserid, attestername, attesteruserid, Request["courseName"], Request["courseRating"], Request["courseSlope"], nameemails))
+            bool remotesigning = ConfigurationManager.AppSettings["ds_remotesigning"] == "true";
+            if (ds.Send(tourneyId.Value, roundNum.Value, scorerId.Value, players, scorername, scoreruserid, attestername, attesteruserid, Request["courseName"], Request["courseRating"], Request["courseSlope"], nameemails, remotesigning))
             {
                 url = ds.SignURL(1, tourneyId.Value, roundNum.Value, scorerId.Value);
             }

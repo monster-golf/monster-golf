@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "onlinescoring", "monster-golf-web\onlinescoring\", "{B795844D-B32D-4ABA-8626-83FB36942A88}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv2.0"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
 		Debug.AspNetCompiler.VirtualPath = "/monsterscoring"
 		Debug.AspNetCompiler.PhysicalPath = "monster-golf-web\onlinescoring\"
 		Debug.AspNetCompiler.TargetPath = "..\monstergolf\monsterscoring\"

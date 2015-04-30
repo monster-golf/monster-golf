@@ -5,6 +5,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using docusign;
 using System.Data.SqlClient;
+using System.Configuration;
 
 public partial class dscatch : System.Web.UI.Page
 {
@@ -56,16 +57,24 @@ public partial class dscatch : System.Web.UI.Page
                     if (tourneyid != "") UpdateTourney(db, "CardSigned=1", tourneyid, roundnum, user);
                     else db.Exec(string.Format(string.Format("update mg_tourneyscores set CardSigned=1 where GroupId = '{0}'", DB.stringSql(roundnum))));
                     db.Close();
-                    string attestname = "Attester";
-                    foreach (RecipientStatus rs in ds.EnvStatus.RecipientStatuses)
+                    bool remotesigning = ConfigurationManager.AppSettings["ds_remotesigning"] == "true";
+                    if (!remotesigning)
                     {
-                        if (rs.RoutingOrder == 2)
+                        string attestname = "Attester";
+                        foreach (RecipientStatus rs in ds.EnvStatus.RecipientStatuses)
                         {
-                            attestname = rs.UserName;
+                            if (rs.RoutingOrder == 2)
+                            {
+                                attestname = rs.UserName;
+                            }
                         }
+                        string url = ds.SignURL(2, tourneyid, roundnum, user);
+                        litPass.Text = "Please pass your scoring device to " + attestname + "<br/><br/><a href='" + url + "'>click to attest</a>";
                     }
-                    string url = ds.SignURL(2, tourneyid, roundnum, user);
-                    litPass.Text = "Please pass your scoring device to " + attestname + "<br/><br/><a href='" + url + "'>click to attest</a>";
+                    else
+                    {
+                        litPass.Text = "An email has went out to the other members of the group.  Please have one person attest";
+                    }
                 }
                 else
                 {
