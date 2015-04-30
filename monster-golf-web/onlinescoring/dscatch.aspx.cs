@@ -42,14 +42,22 @@ public partial class dscatch : System.Web.UI.Page
         {
             using (StreamReader reader = new StreamReader(Request.InputStream))
             {
-                var serializer = new XmlSerializer(typeof(EnvelopeStatus));
-                estatus = (EnvelopeStatus)serializer.Deserialize(reader);
+                string xml = reader.ReadToEnd();
+                if (xml.Contains("<EnvelopeID>"))
+                {
+                    envid = xml.Substring(xml.IndexOf("<EnvelopeID>") + "<EnvelopeID>".Length);
+                    envid = envid.Substring(0, envid.IndexOf("</EnvelopeID>"));
+                }
             }
         }
-        else
+        if (!string.IsNullOrEmpty(envid))
         {
             ds = new DS(envid);
             estatus = ds.EnvStatus;
+        }
+        else
+        {
+            return;
         }
         switch (code)
         {
