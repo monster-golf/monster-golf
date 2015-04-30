@@ -6,6 +6,8 @@ using System.Web.UI.WebControls;
 using docusign;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.IO;
+using System.Xml.Serialization;
 
 public partial class dscatch : System.Web.UI.Page
 {
@@ -33,7 +35,22 @@ public partial class dscatch : System.Web.UI.Page
         string tourneyid = Request.QueryString["t"];
         string roundnum = Request.QueryString["r"];
         string user = Request.QueryString["u"];
-        DS ds = new DS(envid);
+        EnvelopeStatus estatus = new EnvelopeStatus();
+        DS ds = null;
+        // catch status node from Request.InputStream
+        if (string.IsNullOrEmpty(envid))
+        {
+            using (StreamReader reader = new StreamReader(Request.InputStream))
+            {
+                var serializer = new XmlSerializer(typeof(EnvelopeStatus));
+                estatus = (EnvelopeStatus)serializer.Deserialize(reader);
+            }
+        }
+        else
+        {
+            ds = new DS(envid);
+            estatus = ds.EnvStatus;
+        }
         switch (code)
         {
             case "acfail":
@@ -45,14 +62,14 @@ public partial class dscatch : System.Web.UI.Page
                 litPass.Text = string.Format("Failure during signing. Please show or email the tournament coordinators this page.<br/><br/>e:{0} t:{1} r:{2} c:{3} ", envid, tourneyid, roundnum, code);
                 break;
             case "ttlexpired":
-                if (ds.EnvStatus.Status != docusign.EnvelopeStatusCode.Completed) Response.Redirect(ds.SignURL(2, tourneyid, roundnum, user));
+                if (estatus.Status != docusign.EnvelopeStatusCode.Completed) Response.Redirect(ds.SignURL(2, tourneyid, roundnum, user));
                 break;
             case "decline":
                 break;
             case "viewcomplete":
             case "complete":
                 DB db = new DB();
-                if (ds.EnvStatus.Status != docusign.EnvelopeStatusCode.Completed)
+                if (estatus.Status != docusign.EnvelopeStatusCode.Completed)
                 {
                     if (tourneyid != "") UpdateTourney(db, "CardSigned=1", tourneyid, roundnum, user);
                     else db.Exec(string.Format(string.Format("update mg_tourneyscores set CardSigned=1 where GroupId = '{0}'", DB.stringSql(roundnum))));
@@ -61,7 +78,7 @@ public partial class dscatch : System.Web.UI.Page
                     if (!remotesigning)
                     {
                         string attestname = "Attester";
-                        foreach (RecipientStatus rs in ds.EnvStatus.RecipientStatuses)
+                        foreach (RecipientStatus rs in estatus.RecipientStatuses)
                         {
                             if (rs.RoutingOrder == 2)
                             {

@@ -605,6 +605,23 @@ public class DS
         string foundgroupId = "";
         DSModels.userlist deleteList = new DSModels.userlist();
         deleteList.users = new DSModels.user[0];
+        if (groups.groups == null || groups.groups.Length == 0)
+        {
+            foreach (ScoreInfo p in players)
+            {
+                if (p.Name != scorer && x < newgroup.users.Length)
+                {
+                    newgroup.users[x] = new DSModels.user();
+                    newgroup.users[x].userName = p.Name;
+                    if (string.IsNullOrEmpty(p.Email))
+                    {
+                        p.Email = nameemails[p.Name];
+                    }
+                    newgroup.users[x].email = p.Email;
+                    x++;
+                }
+            }
+        }
         foreach (DSModels.group g in groups.groups)
         {
             Dictionary<string, string> ingroup = new Dictionary<string, string>();
@@ -896,14 +913,16 @@ public class DS
     }
     private EventNotification DSEvent(string tourneyid, string roundnum, string userlookup)
     {
-        string backurl = string.Format(ConfigurationManager.AppSettings["ds_backurl"] + "dscatch.aspx?c=complete&e=[[envelopeId]]&t={0}&r={1}&u={2}", tourneyid, roundnum, userlookup);
+        string backurl = string.Format(ConfigurationManager.AppSettings["ds_backurl"] + "dscatch.aspx?c=complete&t={0}&r={1}&u={2}", tourneyid, roundnum, userlookup);
         EventNotification eventNot = new EventNotification();
         eventNot.IncludeCertificateOfCompletion = false;
         eventNot.IncludeCertificateOfCompletionSpecified = true;
         eventNot.IncludeCertificateWithSoap = false;
         eventNot.IncludeCertificateWithSoapSpecified = true;
         eventNot.EnvelopeEvents = new EnvelopeEvent[1];
+        eventNot.EnvelopeEvents[0] = new EnvelopeEvent();
         eventNot.EnvelopeEvents[0].EnvelopeEventStatusCode = EnvelopeEventStatusCode.Completed;
+        eventNot.EnvelopeEvents[0].IncludeDocuments = false;
         eventNot.IncludeDocumentFields = false;
         eventNot.IncludeDocumentFieldsSpecified = true;
         eventNot.IncludeDocuments = false;
