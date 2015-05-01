@@ -160,13 +160,15 @@ public partial class TourneyXml : System.Web.UI.Page
                 List<List<ScoreInfo>> coursesInfo = new List<List<ScoreInfo>>();
                 List<string> tourneyNames = new List<string>();
                 List<string> dateOfRounds = new List<string>();
+                List<string> actualDateOfRounds = new List<string>();
                 List<string> courseNames = new List<string>();
                 for (int x = 1; x <= numrounds; x++)
                 {
-                    string tourneyName, dateofRound, courseName;
-                    coursesInfo.Add(ScoreInfo.LoadCourseInfo(tourneyid.ToString(), x.ToString(), out tourneyName, out dateofRound, out courseName));
+                    string tourneyName, dateofRound, actualDateOfRound, courseName;
+                    coursesInfo.Add(ScoreInfo.LoadCourseInfo(tourneyid.ToString(), x.ToString(), true, out tourneyName, out dateofRound, out actualDateOfRound, out courseName));
                     tourneyNames.Add(tourneyName);
                     dateOfRounds.Add(dateofRound);
+                    actualDateOfRounds.Add(actualDateOfRound);
                     courseNames.Add(courseName);
                 }
                 int detailround = -1;
@@ -182,7 +184,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     else
                     {
                         sb.AppendFormat("<br/><a class='header' href='javascript:ViewRound({0});'>View Players</a>", detailround);
-                        dOfRound = DateTime.Parse(dateOfRounds[x]);
+                        dOfRound = DateTime.Parse(actualDateOfRounds[x]);
                         if (dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
                         if ((dOfRound.Day - 1 == DateTime.Now.Day || dOfRound.Day == DateTime.Now.Day) && dOfRound > DateTime.Now) sb.AppendFormat(" <a class='header' href='javascript:EmailGroups({0});'>Send Groups Email</a>", detailround);
                     }
@@ -658,6 +660,33 @@ public partial class TourneyXml : System.Web.UI.Page
             db.Exec(sql);
         }
     }
+    private void SetTourneyInfo()
+    {
+        int tourneyid = 0;
+        if (Request["updatetourneyinfo"] == "1" &&
+            int.TryParse(Request["t"], out tourneyid))
+        {
+            foreach (string key in Request.Form.AllKeys)
+            {
+                if (key.Contains("_"))
+                {
+                    DateTime dateofRound;
+                    if (DateTime.TryParse(Request.Form[key], out dateofRound))
+                    {
+                        string roundnum = key.Substring(key.IndexOf("_") + 1);
+                        string sql = "update mg_tourneycourses set DateOfRound = '" + dateofRound.ToString("yyyy-M-d h:mm tt") + "' where TournamentID = " + tourneyid + " and [Round] = " + roundnum + ";";
+                        sql += "update mg_tourneyscores set DateOfRound = '" + dateofRound.ToString("yyyy-M-d h:mm tt") + "' where TourneyID = " + tourneyid + " and [RoundNum] = " + roundnum;
+                        db.Exec(sql);
+                    }
+                }
+                else
+                {
+                    string sql = "update mg_tourney set " + key + "=" + DB.stringSql(Request.Form[key], true) + " where TournamentID = " + tourneyid;
+                    db.Exec(sql);
+                }
+            }
+        }
+    }
     protected void Page_Load(object sender, EventArgs e)
     {
         db = new DB();
@@ -671,6 +700,7 @@ public partial class TourneyXml : System.Web.UI.Page
         PlayersList();
         TeamsList();
         TeamSettings();
+        SetTourneyInfo();
         Response.Write("<complete>true</complete>");
     }
     protected override void OnUnload(EventArgs e)

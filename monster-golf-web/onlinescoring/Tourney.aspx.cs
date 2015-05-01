@@ -18,13 +18,13 @@ public partial class Tourney : System.Web.UI.Page
             ddTourney.Visible = false;
             updateUsers.Visible = false;
             Literal lit = new Literal();
-            string tourneyName, courseName, dateStr;
-            List<ScoreInfo> courseInfo = ScoreInfo.LoadCourseInfo(tourneyid.ToString(), roundnum.ToString(), out tourneyName, out dateStr, out courseName);
+            string tourneyName, courseName, dateStr, actualDateStr;
+            List<ScoreInfo> courseInfo = ScoreInfo.LoadCourseInfo(tourneyid.ToString(), roundnum.ToString(), true, out tourneyName, out dateStr, out actualDateStr, out courseName);
             lit.Text = tourneyName + "  -  Round: " + roundnum + " on " + dateStr + " at " + courseName;
             titleTag.Text = lit.Text;
             tourneyInfo.Controls.Add(lit);
             lit = new Literal();
-            lit.Text = w.TourneyScores(db, tourneyid, roundnum, false, Request["p"] == null && DateTime.Now < DateTime.Parse(dateStr).AddDays(2), "Name").ToString();
+            lit.Text = w.TourneyScores(db, tourneyid, roundnum, false, Request["p"] == null && DateTime.Now < DateTime.Parse(actualDateStr).AddDays(2), "Name").ToString();
             tourneyResults.Controls.Add(lit);
             if (Request["p"] == null)
             {

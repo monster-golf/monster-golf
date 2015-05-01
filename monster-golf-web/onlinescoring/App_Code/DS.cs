@@ -156,7 +156,7 @@ public class ScoreInfo
         db.Close(sdr);
         if (playersingroup > 0)
         {
-            for (int x = si.Count - playersingroup - 1; x < si.Count; x++)
+            for (int x = si.Count - playersingroup; x < si.Count; x++)
             {
                 si[x].PlayersInGroup = playersingroup;
             }
@@ -181,7 +181,7 @@ public class ScoreInfo
         else isround = roundNums == round;
         return isround;
     }
-    public static List<ScoreInfo> LoadCourseInfo(string tourneyid, string round, out string tourneyName, out string dateOfRound, out string courseName)
+    public static List<ScoreInfo> LoadCourseInfo(string tourneyid, string round, bool allowEdit, out string tourneyName, out string dateOfRound, out string actualDate, out string courseName)
     {
         DB db = new DB();
         string select = "select t.TournamentID, Location, Slogan, Description, tc.CourseID, tc.[Round], Course, DateOfRound, ID, TeeNumber, Slope, Rating, Par1, Par2, Par3, Par4, Par5, Par6, Par7, Par8, Par9, Par10, Par11, Par12, Par13, Par14, Par15, Par16, Par17, Par18, Handicap1, Handicap2, Handicap3, Handicap4, Handicap5, Handicap6, Handicap7, Handicap8, Handicap9, Handicap10, Handicap11, Handicap12, Handicap13, Handicap14, Handicap15, Handicap16, Handicap17, Handicap18 " +
@@ -194,6 +194,7 @@ public class ScoreInfo
         tourneyName = "";
         dateOfRound = "";
         courseName = "";
+        actualDate = "";
         List<ScoreInfo> si = new List<ScoreInfo>();
         while (sdr.Read())
         {
@@ -201,24 +202,58 @@ public class ScoreInfo
             {
                 if (IsCurrentRound(sdr, round))
                 {
-                    if (tourneyName == "")
-                    {
-                        if (!sdr.IsDBNull(sdr.GetOrdinal("Slogan"))) tourneyName += sdr["Slogan"].ToString();
-                        if (!sdr.IsDBNull(sdr.GetOrdinal("Description"))) tourneyName += ", " + sdr["Description"].ToString();
-                        if (!sdr.IsDBNull(sdr.GetOrdinal("Location"))) tourneyName += ", " + sdr["Location"].ToString();
-                    }
-                    if (courseName == "")
-                    {
-                        if (!sdr.IsDBNull(sdr.GetOrdinal("Course"))) courseName += " " + sdr["Course"].ToString();
-                    }
+                    DateTime startofround = DateTime.MinValue;
                     if (dateOfRound == "")
                     {
-                        DateTime startofround = DateTime.MinValue;
                         if (!sdr.IsDBNull(sdr.GetOrdinal("DateOfRound")))
                         {
                             DateTime.TryParse(sdr["DateOfRound"].ToString(), out startofround);
                         }
-                        if (startofround != DateTime.MinValue) dateOfRound = startofround.ToString("M/d/yyyy h:mm tt");
+                        if (allowEdit && (startofround == DateTime.MinValue || startofround > DateTime.Now))
+                        {
+                            dateOfRound += "<input type='text' id='dateofround_" + round + "' name='dateofround_" + round + "' onchange='SetTourneyInfo(this);' value='";
+                            if (startofround != DateTime.MinValue) dateOfRound += startofround.ToString("M/d/yyyy h:mm tt");
+                            dateOfRound += "' />";
+                        }
+                        else
+                        {
+                            dateOfRound = startofround.ToString("M/d/yyyy h:mm tt");
+                        }
+                        actualDate = startofround.ToString("M/d/yyyy h:mm tt");
+                    }
+                    if (tourneyName == "")
+                    {
+                        if (round == "1" && allowEdit && (startofround == DateTime.MinValue || startofround > DateTime.Now))
+                        {
+                            string dbval = "";
+                            tourneyName += "<input type='text' id='slogan' name='slogan' onchange='SetTourneyInfo(this)' value='";
+                            if (!sdr.IsDBNull(sdr.GetOrdinal("Slogan"))) dbval = sdr["Slogan"].ToString();
+                            if (string.IsNullOrEmpty(dbval)) tourneyName += "tournament name";
+                            else tourneyName += dbval;
+                            dbval = "";
+                            tourneyName += "' />";
+                            tourneyName += "<input type='text' id='description' name='description' onchange='SetTourneyInfo(this)' value='";
+                            if (!sdr.IsDBNull(sdr.GetOrdinal("Description"))) dbval = sdr["Description"].ToString();
+                            if (string.IsNullOrEmpty(dbval)) tourneyName += "description";
+                            else tourneyName += dbval;
+                            dbval = "";
+                            tourneyName += "' />";
+                            tourneyName += "<input type='text' id='location' name='location' onchange='SetTourneyInfo(this)' value='";
+                            if (!sdr.IsDBNull(sdr.GetOrdinal("Location"))) dbval = sdr["Location"].ToString();
+                            if (string.IsNullOrEmpty(dbval)) tourneyName += "description";
+                            else tourneyName += dbval;
+                            tourneyName += "' />";
+                        }
+                        else
+                        {
+                            if (!sdr.IsDBNull(sdr.GetOrdinal("Slogan"))) tourneyName += sdr["Slogan"].ToString();
+                            if (!sdr.IsDBNull(sdr.GetOrdinal("Description"))) tourneyName += ", " + sdr["Description"].ToString();
+                            if (!sdr.IsDBNull(sdr.GetOrdinal("Location"))) tourneyName += ", " + sdr["Location"].ToString();
+                        }
+                    }
+                    if (courseName == "")
+                    {
+                        if (!sdr.IsDBNull(sdr.GetOrdinal("Course"))) courseName += " " + sdr["Course"].ToString();
                     }
                     List<string> pars = new List<string>();
                     int parsf9 = 0, parsb9 = 0;

@@ -239,8 +239,8 @@ public partial class _Default : System.Web.UI.Page
 
             if (tourneyId.Value != "")
             {
-                string tourneyName = "", dateofRound = "", courseName;
-                List<ScoreInfo> courseInfo = ScoreInfo.LoadCourseInfo(tourneyId.Value, roundNum.Value, out tourneyName, out dateofRound, out courseName);
+                string tourneyName = "", dateofRound = "", actualDate = "", courseName;
+                List<ScoreInfo> courseInfo = ScoreInfo.LoadCourseInfo(tourneyId.Value, roundNum.Value, false, out tourneyName, out dateofRound, out actualDate, out courseName);
                 foreach (ScoreInfo c in courseInfo) pnlScoresList.Controls.Add(Scores(c.ID, c, false, false));
                 lblDateInfo.Text = "&nbsp;&nbsp;  - &nbsp;&nbsp;  Round " + roundNum.Value + ": " + dateofRound;
                 lblRoundInfo.Text = tourneyName + " " + courseName;

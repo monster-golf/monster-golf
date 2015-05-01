@@ -56,7 +56,7 @@ input.starthole {width:40px;}
     }
     function UpdateTourneyUsers() {
         var tid = TourneyId();
-        if (tid > -1) SendForm("tourneyid=" + tid, "updatehcp=1", function() { alert('update complete'); });
+        if (tid > -1) SendForm("tourneyid=" + tid, "updatehcp=1");
     }
     function ScrollTop() {
         var top = 0;
@@ -94,7 +94,7 @@ input.starthole {width:40px;}
         if (ti) ti.style.display = (afterrounddate || TourneyId() == -1 == -1) ? "none" : "";
     }
     function SetRound(roundid) {
-        GetHTMLAsync("settourneyround=" + roundid + "&tourneyid=" + TourneyId(), function() { alert('Round scores setup complete'); ViewRound(roundid); });
+        GetHTMLAsync("settourneyround=" + roundid + "&tourneyid=" + TourneyId(), function() { ViewRound(roundid); });
     }
     var playerscores;
     function ViewRound(roundid) {
@@ -138,6 +138,10 @@ input.starthole {width:40px;}
         playerscores = document.getElementById("playerscores" + roundid);
         SendForm(formdata, "viewtourneyround=" + roundid + "&tourneyid=" + TourneyId(), ViewRoundDone);
     }
+    function SetTourneyInfo(txt) {
+        var setinfo = "" + txt.id + "=" + txt.value;
+        SendForm(setinfo, "updatetourneyinfo=1&t=" + TourneyId());
+    }
     function EnterScores(roundid) {
         document.location.href = "Tourney.aspx?t=" + TourneyId() + "&r=" + roundid;
     }
@@ -153,11 +157,24 @@ input.starthole {width:40px;}
         var tid = TourneyId();
         if (tid > -1) SendForm("tourneyid=" + tid + "&startingholeforgroup=" + groupid + "&hole=" + hole.value, "");
     }
-    function SetupTeams() {
+    function TourneyView(setupteams) {
         var ti = document.getElementById("tourneyInfo");
-        if (ti) ti.style.display = "none";
+        if (ti) ti.style.display = (setupteams) ? "none" : "";
         ti = document.getElementById("tourneyResults");
-        if (ti) ti.style.display = "none";
+        if (ti) ti.style.display = (setupteams) ? "none" : "";
+        if (!setupteams) {
+            ti = document.getElementById("playersList");
+            if (ti) ti.style.display = "none";
+            ti = document.getElementById("teamsList");
+            if (ti) ti.style.display = "none";
+        }
+        ti = document.getElementById("createTeams");
+        if (ti) ti.style.display = (setupteams) ? "none" : "";
+        ti = document.getElementById("tourneyView");
+        if (ti) ti.style.display = (setupteams) ? "" : "none";
+    }
+    function SetupTeams() {
+        TourneyView(true);
         GetHTMLAsync("playerslist=1&t=" + TourneyId(), PlayersDone);
         GetHTMLAsync("teamslist=1&t=" + TourneyId(), TeamsDone);
     }
@@ -244,6 +261,7 @@ input.starthole {width:40px;}
         <asp:Panel ID="updateUsers" style="display:none;" CssClass="UserUpdate" runat="server"><a href="javascript:UpdateTourneyUsers()">Update Tournament Players HCP</a></asp:Panel>
         <div id="viewResults" style="display:none;" class="UserUpdate" onclick="ViewResults()"><a href="javascript:ViewResults()">Results</a></div>
         <div id="createTeams" style="display:none;" class="UserUpdate"><a href="javascript:SetupTeams()">Setup Teams</a></div>
+        <div id="tourneyView" style="display:none;" class="UserUpdate"><a href="javascript:TourneyView()">Tournament</a></div>
         <asp:Panel ID="emailScores" Style="display:none;" runat="server" />
         <asp:Panel ID="tourneyInfo" CssClass="TourneyInfo" runat="server" />
         <asp:Panel ID="tourneyResults" runat="server" />
