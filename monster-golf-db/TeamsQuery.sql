@@ -29,8 +29,9 @@ order by tt.Flight, (u1.Handicap+u2.Handicap), tt.teamid
 select distinct RoundNum,s.StartingHole, s.Name, s.HCP,t.TeamId, GroupId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId=23
  order by RoundNum, StartingHole, GroupId, TeamId, Name
 
-select * from mg_tourneyscores where tourneyid = 24
-select * from mg_tourneycourses where tournamentid = 24
+ select *  delete from mg_tourney where tournamentid >=26
+select * from mg_tourneyscores where tourneyid = 25
+select * from mg_tourneycourses where tournamentid = 25
 select * from mg_tourneyteamplayers where tournamentid = 24
 update mg_tourneycourses set DateOfround = '5-15-2014 09:36'
 where tournamentid = 24

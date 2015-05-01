@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="Tourney.aspx.cs" Inherits="Tourney" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="Tourney.aspx.cs" Inherits="Tourney" EnableViewState="false" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -36,6 +36,7 @@ input.starthole {width:40px;}
 #emailName { width: 180px; }
 #addPlayer { margin-left:33px;}
 .flight { width:20px; font-size:9pt;}
+#createTournament { clear:both; margin-top:30px; }
 </style>
 <script type="text/javascript" language="javascript" src="XmlHttp.js"></script>
 <script type="text/javascript" language="javascript">
@@ -74,7 +75,13 @@ input.starthole {width:40px;}
         }
     }
     function TourneyDetails() {
-        GetHTMLAsync("gettourney=1&tourneyid=" + TourneyId(), TourneyDetailsDone);
+        var tourneyId = TourneyId();
+        if (tourneyId == "") document.location.href = "Tourney.aspx";
+        else {
+            var createTournament = document.getElementById("createTournament");
+            if (createTournament) createTournament.style.display = "none";
+            GetHTMLAsync("gettourney=1&tourneyid=" + TourneyId(), TourneyDetailsDone);
+        }
     }
     function TourneyDetailsDone(html) {
         var ti = document.getElementById("tourneyInfo");
@@ -251,6 +258,13 @@ input.starthole {width:40px;}
         var setteamplayers = "tournamentcheck=" + checkobj.checked + "&t=" + TourneyId() + "&" + checkobj.id + "=" + teamid;
         GetHTMLAsync(setteamplayers);
     }
+    function DefaultTxt(txt) {
+        if (txt.getAttribute("defaulttxt") == txt.value) {
+            txt.value = "";
+        } else if (txt.value == "") {
+            txt.value = txt.getAttribute("defaulttxt");
+        }
+    }
 </script>
 </head>
 <body>
@@ -262,6 +276,12 @@ input.starthole {width:40px;}
         <div id="viewResults" style="display:none;" class="UserUpdate" onclick="ViewResults()"><a href="javascript:ViewResults()">Results</a></div>
         <div id="createTeams" style="display:none;" class="UserUpdate"><a href="javascript:SetupTeams()">Setup Teams</a></div>
         <div id="tourneyView" style="display:none;" class="UserUpdate"><a href="javascript:TourneyView()">Tournament</a></div>
+        <p id="createTournament">
+            <input name="newslogan" onfocus="DefaultTxt(this)" onblur="DefaultTxt(this)" defaulttxt="tournament name" value="tournament name" /><br />
+            <input name="newdescription" onfocus="DefaultTxt(this)" onblur="DefaultTxt(this)" defaulttxt="description" value="description" /><br />
+            <input name="newlocation" onfocus="DefaultTxt(this)" onblur="DefaultTxt(this)" defaulttxt="location" value="location" /><br />
+            <input name="newtournament" type="submit" value="New Tournament" />
+        </p>
         <asp:Panel ID="emailScores" Style="display:none;" runat="server" />
         <asp:Panel ID="tourneyInfo" CssClass="TourneyInfo" runat="server" />
         <asp:Panel ID="tourneyResults" runat="server" />

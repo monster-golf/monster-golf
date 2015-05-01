@@ -181,6 +181,15 @@ public class ScoreInfo
         else isround = roundNums == round;
         return isround;
     }
+    public static string TourneyInfoField(SqlDataReader sdr, string id, string defaulttxt)
+    {
+        string dbval = "";
+        string tourneyName = "<input type='text' id='" + id + "' name='" + id + "' onfocus='DefaultTxt(this)' onblur='DefaultTxt(this)' defaulttxt='" + defaulttxt + "' onchange='SetTourneyInfo(this)' value='";
+        if (!sdr.IsDBNull(sdr.GetOrdinal(id))) dbval = sdr[id].ToString();
+        if (string.IsNullOrEmpty(dbval)) tourneyName += defaulttxt;
+        else tourneyName += dbval;
+        return tourneyName;
+    }
     public static List<ScoreInfo> LoadCourseInfo(string tourneyid, string round, bool allowEdit, out string tourneyName, out string dateOfRound, out string actualDate, out string courseName)
     {
         DB db = new DB();
@@ -225,24 +234,9 @@ public class ScoreInfo
                     {
                         if (round == "1" && allowEdit && (startofround == DateTime.MinValue || startofround > DateTime.Now))
                         {
-                            string dbval = "";
-                            tourneyName += "<input type='text' id='slogan' name='slogan' onchange='SetTourneyInfo(this)' value='";
-                            if (!sdr.IsDBNull(sdr.GetOrdinal("Slogan"))) dbval = sdr["Slogan"].ToString();
-                            if (string.IsNullOrEmpty(dbval)) tourneyName += "tournament name";
-                            else tourneyName += dbval;
-                            dbval = "";
-                            tourneyName += "' />";
-                            tourneyName += "<input type='text' id='description' name='description' onchange='SetTourneyInfo(this)' value='";
-                            if (!sdr.IsDBNull(sdr.GetOrdinal("Description"))) dbval = sdr["Description"].ToString();
-                            if (string.IsNullOrEmpty(dbval)) tourneyName += "description";
-                            else tourneyName += dbval;
-                            dbval = "";
-                            tourneyName += "' />";
-                            tourneyName += "<input type='text' id='location' name='location' onchange='SetTourneyInfo(this)' value='";
-                            if (!sdr.IsDBNull(sdr.GetOrdinal("Location"))) dbval = sdr["Location"].ToString();
-                            if (string.IsNullOrEmpty(dbval)) tourneyName += "description";
-                            else tourneyName += dbval;
-                            tourneyName += "' />";
+                            tourneyName += TourneyInfoField(sdr, "slogan", "tournament name");
+                            tourneyName += TourneyInfoField(sdr, "description", "description");
+                            tourneyName += TourneyInfoField(sdr, "location", "location");
                         }
                         else
                         {

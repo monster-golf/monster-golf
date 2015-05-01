@@ -11,6 +11,23 @@ public partial class Tourney : System.Web.UI.Page
     protected void Page_Load(object sender, EventArgs e)
     {
         int roundnum, tourneyid;
+        SqlDataReader sdr;
+        bool tourneyadded = false;
+
+        if (Page.IsPostBack)
+        {
+            if (Request.Form["newslogan"] != "")
+            {
+                string sql = "INSERT into mg_Tourney (TournamentID, Slogan, Description, Location, NumRounds) ";
+                sql += "SELECT Max(TournamentID) + 1, ";
+                sql += DB.stringSql(Request.Form["newslogan"], true) + ",";
+                sql += DB.stringSql(Request.Form["newdescription"], true) + ",";
+                sql += DB.stringSql(Request.Form["newlocation"], true) + ",";
+                sql += "1 FROM mg_Tourney ";
+                db.Exec(sql);
+                tourneyadded = true;
+            }
+        }
         if (int.TryParse(Request["r"], out roundnum) &&
             int.TryParse(Request["t"], out tourneyid))
         {
@@ -41,12 +58,21 @@ public partial class Tourney : System.Web.UI.Page
         }
         else
         {
+            if (tourneyadded)
+            {
+                ClientScript.RegisterStartupScript(Page.GetType(), "viewtourney", "TourneyDetails();", true);
+            }
             emailScores.Visible = false;
-            SqlDataReader sdr = db.Get("select TournamentId,Slogan from mg_Tourney order by TournamentId desc");
+            sdr = db.Get("select TournamentId,Slogan from mg_Tourney order by TournamentId desc");
             ddTourney.Items.Add(new ListItem("--select--", ""));
             while (sdr.Read())
             {
                 ddTourney.Items.Add(new ListItem(sdr[1].ToString(), sdr[0].ToString()));
+                if (tourneyadded)
+                {
+                    ddTourney.SelectedIndex = ddTourney.Items.Count - 1;
+                    tourneyadded = false;
+                }
             }
         }
     }
