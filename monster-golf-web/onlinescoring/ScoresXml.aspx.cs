@@ -217,6 +217,61 @@ public partial class ScoresXml : System.Web.UI.Page
             db.Exec(string.Format("delete from mg_tourneyscores where GroupId='{0}'", DB.stringSql(Request["deletegroup"])));
         }
     }
+    protected void TourneyScores()
+    {
+        int roundnum, tourneyid;
+        if (Request["livescores"] == "1" &&
+            int.TryParse(Request["r"], out roundnum) &&
+            int.TryParse(Request["t"], out tourneyid))
+        {
+            int intparser;
+
+            StringBuilder results = new StringBuilder("<div>");
+            SqlDataReader sdr = db.Get(string.Format("select distinct Name, HCP, NetTotal, HolesCompleted from [mg_TourneyLiveScoring] where TournamentID = {0} and RoundNum = {1} order by Name", tourneyid, roundnum));
+            while (sdr.Read())
+            {
+                if (!sdr.IsDBNull(0))
+                {
+                    results.Append("<b>");
+                    results.Append(sdr["Name"]);
+                    results.Append("</b>");
+                    if (!sdr.IsDBNull(1))
+                    {
+                        results.Append(" (");
+                        results.Append(sdr["HCP"]);
+                        results.Append(")");
+                    }
+                    if (!sdr.IsDBNull(2))
+                    {
+                        if (int.TryParse(sdr["NetTotal"].ToString(), out intparser))
+                        {
+                            results.Append(" <b>");
+                            if (intparser == 0) { results.Append("E"); }
+                            else
+                            {
+                                if (intparser > 0) { results.Append("+"); }
+                                results.Append(intparser);
+                            }
+                            results.Append("</b>");
+                        }
+                    }
+                    if (!sdr.IsDBNull(3))
+                    {
+                        if (int.TryParse(sdr["HolesCompleted"].ToString(), out intparser))
+                        {
+                            results.Append(" [");
+                            results.Append(intparser);
+                            results.Append("]");
+                        }
+                    }
+                    results.Append(" | ");
+                }
+            }
+            db.Close(sdr, false);
+            results.Append("</div>");
+            WEB.WriteEndResponse(Response, results);
+        }
+    }
     DB db;
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -225,6 +280,7 @@ public partial class ScoresXml : System.Web.UI.Page
         Search();
         CurrentRoundCheck();
         GroupDelete();
+        TourneyScores();
         Response.Write("<complete>true</complete>");
     }
     protected override void OnUnload(EventArgs e)

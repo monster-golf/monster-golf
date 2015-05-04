@@ -462,6 +462,71 @@ function CheckScoresPost(e) {
     if (msg != "" && !confirm(msg)) return CE(e);
     else return true;
 }
+var scoresscroll = null;
+var scoresleft = 200;
+var scorespause = false;
+var liveresults;
+var livescores;
+function LiveScores() {
+    var t = document.forms[0].tourneyId.value;
+    if (t != "") {
+        var r = document.forms[0].roundNum.value;
+        GetHTMLAsync("livescores=1&t=" + t + "&r=" + r, function (html) {
+            if (!liveresults) liveresults = document.getElementById("liveresults");
+            if (liveresults) {
+                if (!livescores) {
+                    livescores = document.getElementById("livescorescontrols");
+                    if (livescores) livescores.style.display = "block";
+                    livescores = document.getElementById("livescores");
+                }
+                if (livescores) livescores.style.display = "block";
+                liveresults.innerHTML = html;
+                if (!scorespause) LiveScoresPlay();
+            }
+        });
+        window.setTimeout(LiveScores, 120000);
+    }
+}
+window.setTimeout(LiveScores, 1000);
+function LiveScoresScroll(scoresmove) {
+    scoresleft -= scoresmove;
+    if (scoresleft < livescores.offsetWidth && Math.abs(scoresleft) < liveresults.offsetWidth) {
+        liveresults.style.left = (scoresleft) + "px";
+    } else {
+        if (Math.abs(scoresleft) >= liveresults.offsetWidth) {
+            if (!scorespause) scoresleft = 100;
+        } else {
+            scoresleft += scoresmove;
+        }
+    }
+}
+function LiveScoresBack() {
+    var livescores = document.getElementById("livescores");
+    LiveScoresScroll(-(livescores.offsetWidth - 50));
+}
+function LiveScoresForward() {
+    var livescores = document.getElementById("livescores");
+    LiveScoresScroll(livescores.offsetWidth - 50);
+}
+function LiveScoresPause() {
+    var playpause = document.getElementById("liveplay");
+    playpause.style.display = "";
+    playpause = document.getElementById("livepause");
+    playpause.style.display = "none";
+
+    if (scoresscroll) window.clearInterval(scoresscroll);
+    scorespause = true;
+}
+function LiveScoresPlay() {
+    var playpause = document.getElementById("liveplay");
+    playpause.style.display = "none";
+    playpause = document.getElementById("livepause");
+    playpause.style.display = "";
+
+    if (scoresscroll) window.clearInterval(scoresscroll);
+    scoresscroll = window.setInterval(function () { LiveScoresScroll(5); }, 150);
+    scorespause = false;
+}
 </script>
 <style type="text/css">
     body{font-family:sans-serif, arial; margin:<%=(tourneyId.Value == "") ? "30" : "10"%>px;font-size:14px;background-color:#1F58AE; color:#ffffff;}
@@ -490,6 +555,10 @@ function CheckScoresPost(e) {
     .CourseFind { margin-top:10px; }
     .SaveFailed { width:450px;position:relative;font-size:16px;border:1px solid #FFEA68;margin:2px;padding:3px;}
     .RoundInfo { position:relative;white-space:nowrap; }
+    #livescores { width:870px; border-left:solid 1px #cccccc; border-right:solid 1px #cccccc; border-bottom:solid 1px #cccccc; display:none; background-color: yellow; white-space: nowrap; overflow:hidden; color:#333; position:relative;padding:10px; height:16px; }
+    #liveresults { position: absolute; white-space: nowrap; left:200px; }
+    #livescorescontrols { width:878px; border-left:solid 1px #cccccc; border-right:solid 1px #cccccc; display:none; background-color: yellow; color:#333; padding:6px; padding-bottom:0px; }
+    #livescorescontrols a { font-size:20px; color:#333; }
 </style>
 <meta name="viewport" content="initial-scale=1.25" />
 </head>
@@ -523,6 +592,14 @@ Enter player names, hit the search icon <img src="find.png" alt="find player" st
     </p>
 </asp:Panel>
 <asp:Button ID="btnPost" runat="server" Text="Post Scores" OnClick="btnPost_Click" OnClientClick="return CheckScoresPost(event);" Visible="false" />
+<div id="livescorescontrols">
+    <a href="javascript:LiveScoresBack()"> &lt;&lt; </a> &nbsp;
+    <a href="javascript:LiveScoresPause()" id="livepause"> || </a> 
+    <a href="javascript:LiveScoresPlay()" id="liveplay"> &gt; </a> &nbsp;
+    <a href="javascript:LiveScoresForward()"> &gt;&gt; </a> &nbsp;
+    Todays Scores: Name (HCP) net over/under par [holes played]
+</div>
+<div id="livescores"><div id="liveresults"></div></div>
 <div style="margin-top: 20px;"><img src="MonsterLogo.png" alt="Monster Golf" /></div>
 <%--<div onclick="return SearchExternal()" style="display:none;">External Course Search</div>
 <div id="externalresult" style="display: none;"></div>
