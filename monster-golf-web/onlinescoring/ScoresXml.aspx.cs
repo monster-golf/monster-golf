@@ -217,6 +217,54 @@ public partial class ScoresXml : System.Web.UI.Page
             db.Exec(string.Format("delete from mg_tourneyscores where GroupId='{0}'", DB.stringSql(Request["deletegroup"])));
         }
     }
+    private void AddScores(ref StringBuilder results, int tourneyid, int roundnum, string orderby)
+    {
+        int intparser;
+
+        results.Append("<div>");
+        SqlDataReader sdr = db.Get(string.Format("select distinct Name, HCP, NetTotal, HolesCompleted from [mg_TourneyLiveScoring] where TournamentID = {0} and RoundNum = {1} order by {2}", tourneyid, roundnum, orderby));
+        while (sdr.Read())
+        {
+            if (!sdr.IsDBNull(0))
+            {
+                results.Append("<b>");
+                results.Append(sdr["Name"]);
+                results.Append("</b>");
+                if (!sdr.IsDBNull(1))
+                {
+                    results.Append(" (");
+                    results.Append(sdr["HCP"]);
+                    results.Append(")");
+                }
+                if (!sdr.IsDBNull(2))
+                {
+                    if (int.TryParse(sdr["NetTotal"].ToString(), out intparser))
+                    {
+                        results.Append(" <b>");
+                        if (intparser == 0) { results.Append("E"); }
+                        else
+                        {
+                            if (intparser > 0) { results.Append("+"); }
+                            results.Append(intparser);
+                        }
+                        results.Append("</b>");
+                    }
+                }
+                if (!sdr.IsDBNull(3))
+                {
+                    if (int.TryParse(sdr["HolesCompleted"].ToString(), out intparser))
+                    {
+                        results.Append(" [");
+                        results.Append(intparser);
+                        results.Append("]");
+                    }
+                }
+                results.Append(" | ");
+            }
+        }
+        db.Close(sdr, false);
+        results.Append("</div>");
+    }
     protected void TourneyScores()
     {
         int roundnum, tourneyid;
@@ -224,51 +272,10 @@ public partial class ScoresXml : System.Web.UI.Page
             int.TryParse(Request["r"], out roundnum) &&
             int.TryParse(Request["t"], out tourneyid))
         {
-            int intparser;
-
-            StringBuilder results = new StringBuilder("<div>");
-            SqlDataReader sdr = db.Get(string.Format("select distinct Name, HCP, NetTotal, HolesCompleted from [mg_TourneyLiveScoring] where TournamentID = {0} and RoundNum = {1} order by Name", tourneyid, roundnum));
-            while (sdr.Read())
-            {
-                if (!sdr.IsDBNull(0))
-                {
-                    results.Append("<b>");
-                    results.Append(sdr["Name"]);
-                    results.Append("</b>");
-                    if (!sdr.IsDBNull(1))
-                    {
-                        results.Append(" (");
-                        results.Append(sdr["HCP"]);
-                        results.Append(")");
-                    }
-                    if (!sdr.IsDBNull(2))
-                    {
-                        if (int.TryParse(sdr["NetTotal"].ToString(), out intparser))
-                        {
-                            results.Append(" <b>");
-                            if (intparser == 0) { results.Append("E"); }
-                            else
-                            {
-                                if (intparser > 0) { results.Append("+"); }
-                                results.Append(intparser);
-                            }
-                            results.Append("</b>");
-                        }
-                    }
-                    if (!sdr.IsDBNull(3))
-                    {
-                        if (int.TryParse(sdr["HolesCompleted"].ToString(), out intparser))
-                        {
-                            results.Append(" [");
-                            results.Append(intparser);
-                            results.Append("]");
-                        }
-                    }
-                    results.Append(" | ");
-                }
-            }
-            db.Close(sdr, false);
-            results.Append("</div>");
+            StringBuilder results = new StringBuilder();
+            string orderby = Request["o"];
+            if (string.IsNullOrEmpty(orderby)) orderby = "Name";
+            AddScores(ref results, tourneyid, roundnum, orderby);
             WEB.WriteEndResponse(Response, results);
         }
     }

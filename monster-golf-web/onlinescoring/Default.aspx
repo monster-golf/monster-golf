@@ -467,11 +467,22 @@ var scoresleft = 200;
 var scorespause = false;
 var liveresults;
 var livescores;
+var livescoresto = null;
 function LiveScores() {
     var t = document.forms[0].tourneyId.value;
     if (t != "") {
         var r = document.forms[0].roundNum.value;
-        GetHTMLAsync("livescores=1&t=" + t + "&r=" + r, function (html) {
+        var o = "";
+        if (document.forms[0].orderby && document.forms[0].orderby.length > 1) {
+            if (document.forms[0].orderby[0].checked) {
+                o = document.forms[0].orderby[0].value;
+            }
+            else if (document.forms[0].orderby[1].checked) {
+                o = document.forms[0].orderby[1].value;
+            }
+        }
+        var q = "livescores=1&t=" + t + "&r=" + r + "&o=" + o;
+        GetHTMLAsync(q, function (html) {
             if (!liveresults) liveresults = document.getElementById("liveresults");
             if (liveresults) {
                 if (!livescores) {
@@ -484,7 +495,7 @@ function LiveScores() {
                 if (!scorespause) LiveScoresPlay();
             }
         });
-        window.setTimeout(LiveScores, 120000);
+        livescoresto = window.setTimeout(LiveScores, 120000);
     }
 }
 window.setTimeout(LiveScores, 1000);
@@ -527,9 +538,14 @@ function LiveScoresPlay() {
     scoresscroll = window.setInterval(function () { LiveScoresScroll(5); }, 150);
     scorespause = false;
 }
+function LiveScoresSort() {
+    scoresleft = 200;
+    if (livescoresto) window.clearTimeout(livescoresto);
+    LiveScores();
+}
 </script>
 <style type="text/css">
-    body{font-family:sans-serif, arial; margin:<%=(tourneyId.Value == "") ? "30" : "10"%>px;font-size:14px;background-color:#1F58AE; color:#ffffff;}
+    body{font-family:sans-serif, arial; margin:<%=(tourneyId.Value == "") ? "10px" : "10px 0px"%>;font-size:14px;background-color:#1F58AE; color:#ffffff;}
     a {color:#ffffff;}
     a:hover { color:#FF3F19;}
     .ScoresList{position:relative;width:930px;margin-top:10px;}
@@ -554,10 +570,11 @@ function LiveScoresPlay() {
     .PlayerHelp { margin:10px; }
     .CourseFind { margin-top:10px; }
     .SaveFailed { width:450px;position:relative;font-size:16px;border:1px solid #FFEA68;margin:2px;padding:3px;}
-    .RoundInfo { position:relative;white-space:nowrap; }
+    .RoundInfo { position:relative;white-space:nowrap; padding-left:10px; }
+    .ScorerSign { position:relative;padding-left:10px;float:none;clear:both; }
     #livescores { width:870px; border-left:solid 1px #cccccc; border-right:solid 1px #cccccc; border-bottom:solid 1px #cccccc; display:none; background-color: yellow; white-space: nowrap; overflow:hidden; color:#333; position:relative;padding:10px; height:16px; }
     #liveresults { position: absolute; white-space: nowrap; left:200px; }
-    #livescorescontrols { width:878px; border-left:solid 1px #cccccc; border-right:solid 1px #cccccc; display:none; background-color: yellow; color:#333; padding:6px; padding-bottom:0px; }
+    #livescorescontrols { width:878px; border-left:solid 1px #cccccc; border-right:solid 1px #cccccc; display:none; background-color: yellow; color:#333; padding:6px; padding-bottom:0px; font-size:12px; white-space:nowrap; }
     #livescorescontrols a { font-size:20px; color:#333; }
 </style>
 <meta name="viewport" content="initial-scale=1.25" />
@@ -583,9 +600,9 @@ Enter player names, hit the search icon <img src="find.png" alt="find player" st
 </asp:Panel>
 <asp:Panel ID="pnlSaveFailed" CssClass="SaveFailed" style="display:none;" runat="server" onclick="ErrHide(); ScoresSaveAll();">Your last score did not save successfully, you may be offline.  Will try to post after the next hole, or click here to try again.</asp:Panel>
 <asp:Panel ID="pnlScoresList" CssClass="ScoresList" runat="server" />
-<asp:Panel ID="pnlScorerSign" CssClass="ScoresRow" runat="server">
+<asp:Panel ID="pnlScorerSign" CssClass="ScorerSign" runat="server">
     <p>Your round is complete.<br />
-    Please review your scores with your playing partners.<br />
+    Please review your scores with your playing partners.
     When you are satisfied select the scorer and attester and click Sign Card.<br /><br />
     Who kept score? <asp:DropDownList ID="ddScorer" runat="server" /><br />
     Who will attest the score card? <asp:DropDownList ID="ddAttester" runat="server" /> <asp:Button ID="btnScorerSign" runat="server" OnClientClick="return SignDDs(event)" OnClick="btnSign_Click" Text="Sign Card" />
@@ -597,7 +614,9 @@ Enter player names, hit the search icon <img src="find.png" alt="find player" st
     <a href="javascript:LiveScoresPause()" id="livepause"> || </a> 
     <a href="javascript:LiveScoresPlay()" id="liveplay"> &gt; </a> &nbsp;
     <a href="javascript:LiveScoresForward()"> &gt;&gt; </a> &nbsp;
-    Todays Scores: Name (HCP) net over/under par [holes played]
+    Today: name (hcp) net over/under par [holes played]
+    order by <input type="radio" name="orderby" id="ordername" value="Name" onchange="LiveScoresSort()" checked="checked" /> <label for="ordername">name</label>
+    <input type="radio" name="orderby" id="orderscore" value="NetTotal" onchange="LiveScoresSort()" /> <label for="orderscore">score</label>
 </div>
 <div id="livescores"><div id="liveresults"></div></div>
 <div style="margin-top: 20px;"><img src="MonsterLogo.png" alt="Monster Golf" /></div>
