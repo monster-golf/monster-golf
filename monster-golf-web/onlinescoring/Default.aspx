@@ -540,6 +540,7 @@ function LiveScoresPlay() {
 }
 function LiveScoresSort() {
     scoresleft = 200;
+    LiveScoresScroll(0);
     if (livescoresto) window.clearTimeout(livescoresto);
     LiveScores();
 }
