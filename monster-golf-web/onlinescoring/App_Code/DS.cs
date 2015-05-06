@@ -219,7 +219,7 @@ public class ScoreInfo
                         {
                             DateTime.TryParse(sdr["DateOfRound"].ToString(), out startofround);
                         }
-                        if (allowEdit && (startofround == DateTime.MinValue || startofround > DateTime.Now))
+                        if (allowEdit && (startofround == DateTime.MinValue || startofround > DateTime.Now.AddDays(-1)))
                         {
                             dateOfRound += "<input type='text' id='dateofround_" + round + "' name='dateofround_" + round + "' onchange='SetTourneyInfo(this);' value='";
                             if (startofround != DateTime.MinValue) dateOfRound += startofround.ToString("M/d/yyyy h:mm tt");
@@ -233,7 +233,7 @@ public class ScoreInfo
                     }
                     if (tourneyName == "")
                     {
-                        if (round == "1" && allowEdit && (startofround == DateTime.MinValue || startofround > DateTime.Now))
+                        if (round == "1" && allowEdit && (startofround == DateTime.MinValue || startofround > DateTime.Now.AddDays(-1)))
                         {
                             tourneyName += TourneyInfoField(sdr, "slogan", "tournament name");
                             tourneyName += TourneyInfoField(sdr, "description", "description");

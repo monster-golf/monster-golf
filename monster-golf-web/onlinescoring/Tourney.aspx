@@ -91,6 +91,7 @@ input.starthole {width:40px;}
         var afterrounddate = false;
         if (ti) {
             var currDate = new Date();
+            currDate.setHours(currDate.getHours() - 24);
             var roundDate = new Date(ti.innerHTML);
             if (roundDate < currDate) afterrounddate = true;
         }
