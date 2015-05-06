@@ -78,6 +78,7 @@ input.starthole {width:40px;}
         var tourneyId = TourneyId();
         if (tourneyId == "") document.location.href = "Tourney.aspx";
         else {
+            TourneyView();
             var createTournament = document.getElementById("createTournament");
             if (createTournament) createTournament.style.display = "none";
             GetHTMLAsync("gettourney=1&tourneyid=" + TourneyId(), TourneyDetailsDone);
@@ -207,14 +208,24 @@ input.starthole {width:40px;}
             teamPlayers.push(userId);
             var obj = document.getElementById("player" + userId);
             if (obj) obj.style.backgroundColor = "black";
-            if (teamPlayers.length > 1) {
+            if (teamPlayers.length > 0) {
                 obj = document.getElementById("setteam" + userId);
                 if (obj) obj.style.display = "";
             }
         } else {
             UnSelectTeamPlayer(userId);
             teamPlayers.splice(findPlayer, 1);
-       }
+        }
+        for (var x = 0; x < teamPlayers.length; x++) {
+            obj = document.getElementById("setteam" + teamPlayers[x]);
+            if (obj) {
+                if (teamPlayers.length == 1) {
+                    obj.value = "Add Player"
+                } else {
+                    obj.value = "Set Team"
+                }
+            }
+        }
     }
     function UnSelectTeamPlayer(userId) {
         var obj = document.getElementById("setteam" + userId);

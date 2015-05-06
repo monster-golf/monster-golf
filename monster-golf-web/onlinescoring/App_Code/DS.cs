@@ -188,6 +188,7 @@ public class ScoreInfo
         if (!sdr.IsDBNull(sdr.GetOrdinal(id))) dbval = sdr[id].ToString();
         if (string.IsNullOrEmpty(dbval)) tourneyName += defaulttxt;
         else tourneyName += dbval;
+        tourneyName += "'>";
         return tourneyName;
     }
     public static List<ScoreInfo> LoadCourseInfo(string tourneyid, string round, bool allowEdit, out string tourneyName, out string dateOfRound, out string actualDate, out string courseName)
