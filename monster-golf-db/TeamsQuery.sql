@@ -136,3 +136,6 @@ select * from mg_tourneycourses where tournamentid = 24
 update mg_tourneycourses
 set DateOfRound = '2014-05-15 09:36:00.000'
 where tournamentid = 24
+
+select * from mg_tourneyTeams where webid = 594
+update mg_tourneyusers set webid = 603 where webid = 594
