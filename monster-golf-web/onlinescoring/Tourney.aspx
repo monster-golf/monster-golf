@@ -187,6 +187,9 @@ input.starthole {width:40px;}
         GetHTMLAsync("playerslist=1&t=" + TourneyId(), PlayersDone);
         GetHTMLAsync("teamslist=1&t=" + TourneyId(), TeamsDone);
     }
+    function SortTeams(sort) {
+        GetHTMLAsync("teamslist=1&t=" + TourneyId() + "&sort=" + sort, TeamsDone);
+    }
     var teamPlayers;
     function PlayersDone(html) {
         teamPlayers = new Array();

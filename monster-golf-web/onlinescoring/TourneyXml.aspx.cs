@@ -590,6 +590,7 @@ public partial class TourneyXml : System.Web.UI.Page
                 string removeteam = "delete from mg_TourneyTeamPlayers where teamId = " + teamId + ";delete from MG_TourneyTeams where teamId = " + teamId + ";";
                 db.Exec(removeteam);
             }
+            string sort = string.IsNullOrEmpty(Request["sort"]) ? "TeamHCP,TeamName" : Request["sort"];
             string sql = "select tt.TeamId, tt.TeamName, tt.Flight, tt.SideBet, tt.TourneyTeam, ROUND(SUM(ttp.Handicap),2) AS TeamHCP, ttp1.Handicap AS HCP1, ttp2.Handicap AS HCP2 ";
             sql += " from mg_tourneyTeams tt ";
             sql += " JOIN mg_tourneyTeamPlayers ttp ON tt.TeamID = ttp.TeamID ";
@@ -597,9 +598,9 @@ public partial class TourneyXml : System.Web.UI.Page
             sql += " join mg_TourneyTeamPlayers ttp2 on tt.TeamId = ttp2.TeamId AND ttp2.UserID = (SELECT TOP 1 innerm1.UserId FROM mg_TourneyTeamPlayers innerm1 JOIN mg_TourneyUsers inneru1 on inneru1.UserId = innerm1.UserId WHERE innerm1.TeamId = tt.TeamId ORDER BY inneru1.LastName + ', ' + inneru1.FirstName DESC) ";
             sql += " where tt.tournamentId = " + tourneyid;
             sql += " group BY tt.TeamId, tt.TeamName, tt.Flight, tt.SideBet, tt.TourneyTeam, ttp1.Handicap, ttp2.Handicap ";
-            sql += " ORDER BY TourneyTeam,TeamHCP,TeamName ";
+            sql += " ORDER BY TourneyTeam," + sort;
             sdr = db.Get(sql);
-            StringBuilder teamsTable = new StringBuilder("<table class='TeamsTable' cellspacing='0'><tr><th>#</th><th>Tournament Team</th><th>Team HCP</th><th>HCP 1</th><th>HCP 2</th><th>Flight</th><th>Side Bet</th><th></th></tr>");
+            StringBuilder teamsTable = new StringBuilder("<table class='TeamsTable' cellspacing='0'><tr><th>#</th><th><a href=\"javascript:SortTeams('TeamName');\">Tournament Team</a></th><th><a href=\"javascript:SortTeams('TeamHCP,TeamName');\">Team HCP</a></th><th>HCP 1</th><th>HCP 2</th><th><a href=\"javascript:SortTeams('Flight,TeamName');\">Flight</a></th><th>Side Bet</th><th></th></tr>");
             int x = 0;
             while (sdr.Read())
             {
@@ -633,10 +634,11 @@ public partial class TourneyXml : System.Web.UI.Page
     private void TeamSettings()
     {
         int tourneyid = 0;
+        int.TryParse(Request["t"], out tourneyid);
         bool tournamentcheck;
         int teamid;
         if (bool.TryParse(Request["tournamentcheck"], out tournamentcheck) &&
-            int.TryParse(Request["t"], out tourneyid))
+            tourneyid > 0)
         {
             string sql = null;
             if (int.TryParse(Request["intournament"], out teamid))
