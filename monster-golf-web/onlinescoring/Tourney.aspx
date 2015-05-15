@@ -1,6 +1,6 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="Tourney.aspx.cs" Inherits="Tourney" EnableViewState="false" %>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -21,7 +21,7 @@ a.header {margin-right:15px;}
 .Loading { position:fixed;top:200px; left:100px; font-size:30px; color:#EFE486; font-weight:bold; z-index:100;}
 .cb { padding: 0px 3px; margin:0px; }
 .starthole { height:20px;font-size:10pt;padding:1px;text-align:center; }
-input.starthole {width:40px;}
+input.starthole {width:65px;}
 .UserUpdate { float:left; margin: 3px 30px 0px;}
 .TourneyInfo { clear: both; padding-top: 20px; }
 .PageBreak {page-break-before:always;}
@@ -87,7 +87,7 @@ input.starthole {width:40px;}
     function TourneyDetailsDone(html) {
         var ti = document.getElementById("tourneyInfo");
         if (ti) ti.innerHTML = html;
-        ti = document.getElementById("rounddate");
+        ti = document.getElementById("rounddate_1");
         var afterrounddate = false;
         if (ti) {
             var currDate = new Date();
@@ -164,7 +164,21 @@ input.starthole {width:40px;}
     }
     function StartingHole(hole, groupid) {
         var tid = TourneyId();
-        if (tid > -1) SendForm("tourneyid=" + tid + "&startingholeforgroup=" + groupid + "&hole=" + hole.value, "");
+        if (tid > -1) SendForm("tourneyid=" + tid + "&group=" + groupid + "&startinghole=" + hole.value, "");
+    }
+    function StartingTime(time, groupid, roundnum) {
+        var tid = TourneyId();
+        if (tid > -1) {
+            var dofr= "";
+            var rd = document.getElementById("dateofround_" + roundnum);
+            if (!rd) {
+                rd = document.getElementById("rounddate_" + roundnum);
+                dofr = rd.innerHTML;
+            } else {
+                dofr = rd.value;
+            }
+            SendForm("tourneyid=" + tid + "&group=" + groupid + "&startingtime=" + time.value + "&rd=" + dofr, "");
+        }
     }
     function TourneyView(setupteams) {
         var ti = document.getElementById("tourneyInfo");

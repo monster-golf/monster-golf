@@ -179,7 +179,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     //if (x==0) sb.AppendFormat("<div>{0}</div>", tourneyNames[x]);
                     detailround = x + 1;
                     DateTime dOfRound = DateTime.MinValue;
-                    sb.AppendFormat("<div class='PageBreak' style='margin:20px 5px 10px;'>{0}<br/>Round: {1} on <span id='rounddate'>{2}</span> at {3} ", tourneyNames[x], detailround, dateOfRounds[x], courseNames[x]);
+                    sb.AppendFormat("<div class='PageBreak' style='margin:20px 5px 10px;'>{0}<br/>Round: {1} on <span id='rounddate_{1}'>{2}</span> at {3} ", tourneyNames[x], detailround, dateOfRounds[x], courseNames[x]);
                     if (needssetup.Contains(detailround)) sb.AppendFormat("<br/><a class='header' href='javascript:SetRound({0});'>Set Up Round</a>", detailround);
                     else
                     {
@@ -329,12 +329,47 @@ public partial class TourneyXml : System.Web.UI.Page
             Response.End();
         }
     }
-    private void StartingHoleForGroup()
+    private void StartingForGroup()
     {
-        if (Request.Form["startingholeforgroup"] != null)
+        if (Request.Form["startinghole"] != null || Request.Form["startingtime"] != null)
         {
-            StringBuilder update = new StringBuilder();
-            update.AppendFormat("update mg_TourneyScores set StartingHole = {0} WHERE GroupId = '{1}'", Request.Form["hole"], DB.stringSql(Request["startingholeforgroup"]));
+            StringBuilder update = new StringBuilder("update mg_TourneyScores set ");
+            if (Request.Form["startinghole"] != null)
+            {
+                int hole = 0;
+                if (int.TryParse(Request.Form["startinghole"], out hole))
+                {
+                    update.AppendFormat("StartingHole = {0}", Request.Form["startinghole"]);
+                }
+                else
+                {
+                    // if hole is invalid do not save.
+                    return;
+                }
+            }
+            else
+            {
+                DateTime startTime = new DateTime();
+                if (DateTime.TryParse(Request.Form["rd"], out startTime) &&
+                    DateTime.TryParse(startTime.ToShortDateString() + " " + Request.Form["startingtime"], out startTime))
+                {
+                    if (startTime.Hour < 6)
+                    {
+                        startTime = startTime.AddHours(12.0);
+                    }
+                    else if (startTime.Hour > 17)
+                    {
+                        startTime = startTime.AddHours(-12.0);
+                    }
+                    update.AppendFormat("DateOfRound = {0}", DB.stringSql(startTime.ToString("yyyy-M-d h:mm tt"), true));
+                }
+                else
+                {
+                    // if date is invalid do not save.
+                    return;
+                }
+            }
+            update.AppendFormat(" WHERE GroupId = {0}", DB.stringSql(Request.Form["group"], true));
             db.Exec(update.ToString());
         }
     }
@@ -696,7 +731,7 @@ public partial class TourneyXml : System.Web.UI.Page
         InitTourneyScores();
         GetTourneyDetails();
         GetTourneyScores();
-        StartingHoleForGroup();
+        StartingForGroup();
         EmailGroups();
         EmailScores();
         PlayersList();
