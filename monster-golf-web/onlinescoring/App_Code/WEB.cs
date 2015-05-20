@@ -105,7 +105,7 @@ public class WEB
             if (email)
             {
                 sb.AppendFormat("<input type='number' pattern='[0-9]*' class='starthole' name='startinghole{0}' maxlength='2' onchange=\"StartingHole(this, '{0}');\" value='{1}' />", s.GroupID, s.StartingHole);
-                if (s.DateOfRound != DateTime.MinValue) sb.AppendFormat("<div><input type='number' class='starthole' name='starttime{0}' maxlength='8' onchange=\"StartingTime(this, '{0}', {1});\" value='{2}' /></div>", s.GroupID, roundnum, s.DateOfRound.ToShortTimeString());
+                if (s.DateOfRound != DateTime.MinValue) sb.AppendFormat("<div><input class='starthole' name='starttime{0}' maxlength='8' onchange=\"StartingTime(this, '{0}', {1});\" value='{2}' /></div>", s.GroupID, roundnum, s.DateOfRound.ToShortTimeString());
             }
             else
             {
