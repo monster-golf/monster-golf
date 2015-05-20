@@ -148,6 +148,17 @@ namespace MonsterGolfOnline
                 st = ScoringType.GrossParPoints;
             return st;
         }
+        public static int GetBestScore(ScoringType st, int currentbest, int score)
+        {
+            if (currentbest == NoScoreDefault ||
+                ((st == ScoringType.GrossParPoints || st == ScoringType.NetParPoints) && currentbest < score) ||
+                ((st == ScoringType.Gross || st == ScoringType.Net) && currentbest > score)
+                )
+            {
+                return score;
+            }
+            return currentbest;
+        }
         public static DataTable CalculateScores(Tournament tourney, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets)
         {
             Team[] teamlist = tourney.Teams();
@@ -156,6 +167,11 @@ namespace MonsterGolfOnline
         public static DataTable CalculateScores(Tournament tourney, Team[] teamlist, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets)
         {
             DB DB = new DB();
+            // get the scoring options
+            string format = GetScoringFormat(scoringOption);
+            ScoringType st = GetScoringType(format, scoringOption);
+            bool addbestall345 = format.Contains("{bestall345}");
+
             GolfCourse course = null;
 
             // result table
@@ -173,9 +189,23 @@ namespace MonsterGolfOnline
                     results.Columns.Add("Out", typeof(int));
             }
             results.Columns.Add("In", typeof(int));
+            if (addbestall345)
+            {
+                results.Columns.Add("BestPar3", typeof(int));
+                results.Columns.Add("BestPar4", typeof(int));
+                results.Columns.Add("BestPar5", typeof(int));
+            }
             results.Columns.Add("Total", typeof(int));
+            if (addbestall345)
+            {
+                results.Columns.Add("TotalPlusBest", typeof(int));
+            }
             results.Columns.Add("ToPar", typeof(int));
             results.Columns.Add("Overall", typeof(int));
+            if (addbestall345)
+            {
+                results.Columns.Add("OverallPlusBest", typeof(int));
+            }
             results.Columns.Add("Overall ToPar");
 
             int numGolfers = 1;
@@ -191,9 +221,6 @@ namespace MonsterGolfOnline
                     results.Columns.Add("PlayerSC" + x.ToString());
                 }
             }
-            // get the scoring options
-            string format = GetScoringFormat(scoringOption);
-            ScoringType st = GetScoringType(format, scoringOption);
 
             System.Collections.Specialized.NameValueCollection ppformula = new System.Collections.Specialized.NameValueCollection();
             if (st == ScoringType.GrossParPoints || st == ScoringType.NetParPoints)
@@ -211,7 +238,7 @@ namespace MonsterGolfOnline
             // get generic best ball option to determine team filter
             BestBallOption bboPar3 = GetBestBallOption("par3", format, "");
             BestBallOption bboPar4 = GetBestBallOption("par4", format, "");
-            BestBallOption bboPar5 = GetBestBallOption("part5", format, "");
+            BestBallOption bboPar5 = GetBestBallOption("par5", format, "");
 
             string teamfilter = "";
             if (bboPar3 == BestBallOption.Individual && bboPar4 == BestBallOption.Individual && bboPar5 == BestBallOption.Individual)
@@ -240,6 +267,7 @@ namespace MonsterGolfOnline
 
             DataRow curResultRow = null;
             int overalltotal = 0;
+            int overalltotalplusbest = 0;
             int overallpar = 0;
             int overallstartrow = 0;
             int overallendrow = 0;
@@ -257,7 +285,7 @@ namespace MonsterGolfOnline
                     // reset bestball options based on round
                     bboPar3 = GetBestBallOption("par3", format, y.ToString());
                     bboPar4 = GetBestBallOption("par4", format, y.ToString());
-                    bboPar5 = GetBestBallOption("part5", format, y.ToString());
+                    bboPar5 = GetBestBallOption("par5", format, y.ToString());
 
                     string teamName = "";
                     string images = "";
@@ -299,6 +327,10 @@ namespace MonsterGolfOnline
 
                         int total = 0;
                         int totalpar = 0;
+                        int best5 = NoScoreDefault;
+                        int best4 = NoScoreDefault;
+                        int best3 = NoScoreDefault;
+
                         System.Collections.Generic.List<IndividualResult> indResults = new System.Collections.Generic.List<IndividualResult>();
                         for (int ng = 0; ng < numGolfers; ng++)
                         {
@@ -406,6 +438,26 @@ namespace MonsterGolfOnline
                             }
                             else
                             {
+                                if (addbestall345)
+                                {
+                                    for (int z = 0; z < 5; z++)
+                                    {
+                                        score += ((scores[z] == NoScoreDefault) ? 0 : scores[z]);
+                                    }
+                                    if (course.Hole(j).Par == 3)
+                                    {
+                                        best3 = GetBestScore(st, best3, score);
+                                    }
+                                    else if (course.Hole(j).Par == 5)
+                                    {
+                                        best5 = GetBestScore(st, best5, score);
+                                    }
+                                    else
+                                    {
+                                        best4 = GetBestScore(st, best4, score);
+                                    }
+                                    score = 0;
+                                }
                                 int nget = 1;
                                 switch (bbo)
                                 {
@@ -462,6 +514,14 @@ namespace MonsterGolfOnline
                                 curResultRow["In"] = (total - int.Parse(curResultRow["Out"].ToString()));
                             }
                         }
+                        if (addbestall345)
+                        {
+                            curResultRow["BestPar3"] = best3;
+                            curResultRow["BestPar4"] = best4;
+                            curResultRow["BestPar5"] = best5;
+                            curResultRow["TotalPlusBest"] = total + best3 + best4 + best5;
+                            overalltotalplusbest += total + best3 + best4 + best5;
+                        }
                         curResultRow["Total"] = total;
                         curResultRow["ToPar"] = totalpar;
 
@@ -483,6 +543,7 @@ namespace MonsterGolfOnline
                 {
                     // reset the totals
                     overalltotal = 0;
+                    overalltotalplusbest = 0;
                     overallpar = 0;
 
                     // throw out the score if not wanted
@@ -533,6 +594,10 @@ namespace MonsterGolfOnline
                     for (int y = overallstartrow; y < overallendrow; y++)
                     {
                         results.Rows[y]["Overall"] = overalltotal;
+                        if (addbestall345)
+                        {
+                            results.Rows[y]["OverallPlusBest"] = overalltotalplusbest;
+                        }
                         results.Rows[y]["Overall ToPar"] = overallpar.ToString();
                     }
 
@@ -542,11 +607,16 @@ namespace MonsterGolfOnline
                     for (int y = overallstartrow; y < overallendrow; y++)
                     {
                         results.Rows[y]["Overall"] = overalltotal;
+                        if (addbestall345)
+                        {
+                            results.Rows[y]["OverallPlusBest"] = overalltotalplusbest;
+                        }
                         results.Rows[y]["Overall ToPar"] = overallpar.ToString();
                     }
                 }
 
                 overalltotal = 0;
+                overalltotalplusbest = 0;
                 overallpar = 0;
             }
             DB.Close();

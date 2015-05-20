@@ -408,8 +408,6 @@ public partial class Results : System.Web.UI.Page
         {
             DTResults.DefaultView.RowFilter = "";
         }
-        // sort the default view
-        DTResults.DefaultView.Sort = m_currentSort;
 
         // set up column mappings
         for (int x = 0; x < DTResults.Columns.Count; x++)
@@ -417,7 +415,7 @@ public partial class Results : System.Web.UI.Page
             if (chkTotalsOnly.Checked)
             {
                 string colName = DTResults.Columns[x].ColumnName;
-                if (colName != "Name" && colName != "Flight" && colName != "Round" && colName != "Total" && colName != "Overall")
+                if (colName != "Name" && colName != "Flight" && colName != "Round" && colName != "Total" && colName != "Overall" && colName != "OverallPlusBest")
                     DTResults.Columns[x].ColumnMapping = System.Data.MappingType.Hidden;
             }
             else
@@ -425,6 +423,7 @@ public partial class Results : System.Web.UI.Page
                 DTResults.Columns[x].ColumnMapping = System.Data.MappingType.Element;
             }
         }
+
         DTResults.Columns["TeamID"].ColumnMapping = System.Data.MappingType.Hidden;
         DTResults.Columns["Image"].ColumnMapping = System.Data.MappingType.Hidden;
         DTResults.Columns["Overall ToPar"].ColumnMapping = System.Data.MappingType.Hidden;
@@ -436,6 +435,8 @@ public partial class Results : System.Web.UI.Page
 
         if (chkTotalsOnly.Checked)
         {
+            bool addplusbest = (DTResults.Columns.Contains("OverallPlusBest"));
+
             DataTable dt = new DataTable();
             dt.Columns.Add("TeamID");
             dt.Columns["TeamID"].ColumnMapping = System.Data.MappingType.Hidden;
@@ -445,21 +446,40 @@ public partial class Results : System.Web.UI.Page
                 dt.Columns["Flight"].ColumnMapping = System.Data.MappingType.Hidden;
             for (int i = 0; i < m_tourney.NumberOfRounds; i++)
             {
-                dt.Columns.Add("Round " + (i + 1).ToString(), typeof(int));
+                string colname = "Round " + (i + 1).ToString();
+                dt.Columns.Add(colname, typeof(int));
+                if (addplusbest)
+                {
+                    dt.Columns.Add(colname + " Plus Best", typeof(int));
+                }
                 if (ddRound.SelectedIndex > 0)
                 {
                     if (ddRound.SelectedIndex != (i + 1))
                     {
-                        dt.Columns["Round " + (i + 1).ToString()].ColumnMapping = System.Data.MappingType.Hidden;
+                        dt.Columns[colname].ColumnMapping = System.Data.MappingType.Hidden;
+                        if (addplusbest)
+                        {
+                            dt.Columns[colname + " Plus Best"].ColumnMapping = System.Data.MappingType.Hidden;
+                        }
                     }
                 }
             }
             dt.Columns.Add("Overall", typeof(int));
 
+            if (addplusbest)
+            {
+                dt.Columns.Add("Overall Plus Best", typeof(int));
+            }
+
             if (ddRound.SelectedIndex > 0)
             {
                 dt.Columns["Overall"].ColumnMapping = System.Data.MappingType.Hidden;
+                if (addplusbest)
+                {
+                    dt.Columns["Overall Plus Best"].ColumnMapping = System.Data.MappingType.Hidden;
+                }
             }
+            
             if (chkIncludeIndividuals.Checked)
             {
                 for (int g = 1; g <= m_golfersperteam; g++)
@@ -505,7 +525,15 @@ public partial class Results : System.Web.UI.Page
                 row["Name"] = DTResults.DefaultView[i]["Name"].ToString();
                 row["Flight"] = DTResults.DefaultView[i]["Flight"].ToString();
                 row["Round " + DTResults.DefaultView[i]["Round"].ToString()] = int.Parse(DTResults.DefaultView[i]["Total"].ToString());
+                if (addplusbest)
+                {
+                    row["Round " + DTResults.DefaultView[i]["Round"].ToString() + " Plus Best"] = int.Parse(DTResults.DefaultView[i]["TotalPlusBest"].ToString());
+                }
                 row["Overall"] = int.Parse(DTResults.DefaultView[i]["Overall"].ToString());
+                if (addplusbest)
+                {
+                    row["Overall Plus Best"] = int.Parse(DTResults.DefaultView[i]["OverallPlusBest"].ToString());
+                }
                 if (chkIncludeIndividuals.Checked)
                 {
                     for (int g = 0; g < m_golfersperteam; g++)
@@ -521,6 +549,8 @@ public partial class Results : System.Web.UI.Page
             if (row != null)
                 dt.Rows.Add(row);
 
+            // sort the default view
+            dt.DefaultView.Sort = m_currentSort;
 
             // add all the columns to be bound
             foreach (DataColumn col in dt.Columns)
@@ -599,6 +629,9 @@ public partial class Results : System.Web.UI.Page
         }
         else
         {
+            // sort the default view
+            DTResults.DefaultView.Sort = m_currentSort;
+
             // add all the columns to be bound
             foreach (DataColumn col in DTResults.DefaultView.Table.Columns)
             {
