@@ -68,8 +68,8 @@ public partial class TourneyXml : System.Web.UI.Page
                             "	d.CourseId = {6} and " +
                             "	NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
                             sdr[0], DB.stringSql(sdr, 1), DB.stringSql(ScoreInfo.GetId(), true), tourneyid, roundnum, sdr[3], courseId, coursename, dateofround);
-                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0), DateOfRound={4} WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
-                            sdr[0], sdr[2], tourneyid, roundnum, dateofround);
+                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0) WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
+                            sdr[0], sdr[2], tourneyid, roundnum);
                     }
                 }
             }

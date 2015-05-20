@@ -139,7 +139,15 @@ public class ScoreInfo
                 if (currgroupid == null) currgroupid = si[si.Count - 1].GroupID;
                 if (si[si.Count - 1].GroupID == "")
                 {
+                    if (playersingroup > 1)
+                    {
+                        for (int x = si.Count - playersingroup - 1; x < si.Count - 1; x++)
+                        {
+                            si[x].PlayersInGroup = playersingroup;
+                        }
+                    }
                     si[si.Count - 1].PlayersInGroup = 1;
+                    playersingroup = 0;
                 }
                 else if (currgroupid == si[si.Count - 1].GroupID || currgroupid == "") playersingroup++;
                 else if (playersingroup > 0)
@@ -199,7 +207,7 @@ public class ScoreInfo
             "join mg_tourneycourses tc on tc.tournamentid = t.tournamentid " +
             "join mg_TourneyCourseDetails tcd on tcd.CourseID = tc.CourseId " +
             "where t.TournamentID = " + tourneyid +
-            " order by tc.[Round], TeeNumber";
+            " order by tc.[Round], DateOfRound, TeeNumber";
         SqlDataReader sdr = db.Get(select);
         tourneyName = "";
         dateOfRound = "";

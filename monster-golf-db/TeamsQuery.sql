@@ -29,8 +29,8 @@ order by tt.Flight, (u1.Handicap+u2.Handicap), tt.teamid
 select distinct RoundNum,s.StartingHole, s.Name, s.HCP,t.TeamId, GroupId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId=23
  order by RoundNum, StartingHole, GroupId, TeamId, Name
 
- select *  delete from mg_tourney where tournamentid >=26
-select * from mg_tourneyscores where tourneyid = 25
+ select * from mg_tourneyscores where tourneyid =25  and  groupid is null
+select * from mg_tourneyscores where tourneyid = 0 order by dateofround desc tourneyid = 25
 select * from mg_tourneycourses where tournamentid = 25
 select * from mg_tourneyteamplayers where tournamentid = 24
 update mg_tourneycourses set DateOfround = '5-15-2014 09:36'
@@ -138,4 +138,26 @@ set DateOfRound = '2014-05-15 09:36:00.000'
 where tournamentid = 24
 
 select * from mg_tourneyTeams where webid = 594
-update mg_tourneyusers set webid = 603 where webid = 594
+update mg_tourneyusers set webid = 603 where webid = 594\\\
+
+
+select top 1 * from mg_scores
+
+select * from mg_tourneyUsers where lastName = 'Johnson'
+update mg_tourneyUsers set WebId = 319 where lastName = 'Johnson'
+
+select * from mg_tourneyTeamplayers where tournamentId = 25 and teamname like '%Corey%'
+
+update mg_tourneyTeams set TeamName = 'Smith, Matthew' where TeamId = 1756
+
+update mg_scores set UserId = 600 where userID = 606
+
+select * from mg_tourneyscores where [name] like'Corey%'
+
+update mg_tourneyscores set [name] ='Matthew Smith' where [name] ='Matt Smith'
+
+update mg_tourneyscores set UserId = 319 where UserId = 129
+
+select * from mg_tourneyScoringFormats
+
+insert into mg_tourneyScoringFormats values ('Best Ball Net Plus Best All Ball on Par 3/4/5', '{net}{best1}{best345}', 2, 0)
