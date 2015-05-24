@@ -160,4 +160,3 @@ update mg_tourneyscores set UserId = 319 where UserId = 129
 
 select * from mg_tourneyScoringFormats
 
-insert into mg_tourneyScoringFormats values ('Best Ball Net Plus Best All Ball on Par 3/4/5', '{net}{best1}{best345}', 2, 0)
