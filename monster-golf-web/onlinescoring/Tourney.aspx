@@ -12,7 +12,7 @@ a:hover { color:#FF3F19;}
 a.header {margin-right:15px;}
 .Detail { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc;}
 .Detail1 { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px;}
-.DetailStart { min-width:65px; }
+.DetailStart { min-width:70px; }
 .DetailStart div {padding-top:2px;}
 .Detail_2 { min-width:25px;min-height:16px; padding:4px;text-align:center;border:solid 1px #cccccc; background-color:#008EFF;}
 .Detail1_2 { min-width:200px;min-height:16px; padding:4px;border:solid 1px #cccccc;font-size:12px; background-color:#008EFF; }
@@ -36,6 +36,7 @@ input.starthole {width:65px;}
 #emailName { width: 180px; }
 #addPlayer { margin-left:33px;}
 .flight { width:20px; font-size:9pt;}
+.owner { width:80px; font-size:9pt;}
 #createTournament { clear:both; margin-top:30px; }
 </style>
 <script type="text/javascript" language="javascript" src="XmlHttp.js"></script>
@@ -267,6 +268,10 @@ input.starthole {width:65px;}
     }
     function TeamFlight(flighttxt, teamid) {
         var setteam = "flight=" + flighttxt.value + "&t=" + TourneyId() + "&teamid=" + teamid;
+        GetHTMLAsync(setteam);
+    }
+    function TeamOwner(ownertxt, teamid) {
+        var setteam = "owner=" + ownertxt.value + "&t=" + TourneyId() + "&teamid=" + teamid;
         GetHTMLAsync(setteam);
     }
     function AddPlayer() {

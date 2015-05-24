@@ -41,40 +41,56 @@ public partial class TourneyXml : System.Web.UI.Page
             }
         }
     }
+    private void InitTourneyScores(int tourneyid, int? roundnum, string userId)
+    {
+        StringBuilder update = new StringBuilder();
+        SqlDataReader sdr = db.Get("select CourseID, TournamentID, Round, Course, DateOfRound from mg_TourneyCourses where TournamentId = " + tourneyid);
+        while (sdr.Read())
+        {
+            if (!roundnum.HasValue || ScoreInfo.IsCurrentRound(sdr, roundnum.ToString()))
+            {
+                string courseId = sdr[0].ToString();
+                string coursename = DB.stringSql(sdr, 3);
+                string dateofround = DB.stringSql(sdr, 4);
+                int dbround = 0;
+                if (!sdr.IsDBNull(2))
+                {
+                    // TODO: this could fail because sdr[2] can have a list of round numbers in it like 1,3
+                    int.TryParse(sdr[2].ToString(), out dbround);
+                }
+                int roundtoupdate = (roundnum.HasValue) ? roundnum.Value : dbround;
+                db.Close(sdr, false);
+                string sql = "select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = " + tourneyid;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    sql += " and ttp.UserId = " + userId;
+                }
+                sdr = db.Get(sql);
+                while (sdr.Read())
+                {
+                    update.AppendFormat(
+                        "insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, DateOfRound, CourseSlope, CourseRating) " +
+                        "select {3}, {4}, {0}, {1}, {2}, {7}, {8}, d.Slope, Round(d.Rating,1) " +
+                        "from mg_TourneyCourseDetails d " +
+                        "where d.TeeNumber = {5} and " +
+                        "	d.CourseId = {6} and " +
+                        "	NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
+                        sdr[0], DB.stringSql(sdr, 1), DB.stringSql(ScoreInfo.GetId(), true), tourneyid, roundtoupdate, sdr[3], courseId, coursename, dateofround);
+                    update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0) WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
+                        sdr[0], sdr[2], tourneyid, roundtoupdate);
+                }
+            }
+        }
+        db.Close(sdr, false);
+        db.Exec(update.ToString());
+    }
     protected void InitTourneyScores()
     {
         int roundnum, tourneyid;
         if (int.TryParse(Request["settourneyround"], out roundnum) &&
             int.TryParse(Request["tourneyid"], out tourneyid))
         {
-            StringBuilder update = new StringBuilder();
-            SqlDataReader sdr = db.Get("select CourseID, TournamentID, Round, Course, DateOfRound from mg_TourneyCourses where TournamentId = " + tourneyid);
-            while (sdr.Read())
-            {
-                if (ScoreInfo.IsCurrentRound(sdr, roundnum.ToString()))
-                {
-                    string courseId = sdr[0].ToString();
-                    string coursename = DB.stringSql(sdr,3);
-                    string dateofround = DB.stringSql(sdr,4);
-                    db.Close(sdr, false);
-                    sdr = db.Get("select ttu.WebId, ttu.FirstName + ' ' + ttu.LastName as PlayerName, ttp.Handicap, ttp.TeeNumber from mg_TourneyTeamPlayers ttp join mg_TourneyUsers ttu on ttu.UserId = ttp.UserId where ttp.TournamentId = " + tourneyid);
-                    while (sdr.Read())
-                    {
-                        update.AppendFormat(
-                            "insert into mg_TourneyScores (TourneyId, RoundNum, UserId, Name, UserLookup, CourseName, DateOfRound, CourseSlope, CourseRating) " +
-                            "select {3}, {4}, {0}, {1}, {2}, {7}, {8}, d.Slope, Round(d.Rating,1) " +
-                            "from mg_TourneyCourseDetails d " +
-                            "where d.TeeNumber = {5} and " +
-                            "	d.CourseId = {6} and " +
-                            "	NOT Exists(select * from mg_TourneyScores WHERE TourneyId = {3} and RoundNum = {4} and userID = {0});\n",
-                            sdr[0], DB.stringSql(sdr, 1), DB.stringSql(ScoreInfo.GetId(), true), tourneyid, roundnum, sdr[3], courseId, coursename, dateofround);
-                        update.AppendFormat("update mg_TourneyScores set HCP = Round((CourseSlope*{1})/113,0) WHERE TourneyId = {2} and RoundNum = {3} and userID = {0};\n",
-                            sdr[0], sdr[2], tourneyid, roundnum);
-                    }
-                }
-            }
-            db.Close(sdr, false);
-            db.Exec(update.ToString());
+            InitTourneyScores(tourneyid, roundnum, null);
         }
     }
     protected void GetTourneyScores()
@@ -618,21 +634,29 @@ public partial class TourneyXml : System.Web.UI.Page
                 }
                 db.Close(sdr, false);
                 db.Exec(insertteam);
+                foreach (string key in sortName.Keys)
+                {
+                    InitTourneyScores(tourneyid, null, sortName[key].userId);
+                }
             }
             int teamId;
             if (int.TryParse(Request["removeteam"], out teamId))
             {
-                string removeteam = "delete from mg_TourneyTeamPlayers where teamId = " + teamId + ";delete from MG_TourneyTeams where teamId = " + teamId + ";";
+                string removeteam = string.Format("delete from mg_tourneyscores from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = {0} " +
+                                                  "join (select ttp2.UserId, ttp2.TournamentId, Count(*) as OnTeam from mg_tourneyTeamplayers ttp2 where ttp2.TournamentId = {0} group by ttp2.UserId, ttp2.TournamentId) ot on ot.UserId = t.UserId " +
+                                                  "where s.TourneyId = {0} and t.TeamID = {1} and ot.OnTeam = 1 and s.Hole1 IS NULL;", tourneyid, teamId);
+                db.Exec(removeteam);
+                removeteam = "delete from mg_TourneyTeamPlayers where teamId = " + teamId + ";delete from MG_TourneyTeams where teamId = " + teamId + ";";
                 db.Exec(removeteam);
             }
             string sort = string.IsNullOrEmpty(Request["sort"]) ? "TeamHCP,TeamName" : Request["sort"];
-            string sql = "select tt.TeamId, tt.TeamName, tt.Flight, tt.SideBet, tt.TourneyTeam, ROUND(SUM(ttp.Handicap),2) AS TeamHCP, ttp1.Handicap AS HCP1, ttp2.Handicap AS HCP2 ";
+            string sql = "select tt.TeamId, tt.TeamName, tt.Flight, tt.SideBet, tt.TourneyTeam, ROUND(SUM(ttp.Handicap),2) AS TeamHCP, ttp1.Handicap AS HCP1, ttp2.Handicap AS HCP2, tt.TeamOwner ";
             sql += " from mg_tourneyTeams tt ";
             sql += " JOIN mg_tourneyTeamPlayers ttp ON tt.TeamID = ttp.TeamID ";
             sql += " join mg_TourneyTeamPlayers ttp1 on tt.TeamId = ttp1.TeamId AND ttp1.UserID = (SELECT TOP 1 innerm1.UserId FROM mg_TourneyTeamPlayers innerm1 JOIN mg_TourneyUsers inneru1 on inneru1.UserId = innerm1.UserId WHERE innerm1.TeamId = tt.TeamId ORDER BY inneru1.LastName + ', ' + inneru1.FirstName ASC) ";
             sql += " join mg_TourneyTeamPlayers ttp2 on tt.TeamId = ttp2.TeamId AND ttp2.UserID = (SELECT TOP 1 innerm1.UserId FROM mg_TourneyTeamPlayers innerm1 JOIN mg_TourneyUsers inneru1 on inneru1.UserId = innerm1.UserId WHERE innerm1.TeamId = tt.TeamId ORDER BY inneru1.LastName + ', ' + inneru1.FirstName DESC) ";
             sql += " where tt.tournamentId = " + tourneyid;
-            sql += " group BY tt.TeamId, tt.TeamName, tt.Flight, tt.SideBet, tt.TourneyTeam, ttp1.Handicap, ttp2.Handicap ";
+            sql += " group BY tt.TeamId, tt.TeamName, tt.Flight, tt.SideBet, tt.TourneyTeam, ttp1.Handicap, ttp2.Handicap, tt.TeamOwner ";
             sql += " ORDER BY TourneyTeam," + sort;
             sdr = db.Get(sql);
             StringBuilder teamsTable = new StringBuilder("<table class='TeamsTable' cellspacing='0'><tr><th>#</th><th><a href=\"javascript:SortTeams('TeamName');\">Tournament Team</a></th><th><a href=\"javascript:SortTeams('TeamHCP,TeamName');\">Team HCP</a></th><th>HCP 1</th><th>HCP 2</th><th><a href=\"javascript:SortTeams('Flight,TeamName');\">Flight</a></th><th>Side Bet</th><th></th></tr>");
@@ -656,6 +680,10 @@ public partial class TourneyXml : System.Web.UI.Page
                     teamsTable.AppendFormat("<input id='flight{0}' class='flight' onchange='TeamFlight(this,{0})' value='{1}' /> ", sdr["TeamId"], sdr["Flight"]);
                     teamsTable.Append("</td><td>");
                     teamsTable.AppendFormat("<input type='checkbox' id='sidebet' onchange='SetTournamentCheck(this,{0})' {1}/>", sdr["TeamId"], sdr["SideBet"].ToString() == "True" ? "checked='checked'" : "");
+                    if (sdr["SideBet"].ToString() == "True")
+                    {
+                        teamsTable.AppendFormat("<input id='owner{0}' class='owner' onchange='TeamOwner(this,{0})' value='{1}' /> ", sdr["TeamId"], sdr["TeamOwner"]);
+                    }
                     teamsTable.Append("</td><td>");
                     teamsTable.AppendFormat("<a id='removeteam{0}' href='javascript:RemoveTeam({0})'>remove</a>", sdr["TeamId"]);
                     teamsTable.Append("</td></tr>");
@@ -694,6 +722,13 @@ public partial class TourneyXml : System.Web.UI.Page
             int.TryParse(Request["teamid"], out teamid))
         {
             string sql = "update mg_tourneyteams set Flight =" + DB.stringSql(Request["flight"], true) + " where teamid = " + teamid;
+            db.Exec(sql);
+        }
+        if (Request["owner"] != null &&
+            tourneyid > 0 &&
+            int.TryParse(Request["teamid"], out teamid))
+        {
+            string sql = "update mg_tourneyteams set TeamOwner =" + DB.stringSql(Request["owner"], true) + " where teamid = " + teamid;
             db.Exec(sql);
         }
     }
