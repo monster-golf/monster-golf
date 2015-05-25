@@ -21,7 +21,11 @@ function ErrShow(show) {
     }
 }
 function ErrDisplay() { ErrShow(true); }
-function ErrHide() { ErrShow(false); }
+function ErrHide() {
+    // check if we are polling live scores, if not get it going.
+    if (!livescoresto) LiveScores();
+    ErrShow(false);
+}
 var insaveall = false;
 function ScoresSaveAll() {
     if (insaveall) return;
@@ -471,6 +475,19 @@ var livescoresto = null;
 function LiveScores() {
     var t = document.forms[0].tourneyId.value;
     if (t != "") {
+        var dofr = document.getElementById("dateOfRound");
+        if (dofr) {
+            try {
+                var dateofround = new Date(dofr.innerHTML);
+                var datenow = new Date();
+                if (datenow < dateofround) {
+                    //try again when the round is supposed to start.
+                    window.setTimeout(LiveScores, Math.abs(datenow - dateofround));
+                    return;
+                }
+            } catch (ex) {
+            }
+        }
         var r = document.forms[0].roundNum.value;
         var o = "";
         if (document.forms[0].orderby && document.forms[0].orderby.length > 1) {
@@ -483,6 +500,7 @@ function LiveScores() {
         }
         var q = "livescores=1&t=" + t + "&r=" + r + "&o=" + o;
         GetHTMLAsync(q, function (html) {
+            ErrHide();
             if (!liveresults) liveresults = document.getElementById("liveresults");
             if (liveresults) {
                 if (!livescores) {
@@ -494,8 +512,8 @@ function LiveScores() {
                 liveresults.innerHTML = html;
                 if (!scorespause) LiveScoresPlay();
             }
-        });
-        livescoresto = window.setTimeout(LiveScores, 120000);
+        }, ErrDisplay);
+        livescoresto = window.setTimeout(LiveScores, 300000);
     }
 }
 window.setTimeout(LiveScores, 1000);
@@ -577,6 +595,7 @@ function LiveScoresSort() {
     #liveresults { position: absolute; white-space: nowrap; left:200px; }
     #livescorescontrols { width:878px; border-left:solid 1px #cccccc; border-right:solid 1px #cccccc; display:none; background-color: yellow; color:#333; padding:6px; padding-bottom:0px; font-size:12px; white-space:nowrap; }
     #livescorescontrols a { font-size:20px; color:#333; }
+    #livescorescontrols .liveupdate { font-size:14px; float:right; }
 </style>
 <meta name="viewport" content="initial-scale=1.25" />
 </head>
@@ -599,7 +618,7 @@ function LiveScoresSort() {
 <asp:Panel ID="pnlPlayerHelp" runat="server" CssClass="PlayerHelp" style="display:none;">
 Enter player names, hit the search icon <img src="find.png" alt="find player" style="vertical-align:middle;" /> when it appears to the left of the name or hit the enter/go key on your keyboard. Also, it will auto search after you type 3 characters.  If a name is found in the Monster handicap system it will show up in a list below the name box, make sure to click on the name.
 </asp:Panel>
-<asp:Panel ID="pnlSaveFailed" CssClass="SaveFailed" style="display:none;" runat="server" onclick="ErrHide(); ScoresSaveAll();">Your last score did not save successfully, you may be offline.  Will try to post after the next hole, or click here to try again.</asp:Panel>
+<asp:Panel ID="pnlSaveFailed" CssClass="SaveFailed" style="display:none;" runat="server" onclick="ErrHide();">Your last score did not save successfully, you may be offline.  Will try to post after the next hole, or click here to try again.</asp:Panel>
 <asp:Panel ID="pnlScoresList" CssClass="ScoresList" runat="server" />
 <asp:Panel ID="pnlScorerSign" CssClass="ScorerSign" runat="server">
     <p>Your round is complete.<br />
@@ -617,7 +636,8 @@ Enter player names, hit the search icon <img src="find.png" alt="find player" st
     <a href="javascript:LiveScoresForward()"> &gt;&gt; </a> &nbsp;
     Today: name (hcp) net over/under par [holes played]
     order by <input type="radio" name="orderby" id="ordername" value="Name" onchange="LiveScoresSort()" checked="checked" /> <label for="ordername">name</label>
-    <input type="radio" name="orderby" id="orderscore" value="NetTotal" onchange="LiveScoresSort()" /> <label for="orderscore">score</label>
+    <input type="radio" name="orderby" id="orderscore" value="NetTotal" onchange="LiveScoresSort()" /> <label for="orderscore">score</label> &nbsp;
+    <a href="javascript:LiveScores()" class="liveupdate">update</a> &nbsp;
 </div>
 <div id="livescores"><div id="liveresults"></div></div>
 <div style="margin-top: 20px;"><img src="MonsterLogo.png" alt="Monster Golf" /></div>
