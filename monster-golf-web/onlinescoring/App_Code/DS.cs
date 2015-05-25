@@ -127,7 +127,7 @@ public class ScoreInfo
     public static List<ScoreInfo> LoadTourneyRound(string tourneyid, string round, string order)
     {
         DB db = new DB();
-        SqlDataReader sdr = db.Get(string.Format("select distinct s.UserId,s.GroupId,s.Name,s.StartingHole,s.DateOfRound,t.TeamId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
+        SqlDataReader sdr = db.Get(string.Format("select distinct s.UserId,s.GroupId,s.Name,s.StartingHole,s.DateOfRound,t.TeamId from mg_tourneyscores s join mg_tourneyUsers u on u.WebId = s.UserId join mg_tourneyTeamplayers t on t.UserId = u.UserId and t.TournamentId = TourneyId join mg_tourneyTeams tt on tt.TeamId = t.TeamId and isnull(tt.SideBet,0) = 0 where TourneyId={0} and RoundNum={1} order by " + order + ";", tourneyid, round));
         List<ScoreInfo> si = new List<ScoreInfo>();
         int playersingroup = 0;
         string currgroupid = null;

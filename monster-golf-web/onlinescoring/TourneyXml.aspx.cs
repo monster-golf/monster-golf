@@ -680,10 +680,7 @@ public partial class TourneyXml : System.Web.UI.Page
                     teamsTable.AppendFormat("<input id='flight{0}' class='flight' onchange='TeamFlight(this,{0})' value='{1}' /> ", sdr["TeamId"], sdr["Flight"]);
                     teamsTable.Append("</td><td>");
                     teamsTable.AppendFormat("<input type='checkbox' id='sidebet' onchange='SetTournamentCheck(this,{0})' {1}/>", sdr["TeamId"], sdr["SideBet"].ToString() == "True" ? "checked='checked'" : "");
-                    if (sdr["SideBet"].ToString() == "True")
-                    {
-                        teamsTable.AppendFormat("<input id='owner{0}' class='owner' onchange='TeamOwner(this,{0})' value='{1}' /> ", sdr["TeamId"], sdr["TeamOwner"]);
-                    }
+                    teamsTable.AppendFormat("<input id='owner{0}' class='owner' onchange='TeamOwner(this,{0})' value='{1}' /> ", sdr["TeamId"], sdr["TeamOwner"]);
                     teamsTable.Append("</td><td>");
                     teamsTable.AppendFormat("<a id='removeteam{0}' href='javascript:RemoveTeam({0})'>remove</a>", sdr["TeamId"]);
                     teamsTable.Append("</td></tr>");
