@@ -159,12 +159,12 @@ namespace MonsterGolfOnline
             }
             return currentbest;
         }
-        public static DataTable CalculateScores(Tournament tourney, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets)
+        public static DataTable CalculateScores(Tournament tourney, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets, int maxNumGolfers)
         {
             Team[] teamlist = tourney.Teams();
-            return CalculateScores(tourney, teamlist, scoringOption, throwOutWorst, includeLast, sideBets);
+            return CalculateScores(tourney, teamlist, scoringOption, throwOutWorst, includeLast, sideBets, maxNumGolfers);
         }
-        public static DataTable CalculateScores(Tournament tourney, Team[] teamlist, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets)
+        public static DataTable CalculateScores(Tournament tourney, Team[] teamlist, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets, int maxNumGolfers)
         {
             DB DB = new DB();
             // get the scoring options
@@ -208,10 +208,9 @@ namespace MonsterGolfOnline
             }
             results.Columns.Add("Overall ToPar");
 
-            int numGolfers = 1;
+            int numGolfers = maxNumGolfers;
             if (teamlist != null && teamlist.Length > 0)
             {
-                numGolfers = teamlist[0].NumberOfGolfers;
                 for (int x = 0; x < numGolfers; x++)
                 {
                     results.Columns.Add("Player" + x.ToString());
@@ -420,9 +419,12 @@ namespace MonsterGolfOnline
                                 }
                                 if (j == 1)
                                 {
-                                    indResults[i].Name = dsScores.Tables[0].DefaultView[i]["FirstName"].ToString() + " " +
-                                        dsScores.Tables[0].DefaultView[i]["LastName"].ToString();
-                                    indResults[i].HCP = hcp;
+                                    if (i < indResults.Count)
+                                    {
+                                        indResults[i].Name = dsScores.Tables[0].DefaultView[i]["FirstName"].ToString() + " " +
+                                            dsScores.Tables[0].DefaultView[i]["LastName"].ToString();
+                                        indResults[i].HCP = hcp;
+                                    }
                                 }
                             }
 

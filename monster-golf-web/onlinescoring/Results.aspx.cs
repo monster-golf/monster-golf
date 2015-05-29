@@ -59,7 +59,7 @@ public partial class Results : System.Web.UI.Page
                 }
                 if (showdata)
                 {
-                    DTResults = Formulas.CalculateScores(m_tourney, teamlist, ddScoring.SelectedValue, _throwoutrounds, false, chkSideBets.Checked);
+                    DTResults = Formulas.CalculateScores(m_tourney, teamlist, ddScoring.SelectedValue, _throwoutrounds, false, chkSideBets.Checked, m_golfersperteam);
                     SetDefaultSort();
                     OutputDataGrid();
                 }
@@ -150,17 +150,19 @@ public partial class Results : System.Web.UI.Page
             m_tourney.TournamentID.ToString() + " order by TeamID");
         string teamid = "-1";
         int golfersperteam = 0;
+        int maxgolfersperteam = 0;
         for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
         {
             if (teamid != "-1" &&
                 teamid != ds.Tables[0].Rows[i]["TeamID"].ToString())
             {
-                break;
+                if (maxgolfersperteam < golfersperteam) maxgolfersperteam = golfersperteam;
+                golfersperteam = 0;
             }
             golfersperteam++;
             teamid = ds.Tables[0].Rows[i]["TeamID"].ToString();
         }
-        m_golfersperteam = (golfersperteam == 0) ? 1 : golfersperteam;
+        m_golfersperteam = (maxgolfersperteam == 0) ? 1 : maxgolfersperteam;
 
         // scoring formats
         if (!IsPostBack)
@@ -1082,7 +1084,7 @@ public partial class Results : System.Web.UI.Page
         ListItem li = ddScoring.SelectedItem;
         if (li.Value != "-1")
         {
-            DTResults = Formulas.CalculateScores(m_tourney, teamlist, li.Value, _throwoutrounds, false, chkSideBets.Checked);
+            DTResults = Formulas.CalculateScores(m_tourney, teamlist, li.Value, _throwoutrounds, false, chkSideBets.Checked, m_golfersperteam);
         }
         else
         {
