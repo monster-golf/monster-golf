@@ -159,11 +159,6 @@ namespace MonsterGolfOnline
             }
             return currentbest;
         }
-        public static DataTable CalculateScores(Tournament tourney, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets, int maxNumGolfers)
-        {
-            Team[] teamlist = tourney.Teams();
-            return CalculateScores(tourney, teamlist, scoringOption, throwOutWorst, includeLast, sideBets, maxNumGolfers);
-        }
         public static DataTable CalculateScores(Tournament tourney, Team[] teamlist, string scoringOption, int throwOutWorst, bool includeLast, bool sideBets, int maxNumGolfers)
         {
             DB DB = new DB();
@@ -208,17 +203,13 @@ namespace MonsterGolfOnline
             }
             results.Columns.Add("Overall ToPar");
 
-            int numGolfers = maxNumGolfers;
-            if (teamlist != null && teamlist.Length > 0)
+            for (int x = 0; x < maxNumGolfers; x++)
             {
-                for (int x = 0; x < numGolfers; x++)
-                {
-                    results.Columns.Add("Player" + x.ToString());
-                    results.Columns.Add("PlayerGross" + x.ToString());
-                    results.Columns.Add("PlayerHCP" + x.ToString());
-                    results.Columns.Add("PlayerNet" + x.ToString());
-                    results.Columns.Add("PlayerSC" + x.ToString());
-                }
+                results.Columns.Add("Player" + x.ToString());
+                results.Columns.Add("PlayerGross" + x.ToString());
+                results.Columns.Add("PlayerHCP" + x.ToString());
+                results.Columns.Add("PlayerNet" + x.ToString());
+                results.Columns.Add("PlayerSC" + x.ToString());
             }
 
             System.Collections.Specialized.NameValueCollection ppformula = new System.Collections.Specialized.NameValueCollection();
@@ -241,12 +232,18 @@ namespace MonsterGolfOnline
 
             string teamfilter = "";
             if (bboPar3 == BestBallOption.Individual && bboPar4 == BestBallOption.Individual && bboPar5 == BestBallOption.Individual)
+            {
                 teamfilter = "UserID";
+            }
             else
+            {
                 teamfilter = "TeamID";
+            }
 
-            DataSet dsTeams = DB.GetDataSet("select distinct " + teamfilter + " from mg_tourneyTeamPlayers where TournamentID=" +
-               tourney.TournamentID.ToString());
+            string teamssql = "select " + teamfilter + ", NumGolfers = Count(UserID) from mg_tourneyTeamPlayers where TournamentID=" +
+               tourney.TournamentID.ToString() + " Group By " + teamfilter;
+
+            DataSet dsTeams = DB.GetDataSet(teamssql);
 
             //DataSet dsScores = DB.GetDataSet(
             //   "SELECT tp.TeamID, t.TeamName, t.Flight, tp.TeeNumber, tp.Handicap AS TPHandicap, ts.*, u.LastName, u.FirstName, u.Image FROM " +
@@ -270,14 +267,24 @@ namespace MonsterGolfOnline
             int overallpar = 0;
             int overallstartrow = 0;
             int overallendrow = 0;
-            for (int x = 0; x < dsTeams.Tables[0].Rows.Count; x++)
+            DataTable teamTable = dsTeams.Tables[0];
+            for (int x = 0; x < teamTable.Rows.Count; x++)
             {
                 overallstartrow = results.Rows.Count;
                 overallendrow = overallstartrow;
+                int numGolfers = maxNumGolfers;
+                DataRow teamRow = teamTable.Rows[x];
+                if (!teamRow.IsNull("NumGolfers"))
+                {
+                    if (!int.TryParse(teamRow["NumGolfers"].ToString(), out numGolfers))
+                    {
+                        numGolfers = maxNumGolfers;
+                    }
+                }
 
                 for (int y = 1; y <= tourney.NumberOfRounds; y++)
                 {
-                    dsScores.Tables[0].DefaultView.RowFilter = (teamfilter=="UserID"?"TPUserID":teamfilter) + "=" + dsTeams.Tables[0].Rows[x][teamfilter].ToString() +
+                    dsScores.Tables[0].DefaultView.RowFilter = (teamfilter == "UserID" ? "TPUserID" : teamfilter) + "=" + teamRow[teamfilter].ToString() +
                        " and RoundNum = " + y.ToString();
                     int currentCourseID = tourney.GetCourseID(y);
 
@@ -481,18 +488,21 @@ namespace MonsterGolfOnline
                                     int bestpos = -1;
                                     for (int z = 0; z < 5; z++)
                                     {
-                                        if (st == ScoringType.GrossParPoints || st == ScoringType.NetParPoints)
+                                        if (scores[z] != NoScoreDefault)
                                         {
-                                            if (bestpos == -1 || scores[z] > scores[bestpos])
+                                            if (st == ScoringType.GrossParPoints || st == ScoringType.NetParPoints)
                                             {
-                                                bestpos = z;
+                                                if (bestpos == -1 || scores[z] > scores[bestpos])
+                                                {
+                                                    bestpos = z;
+                                                }
                                             }
-                                        }
-                                        else
-                                        {
-                                            if (bestpos == -1 || (scores[z] != NoScoreDefault && scores[z] < scores[bestpos]))
+                                            else
                                             {
-                                                bestpos = z;
+                                                if (bestpos == -1 || scores[z] < scores[bestpos])
+                                                {
+                                                    bestpos = z;
+                                                }
                                             }
                                         }
                                     }
