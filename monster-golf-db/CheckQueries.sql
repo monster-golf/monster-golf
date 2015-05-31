@@ -95,7 +95,8 @@ Hole1 =NULL
 ,Hole18 =NULL
 ,CardSigned = 0
 ,CardAttested = 0
-where TourneyId=20 and RoundNum=1 and GroupId='380d6be537'
+--select * from mg_tourneyscores
+where TourneyId=25 and RoundNum=1 --and GroupId='380d6be537'
 
 	join mg_tourneyscores m2 on m2.GroupId = m1.GroupId 
 where m2.TourneyId=20 and m2.RoundNum=1 and m2.GroupId='380d6be537'

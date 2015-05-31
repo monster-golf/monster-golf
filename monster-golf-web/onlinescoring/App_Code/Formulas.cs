@@ -177,6 +177,7 @@ namespace MonsterGolfOnline
             results.Columns.Add("Name");
             results.Columns.Add("Round");
             results.Columns.Add("Image");
+            results.Columns.Add("Owner");
             for (int i = 1; i < 19; i++)
             {
                 results.Columns.Add(i.ToString(), typeof(int));
@@ -240,19 +241,12 @@ namespace MonsterGolfOnline
                 teamfilter = "TeamID";
             }
 
-            string teamssql = "select " + teamfilter + ", NumGolfers = Count(UserID) from mg_tourneyTeamPlayers where TournamentID=" +
+            string q = "select " + teamfilter + ", NumGolfers = Count(UserID) from mg_tourneyTeamPlayers where TournamentID=" +
                tourney.TournamentID.ToString() + " Group By " + teamfilter;
 
-            DataSet dsTeams = DB.GetDataSet(teamssql);
+            DataSet dsTeams = DB.GetDataSet(q);
 
-            //DataSet dsScores = DB.GetDataSet(
-            //   "SELECT tp.TeamID, t.TeamName, t.Flight, tp.TeeNumber, tp.Handicap AS TPHandicap, ts.*, u.LastName, u.FirstName, u.Image FROM " +
-            //   "(((mg_tourneyTeamPlayers AS tp " +
-            //   "INNER JOIN mg_tourneyTeams AS t on t.TeamID = tp.TeamID) " +
-            //   "INNER JOIN mg_tourneyUsers AS u on u.userid = tp.UserID) " +
-            //   "LEFT OUTER JOIN mg_TourneyScores AS ts on tp.UserID = ts.UserID AND tp.TournamentID = ts.TournamentID) " +
-            //   "WHERE tp.TournamentID = " + tourney.TournamentID.ToString() + " ORDER BY ts.RoundNumber, tp.TeamID, u.LastName, u.FirstName");
-            string q = "SELECT tp.TeamID, tp.UserId AS TPUserId, t.TeamName, t.Flight, tp.TeeNumber, tp.Handicap AS TPHandicap, ts.*, u.LastName, u.FirstName, u.Image" +
+            q = "SELECT tp.TeamID, tp.UserId AS TPUserId, t.TeamName, t.Flight, tp.TeeNumber, tp.Handicap AS TPHandicap, ts.*, u.LastName, u.FirstName, u.Image, t.TeamOwner" +
                 " FROM mg_tourneyTeamPlayers AS tp" +
                 " INNER JOIN mg_tourneyTeams AS t on t.TeamID = tp.TeamID AND " + (sideBets ? "SideBet = 1" : "TourneyTeam = 1") +
                 " INNER JOIN mg_tourneyUsers AS u on u.userid = tp.UserID" +
@@ -284,8 +278,11 @@ namespace MonsterGolfOnline
 
                 for (int y = 1; y <= tourney.NumberOfRounds; y++)
                 {
-                    dsScores.Tables[0].DefaultView.RowFilter = (teamfilter == "UserID" ? "TPUserID" : teamfilter) + "=" + teamRow[teamfilter].ToString() +
-                       " and RoundNum = " + y.ToString();
+                    DataView dsScoreView = dsScores.Tables[0].DefaultView;
+                    string rowfilter = (teamfilter == "UserID" ? "TPUserID" : teamfilter);
+                    rowfilter += "=" + teamRow[teamfilter].ToString();
+                    rowfilter += " and RoundNum = " + y.ToString();
+                    dsScoreView.RowFilter = rowfilter;
                     int currentCourseID = tourney.GetCourseID(y);
 
                     // reset bestball options based on round
@@ -293,43 +290,44 @@ namespace MonsterGolfOnline
                     bboPar4 = GetBestBallOption("par4", format, y.ToString());
                     bboPar5 = GetBestBallOption("par5", format, y.ToString());
 
-                    string teamName = "";
                     string images = "";
-                    for (int f = 0; f < dsScores.Tables[0].DefaultView.Count; f++)
+                    string teamName = "";
+                    for (int f = 0; f < dsScoreView.Count; f++)
                     {
                         if (images != "") images += ";";
-                        images += dsScores.Tables[0].DefaultView[f]["LastName"].ToString().Replace(" ", "") + dsScores.Tables[0].DefaultView[f]["FirstName"].ToString().Replace(" ", "") + ".png";
+                        images += dsScoreView[f]["LastName"].ToString().Replace(" ", "") + dsScoreView[f]["FirstName"].ToString().Replace(" ", "") + ".png";
                         if (teamName.Length > 0) teamName += " - ";
-                        teamName += dsScores.Tables[0].DefaultView[f]["LastName"].ToString();
+                        teamName += dsScoreView[f]["LastName"].ToString();
                     }
 
-                    if (dsScores.Tables[0].DefaultView.Count > 0)
+                    if (dsScoreView.Count > 0)
                     {
+                        DataRowView drvScore0 = dsScoreView[0];
                         curResultRow = results.NewRow();
                         overallendrow++;
-
                         results.Rows.Add(curResultRow);
+                        curResultRow["Name"] = drvScore0["TeamName"];
                         if (teamfilter == "UserID")
-                            curResultRow["Name"] = dsScores.Tables[0].DefaultView[0]["LastName"].ToString() + ", " +
-                                dsScores.Tables[0].DefaultView[0]["FirstName"].ToString();
-                        else
+                        {
+                            curResultRow["Name"] = drvScore0["LastName"].ToString() + ", " + drvScore0["FirstName"].ToString();
+                        }
+                        else if (curResultRow.IsNull("Name"))
+                        {
                             curResultRow["Name"] = teamName;
-                        curResultRow["Flight"] = dsScores.Tables[0].DefaultView[0]["Flight"].ToString();
-                        curResultRow["Round"] = dsScores.Tables[0].DefaultView[0]["RoundNum"].ToString();
-                        curResultRow["TeamID"] = dsScores.Tables[0].DefaultView[0][(teamfilter == "UserID" ? "TPUserID" : teamfilter)].ToString();
-                        // images of all the players
-                        //for (int i = 0; i < dsScores.Tables[0].DefaultView.Count; i++)
-                        //{
-                        //   images += (images.Length > 0) ? ";" : "";
-                        //   images += dsScores.Tables[0].DefaultView[i]["Image"].ToString();
-                        //}
+                        }
+                        curResultRow["Flight"] = drvScore0["Flight"].ToString();
+                        curResultRow["Round"] = drvScore0["RoundNum"].ToString();
+                        curResultRow["TeamID"] = drvScore0[(teamfilter == "UserID" ? "TPUserID" : teamfilter)].ToString();
                         curResultRow["Image"] = images;
+                        string owner = drvScore0.Row.IsNull("TeamOwner") ? "" : drvScore0["TeamOwner"].ToString();
+                        curResultRow["Owner"] = owner;
 
                         // reload the course if not loaded, courseid has changed due to a new round, or the tee number
                         // for the golfer has changed
-                        if (course == null || course.ID != currentCourseID ||
-                           course.TeeID != int.Parse(dsScores.Tables[0].DefaultView[0]["TeeNumber"].ToString()))
-                            course = tourney.Course(tourney.GetCourseID(y), int.Parse(dsScores.Tables[0].DefaultView[0]["TeeNumber"].ToString()));
+                        if (course == null || course.ID != currentCourseID || course.TeeID != int.Parse(drvScore0["TeeNumber"].ToString()))
+                        {
+                            course = tourney.Course(tourney.GetCourseID(y), int.Parse(drvScore0["TeeNumber"].ToString()));
+                        }
 
                         int total = 0;
                         int totalpar = 0;
@@ -346,36 +344,38 @@ namespace MonsterGolfOnline
                         for (int j = 1; j <= 18; j++)
                         {
                             // scoring option based on holes par
-                            BestBallOption bbo = (course.Hole(j).Par == 3) ?
-                                  bboPar3 :
-                                  ((course.Hole(j).Par == 4) ? bboPar4 : bboPar5);
+                            BestBallOption bbo = (course.Hole(j).Par == 3) ? bboPar3 : ((course.Hole(j).Par == 4) ? bboPar4 : bboPar5);
 
                             // array for all scores of all players on the hole
-                            int[] scores = new int[5];
-                            for (int z = 0; z < 5; z++) scores[z] = NoScoreDefault;
-                            int[] pars = new int[5];
-                            for (int z = 0; z < 5; z++) pars[z] = NoScoreDefault;
+                            int[] scores = new int[numGolfers];
+                            for (int z = 0; z < numGolfers; z++) scores[z] = NoScoreDefault;
+                            int[] pars = new int[numGolfers];
+                            for (int z = 0; z < numGolfers; z++) pars[z] = NoScoreDefault;
 
                             // get the scores of all the players
                             int score;
-                            for (int i = 0; i < dsScores.Tables[0].DefaultView.Count; i++)
+                            for (int i = 0; i < dsScoreView.Count; i++)
                             {
                                 // reload the course if the tee number for the golfer has changed
-                                if (course.TeeID != int.Parse(dsScores.Tables[0].DefaultView[i]["TeeNumber"].ToString()))
-                                    course = tourney.Course(tourney.GetCourseID(y), int.Parse(dsScores.Tables[0].DefaultView[i]["TeeNumber"].ToString()));
-
+                                if (course.TeeID != int.Parse(dsScoreView[i]["TeeNumber"].ToString()))
+                                {
+                                    course = tourney.Course(tourney.GetCourseID(y), int.Parse(dsScoreView[i]["TeeNumber"].ToString()));
+                                }
                                 // get the score
-                                if (dsScores.Tables[0].DefaultView[i]["Hole" + j.ToString()] == DBNull.Value) score = NoScoreDefault;
-                                else score = int.Parse(dsScores.Tables[0].DefaultView[i]["Hole" + j.ToString()].ToString());
+                                if (dsScoreView[i]["Hole" + j.ToString()] == DBNull.Value) score = NoScoreDefault;
+                                else score = int.Parse(dsScoreView[i]["Hole" + j.ToString()].ToString());
                                 int hcp = 0;
                                 string hcpToUse = "";
                                 // set the handicap from the scoring table 
                                 //if not there use the handicap set up for the tournament
-                                if (dsScores.Tables[0].DefaultView[i]["HCP"] == DBNull.Value)
-                                    hcpToUse = dsScores.Tables[0].DefaultView[i]["TPHandicap"].ToString();
+                                if (dsScoreView[i]["HCP"] == DBNull.Value)
+                                {
+                                    hcpToUse = dsScoreView[i]["TPHandicap"].ToString();
+                                }
                                 else
-                                    hcpToUse = dsScores.Tables[0].DefaultView[i]["HCP"].ToString();
-
+                                {
+                                    hcpToUse = dsScoreView[i]["HCP"].ToString();
+                                }
                                 if (score > 0)
                                 {
                                     indResults[i].Gross += score;
@@ -428,8 +428,7 @@ namespace MonsterGolfOnline
                                 {
                                     if (i < indResults.Count)
                                     {
-                                        indResults[i].Name = dsScores.Tables[0].DefaultView[i]["FirstName"].ToString() + " " +
-                                            dsScores.Tables[0].DefaultView[i]["LastName"].ToString();
+                                        indResults[i].Name = dsScoreView[i]["FirstName"].ToString() + " " + dsScoreView[i]["LastName"].ToString();
                                         indResults[i].HCP = hcp;
                                     }
                                 }
@@ -439,7 +438,7 @@ namespace MonsterGolfOnline
                             score = 0;
                             if (bbo == BestBallOption.All || bbo == BestBallOption.Individual)
                             {
-                                for (int z = 0; z < 5; z++)
+                                for (int z = 0; z < numGolfers; z++)
                                 {
                                     score += ((scores[z] == NoScoreDefault) ? 0 : scores[z]);
                                     totalpar += ((pars[z] == NoScoreDefault) ? 0 : pars[z]);
@@ -449,7 +448,7 @@ namespace MonsterGolfOnline
                             {
                                 if (addbestall345)
                                 {
-                                    for (int z = 0; z < 5; z++)
+                                    for (int z = 0; z < numGolfers; z++)
                                     {
                                         score += ((scores[z] == NoScoreDefault) ? 0 : scores[z]);
                                     }
@@ -486,7 +485,7 @@ namespace MonsterGolfOnline
                                 for (int m = 0; m < nget; m++)
                                 {
                                     int bestpos = -1;
-                                    for (int z = 0; z < 5; z++)
+                                    for (int z = 0; z < numGolfers; z++)
                                     {
                                         if (scores[z] != NoScoreDefault)
                                         {
