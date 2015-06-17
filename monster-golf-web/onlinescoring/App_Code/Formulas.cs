@@ -6,10 +6,12 @@ namespace MonsterGolfOnline
 {
     public class IndividualResult
     {
+        public int UserId = 0;
         public string Name = "";
         public int HCP = 0;
         public int Gross = 0;
         public int StrokeControl = 0;
+        public int Tee = 0;
     }
     /// <summary>
     /// Summary description for Formulas.
@@ -211,6 +213,8 @@ namespace MonsterGolfOnline
                 results.Columns.Add("PlayerHCP" + x.ToString());
                 results.Columns.Add("PlayerNet" + x.ToString());
                 results.Columns.Add("PlayerSC" + x.ToString());
+                results.Columns.Add("PlayerTee" + x.ToString());
+                results.Columns.Add("PlayerUserId" + x.ToString());
             }
 
             System.Collections.Specialized.NameValueCollection ppformula = new System.Collections.Specialized.NameValueCollection();
@@ -430,6 +434,15 @@ namespace MonsterGolfOnline
                                     {
                                         indResults[i].Name = dsScoreView[i]["FirstName"].ToString() + " " + dsScoreView[i]["LastName"].ToString();
                                         indResults[i].HCP = hcp;
+                                        int id;
+                                        if (int.TryParse(dsScoreView[i]["UserId"].ToString(), out id))
+                                        {
+                                            indResults[i].UserId = id;
+                                        }
+                                        if (int.TryParse(dsScoreView[i]["TeeNumber"].ToString(), out id))
+                                        {
+                                            indResults[i].Tee = id;
+                                        }
                                     }
                                 }
                             }
@@ -542,6 +555,8 @@ namespace MonsterGolfOnline
                             curResultRow["PlayerHCP" + resI.ToString()] = indResults[resI].HCP;
                             curResultRow["PlayerGross" + resI.ToString()] = indResults[resI].Gross;
                             curResultRow["PlayerSC" + resI.ToString()] = indResults[resI].StrokeControl;
+                            curResultRow["PlayerTee" + resI.ToString()] = indResults[resI].Tee;
+                            curResultRow["PlayerUserId" + resI.ToString()] = indResults[resI].UserId;
                             curResultRow["PlayerNet" + resI.ToString()] = indResults[resI].Gross - indResults[resI].HCP;
                         }
                         overalltotal += total;

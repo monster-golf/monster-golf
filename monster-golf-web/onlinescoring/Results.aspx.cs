@@ -205,6 +205,24 @@ public partial class Results : System.Web.UI.Page
                 courseid = m_tourney.GetCourseID(roundnum);
                 li = new ListItem("Round " + roundnum.ToString() + " - " + m_tourney.Course(courseid, 0).Name, roundnum.ToString());
                 ddRound.Items.Add(li);
+
+                if (roundnum == 1)
+                {
+                    txtPostRound.Text = roundnum.ToString();
+                    GolfCourse gc = m_tourney.Course(courseid, 0);
+                    txtPostCourse.Text = gc.Name;
+                    if (gc != null)
+                    {
+                        txtPostSlope0.Text = gc.Slope.ToString();
+                        txtPostRating0.Text = gc.Rating.ToString();
+                    }
+                    gc = m_tourney.Course(courseid, 1);
+                    if (gc != null)
+                    {
+                        txtPostSlope1.Text = gc.Slope.ToString();
+                        txtPostRating1.Text = gc.Rating.ToString();
+                    }
+                }
             }
             ddRound.SelectedIndex = 0;
         }
@@ -1151,4 +1169,51 @@ public partial class Results : System.Web.UI.Page
         OutputDataGrid();
     }
 
+    protected void btnPostScores_Click(object sender, EventArgs e)
+    {
+        ShowScoring(Request.Form["hdnSort"]); 
+        DTResults.DefaultView.RowFilter = "Round = '" + txtPostRound.Text + "'";
+        string insertformat = "INSERT INTO MG_Scores (UserID, Rating, Slope, Score, CourseName, DateOfRound, DateEntered, Tournament) VALUES ({0}, {1}, {2}, {3}, '{4}', '{5}', getDate(), {6});\n";
+        string insertlist = "";
+        string posttime = DateTime.Now.ToString();
+        int tourney = chkPostTourney.Checked ? 1 : 0;
+        for (int i = 0; i < DTResults.DefaultView.Count; i++)
+        {
+            for (int g = 0; g < m_golfersperteam; g++)
+            {
+                int score;
+                if (!DTResults.DefaultView[i].Row.IsNull("PlayerSC" + g.ToString())
+                    && int.TryParse(DTResults.DefaultView[i]["PlayerSC" + g.ToString()].ToString(), out score))
+                {
+                    if (score > 50)
+                    {
+                        int userId;
+                        if (!DTResults.DefaultView[i].Row.IsNull("PlayerUserId" + g.ToString())
+                            && int.TryParse(DTResults.DefaultView[i]["PlayerUserId" + g.ToString()].ToString(), out userId))
+                        {
+                            int tee;
+                            if (!DTResults.DefaultView[i].Row.IsNull("PlayerTee" + g.ToString())
+                                && int.TryParse(DTResults.DefaultView[i]["PlayerTee" + g.ToString()].ToString(), out tee))
+                            {
+                                if (tee == 0)
+                                {
+                                    insertlist += string.Format(insertformat, userId, txtPostRating0.Text, txtPostSlope0.Text, score,
+                                        DB.stringSql(txtPostCourse.Text), DB.stringSql(txtPostDate.Text), tourney);
+                                }
+                                else
+                                {
+                                    insertlist += string.Format(insertformat, userId, txtPostRating1.Text, txtPostSlope1.Text, score,
+                                        DB.stringSql(txtPostCourse.Text), DB.stringSql(txtPostDate.Text), tourney);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        DB db = new DB();
+        db.Exec(insertlist);
+        db.Close();
+    }
 }

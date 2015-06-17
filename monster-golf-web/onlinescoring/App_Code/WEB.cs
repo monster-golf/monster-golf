@@ -144,7 +144,7 @@ public class WEB
         List<ScoreInfo> si = ScoreInfo.LoadTourneyRound(tourneyid.ToString(), roundnum.ToString(), order);
         ScoreInfo headerCol = new ScoreInfo("label", "", "Player", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net");
         if (si.Count == 0) sb.Append("No Scores Available");
-        else TourneyRow(db, sb, headerCol, 0, 0, email, false, "_Head", true, 0, false);
+        else TourneyRow(db, sb, headerCol, 0, 0, email, enterscores, "_Head", true, 0, false);
         string currGroupId = "";
         string groupclass = "";
         int count = 1;
@@ -171,11 +171,11 @@ public class WEB
             }
             if (count >= 48 && addstartinghole)
             {
-                TourneyRow(db, sb, headerCol, 0, 0, email, false, "_Head", true, 0, true);
+                TourneyRow(db, sb, headerCol, 0, 0, email, enterscores, "_Head", true, 0, true);
                 count = 1;
             }
             count++;
-            TourneyRow(db, sb, s, roundnum, tourneyid, email && !s.CardSigned, enterscores, groupclass, addstartinghole, golfersingroup, false);
+            TourneyRow(db, sb, s, roundnum, tourneyid, email, enterscores, groupclass, addstartinghole, golfersingroup, false);
         }
         sb.Append("</table></div>");
         return sb;

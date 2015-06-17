@@ -125,7 +125,7 @@ public partial class TourneyXml : System.Web.UI.Page
             }
             db.Close(sdr, false);
             WEB w = new WEB();
-            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now.AddDays(-1), startofround < DateTime.Now, "StartingHole, DateOfRound, GroupId, TeamId, Name"));
+            WEB.WriteEndResponse(Response, w.TourneyScores(db, tourneyid, roundnum, startofround > DateTime.Now, startofround < DateTime.Now, "StartingHole, DateOfRound, GroupId, TeamId, Name"));
         }
     }
     protected void GetTourneyDetails()
@@ -207,10 +207,10 @@ public partial class TourneyXml : System.Web.UI.Page
                     if (needsscores.Contains(detailround)) sb.AppendFormat("<br/><a class='header' href='javascript:EnterScores({0});'>Enter Scores</a>", detailround);
                     sb.AppendFormat("</div><div style='clear:both' id='playerscores{0}'> </div>", detailround);
                     sb.Append("<table cellpadding='0' cellspacing='0'>");
-                    w.TourneyRow(db, sb, new ScoreInfo("label", "", "Hole", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net"), 0, 0, dOfRound > DateTime.Now.AddDays(-1), false, "", true, 0, false);
+                    w.TourneyRow(db, sb, new ScoreInfo("label", "", "Hole", ScoreInfo.empty18List(true), "out", "in", "total", "hcp", "net"), 0, 0, dOfRound > DateTime.Now, false, "", true, 0, false);
                     foreach (ScoreInfo si in coursesInfo[x])
                     {
-                        w.TourneyRow(db, sb, si, 0, 0, dOfRound > DateTime.Now.AddDays(-1), false, "", true, 0, false);
+                        w.TourneyRow(db, sb, si, 0, 0, dOfRound > DateTime.Now, false, "", true, 0, false);
                     }
                     sb.Append("</table><div style='clear:both'> </div>");
                 }

@@ -16,8 +16,8 @@ a:hover { color:#FF3F19;}
 <script type="text/javascript" language="javascript" src="XmlHttp.js"></script>
 <script language="javascript" type="text/javascript">
     xmlurl = "TourneyXml.aspx";
-    function EmailTo() {
-        var o = document.getElementById("divEmail");
+    function ToggleDiv(divid) {
+        var o = document.getElementById(divid);
         if (o) o.style.display = (o.style.display == "") ? "none" : "";
     }
     function EmailResults() {
@@ -67,13 +67,25 @@ a:hover { color:#FF3F19;}
     Round <asp:DropDownList ID="ddRound" runat="server" />&nbsp;&nbsp;&nbsp;&nbsp;
     Scoring <asp:DropDownList ID="ddScoring" runat="server" />
     <asp:Button Text="View" runat="server" OnClick="ScoringOption_Click" /><br/>
-    <a href="javascript:EmailTo();">Email Results</a>
+    <a href="javascript:ToggleDiv('divEmail');">Email Results</a>
     <div id="divEmail" style="display:none;">
-    To:<br /><asp:TextBox ID="txtEmailAlso" runat="server" Style="width: 500px" Text="dustin@par4golfmanagement.com;ryan.thomas@docusign.com" /><br/>
+    To:<br /><asp:TextBox ID="txtEmailAlso" runat="server" Style="width: 500px" Text="" /><br/>
     Subject:<br/><asp:TextBox ID="txtSubj" runat="server" Style="width: 500px" Text="Monster Results" /><br />
     Message:<br /><asp:TextBox ID="txtMesg" runat="server" Style="width: 500px;height:200px;" TextMode="MultiLine" Text="Results from todays round" /><br />
     <asp:CheckBox ID="chkAddPlayers" runat="server" Text="Add Tournament Golfers" /><br />
     <button id="btnEmail" onclick="EmailResults();return false;">Send</button>
+    </div>
+    <a href="javascript:ToggleDiv('divPostScores');">Post Scores</a>
+    <div id="divPostScores" style="display:none">
+        Round <asp:TextBox ID="txtPostRound" runat="server" Width="20px" />
+        Course <asp:TextBox ID="txtPostCourse" runat="server" Width="150px" />
+        Date <asp:TextBox ID="txtPostDate" runat="server" Width="100px" />
+        Slope Tee 0 <asp:TextBox ID="txtPostSlope0" runat="server" Width="30px" />
+        Rating Tee 0 <asp:TextBox ID="txtPostRating0" runat="server" Width="30px" />
+        Slope Tee 1 <asp:TextBox ID="txtPostSlope1" runat="server" Width="30px" />
+        Rating Tee 1 <asp:TextBox ID="txtPostRating1" runat="server" Width="30px" />
+        <asp:CheckBox ID="chkPostTourney" runat="server" Checked="true" Text="Tourney?" />
+        <asp:Button ID="btnPostScores" runat="server" OnClick="btnPostScores_Click" Text="Post SC Scores" />
     </div>
     </asp:Panel>
     <asp:Label ID="txtGridHeader" runat="server" Text="Results" /><br />
